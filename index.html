@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>我的AI聊天室</title>
+    <style>
+        /* 这部分是给页面“化妆”的，让它更好看 */
+        body { 
+            font-family: sans-serif; 
+            max-width: 800px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            background: #f4f4f4; 
+        }
+        .chat-box {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-height: 400px;
+            margin-bottom: 20px;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #10a37f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0e8b6c;
+        }
+        .ai-response {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🤖 我的AI聊天室</h1>
+<div class="chat-box" id="chatBox">
+    <div>欢迎！在下方输入框输入你的问题吧~</div>
+</div>
+<div class="input-area">
+    <input type="text" id="userInput" placeholder="在这里输入你的问题...">
+    <button onclick="sendMessage()">发送</button>
+</div>
+
+<script>
+    // 用你的真实“钥匙”替换下面这行代码！ 例如：const DEEPSEEK_API_KEY = "sk-xxxxxxxx";
+    const DEEPSEEK_API_KEY = "sk-b51c00e096d0406bba15ca67d5e61de9";
+    
+    // 这里是连接AI的“电话线”
+    const API_URL = "https://api.deepseek.com/v1/chat/completions";
+
+    async function sendMessage() {
+        const userInput = document.getElementById('userInput');
+        const message = userInput.value.trim();
+        
+        if (!message) {
+            alert("请输入问题！");
+            return;
+        }
+        
+        // 把用户的问题显示在聊天框里
+        const chatBox = document.getElementById('chatBox');
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.innerHTML = `<strong>我：</strong> ${message}`;
+        chatBox.appendChild(userMessageDiv);
+        
+        // 清空输入框并添加一个“AI正在思考”的提示
+        userInput.value = '';
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.innerHTML = `<strong>AI：</strong> 思考中...`;
+        thinkingDiv.id = "thinkingIndicator";
+        chatBox.appendChild(thinkingDiv);
+        // 自动滚动到底部
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        try {
+            // 拿起“电话”，拨给DeepSeek AI
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "deepseek-chat",
+                    messages: [{ role: "user", content: message }],
+                    stream: false
+                })
+            });
+            
+            // 处理AI的回复
+            if (!response.ok) {
+                throw new Error(`API请求失败: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const aiMessage = data.choices[0].message.content;
+            
+            // 移除“思考中”的提示，并显示AI的回复
+            const indicatorDiv = document.getElementById('thinkingIndicator');
+            if (indicatorDiv) indicatorDiv.remove();
+            
+            const aiMessageDiv = document.createElement('div');
+            aiMessageDiv.innerHTML = `<strong>AI：</strong> ${aiMessage}`;
+            chatBox.appendChild(aiMessageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            
+        } catch (error) {
+            // 如果电话没打通，就显示错误信息
+            console.error('Error:', error);
+            const indicatorDiv = document.getElementById('thinkingIndicator');
+            if (indicatorDiv) indicatorDiv.remove();
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.innerHTML = `<strong>⚠️ 出错了：</strong> ${error.message}`;
+            chatBox.appendChild(errorDiv);
+        }
+    }
+</script>
+</body>
+</html>
