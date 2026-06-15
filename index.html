@@ -942,21 +942,21 @@
     }
     function closeModal() { document.getElementById('genericModal').classList.remove('active'); }
 
-    // ==================== 对话管理 ====================
+    // ==================== 对话管理（支持上下文） ====================
     function loadConversations() {
-        const saved=localStorage.getItem('my_conversations');
-        if(saved) conversations=JSON.parse(saved);
-        else { const id=Date.now().toString(); conversations=[{id, title:'新对话', messages:[]}]; currentConvId=id; saveConversations(); }
-        if(!currentConvId && conversations.length) currentConvId=conversations[0].id;
+        const saved = localStorage.getItem('my_conversations');
+        if (saved) conversations = JSON.parse(saved);
+        else { const id = Date.now().toString(); conversations = [{ id, title: '新对话', messages: [] }]; currentConvId = id; saveConversations(); }
+        if (!currentConvId && conversations.length) currentConvId = conversations[0].id;
         renderHistoryList();
         loadCurrentConversation();
     }
     function saveConversations() { localStorage.setItem('my_conversations', JSON.stringify(conversations)); updateStorageInfo(); renderHistoryList(); }
     function renderHistoryList() {
-        const container=document.getElementById('historyList');
-        if(!container) return;
-        if(!conversations.length){ container.innerHTML='<div style="padding:8px 16px;color:var(--text-muted)">暂无对话</div>'; return; }
-        container.innerHTML=conversations.map(conv=>`<div class="history-item ${currentConvId===conv.id?'active':''}" onclick="switchConversation('${conv.id}')"><span class="history-title">${escapeHtml(conv.title)}</span><div class="history-actions"><button class="history-action-btn" title="修改名称" onclick="event.stopPropagation(); renameConv('${conv.id}')">✏️</button><button class="history-action-btn" title="释放空间 (删除AI思考过程)" onclick="event.stopPropagation(); releaseThoughtSpace('${conv.id}')">🗑️</button><button class="history-action-btn" title="导出对话" onclick="event.stopPropagation(); exportConv('${conv.id}')">📤</button><button class="history-action-btn" title="删除对话" onclick="event.stopPropagation(); deleteConv('${conv.id}')">❌</button></div></div>`).join('');
+        const container = document.getElementById('historyList');
+        if (!container) return;
+        if (!conversations.length) { container.innerHTML = '<div style="padding:8px 16px;color:var(--text-muted)">暂无对话</div>'; return; }
+        container.innerHTML = conversations.map(conv => `<div class="history-item ${currentConvId === conv.id ? 'active' : ''}" onclick="switchConversation('${conv.id}')"><span class="history-title">${escapeHtml(conv.title)}</span><div class="history-actions"><button class="history-action-btn" title="修改名称" onclick="event.stopPropagation(); renameConv('${conv.id}')">✏️</button><button class="history-action-btn" title="释放空间 (删除AI思考过程)" onclick="event.stopPropagation(); releaseThoughtSpace('${conv.id}')">🗑️</button><button class="history-action-btn" title="导出对话" onclick="event.stopPropagation(); exportConv('${conv.id}')">📤</button><button class="history-action-btn" title="删除对话" onclick="event.stopPropagation(); deleteConv('${conv.id}')">❌</button></div></div>`).join('');
     }
     function releaseThoughtSpace(convId) {
         const conv = conversations.find(c => c.id == convId);
@@ -976,32 +976,32 @@
             alert('该对话没有可释放的内容（没有深度思考过程）。');
         }
     }
-    window.switchConversation = (id) => { currentConvId=id; renderHistoryList(); loadCurrentConversation(); };
+    window.switchConversation = (id) => { currentConvId = id; renderHistoryList(); loadCurrentConversation(); };
     function loadCurrentConversation() {
-        const conv=conversations.find(c=>c.id==currentConvId);
-        const container=document.getElementById('chatMessages');
-        if(!conv) return;
-        container.innerHTML='';
-        if(!conv.messages.length) container.innerHTML='<div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>';
-        else conv.messages.forEach((msg,idx)=>renderMessage(msg, idx));
+        const conv = conversations.find(c => c.id == currentConvId);
+        const container = document.getElementById('chatMessages');
+        if (!conv) return;
+        container.innerHTML = '';
+        if (!conv.messages.length) container.innerHTML = '<div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>';
+        else conv.messages.forEach((msg, idx) => renderMessage(msg, idx));
         scrollToBottom();
     }
     function renderMessage(msg, idx) {
-        const container=document.getElementById('chatMessages');
-        const wrapper=document.createElement('div');
-        wrapper.className=`message-wrapper message ${msg.role}`;
-        const msgId = msg.id || (msg.id = Date.now()+'-'+idx);
+        const container = document.getElementById('chatMessages');
+        const wrapper = document.createElement('div');
+        wrapper.className = `message-wrapper message ${msg.role}`;
+        const msgId = msg.id || (msg.id = Date.now() + '-' + idx);
         wrapper.setAttribute('data-msgid', msgId);
-        const bubbleDiv=document.createElement('div');
-        bubbleDiv.className='bubble';
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'bubble';
         let displayContent = msg.content;
         if (msg.role === 'ai' && msg.thought && deepThinkEnabled) {
             displayContent = `💭 思考过程：\n${msg.thought}\n\n---\n${msg.content}`;
         }
-        bubbleDiv.innerHTML=escapeHtml(displayContent).replace(/\n/g,'<br>');
+        bubbleDiv.innerHTML = escapeHtml(displayContent).replace(/\n/g, '<br>');
         wrapper.appendChild(bubbleDiv);
-        const actionsDiv=document.createElement('div');
-        actionsDiv.className='message-actions';
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'message-actions';
         if (msg.role === 'ai') {
             actionsDiv.innerHTML = `
                 <button class="msg-action" onclick="regenerateAI('${msgId}')">🔄</button>
@@ -1021,11 +1021,11 @@
         container.appendChild(wrapper);
     }
     window.toggleFavoriteWrapper = (id, convId, content, role, convTitle) => {
-        if(favorites.some(f=>f.id==id)) removeFavorite(id);
+        if (favorites.some(f => f.id == id)) removeFavorite(id);
         else addFavorite(convId, id, content, role, convTitle);
     };
-    window.editMessage = (id, role) => { const newContent=prompt('编辑消息内容'); if(newContent){ for(let c of conversations){ let msg=c.messages.find(m=>m.id==id); if(msg){ msg.content=newContent; break; } } saveConversations(); loadCurrentConversation(); } };
-    window.deleteMessage = (id) => { if(confirm('删除这条消息？')){ for(let c of conversations){ c.messages=c.messages.filter(m=>m.id!=id); } saveConversations(); loadCurrentConversation(); } };
+    window.editMessage = (id, role) => { const newContent = prompt('编辑消息内容'); if (newContent) { for (let c of conversations) { let msg = c.messages.find(m => m.id == id); if (msg) { msg.content = newContent; break; } } saveConversations(); loadCurrentConversation(); } };
+    window.deleteMessage = (id) => { if (confirm('删除这条消息？')) { for (let c of conversations) { c.messages = c.messages.filter(m => m.id != id); } saveConversations(); loadCurrentConversation(); } };
     window.copyMessage = (txt) => { navigator.clipboard.writeText(txt); alert('已复制'); };
     window.regenerateAI = async (msgId) => {
         const conv = conversations.find(c => c.id == currentConvId);
@@ -1037,16 +1037,27 @@
         conv.messages = conv.messages.slice(0, msgIndex);
         saveConversations();
         loadCurrentConversation();
-        await sendMessageWithContent(userMsg.content);
+        await sendMessageWithContext(userMsg.content);
     };
-    async function sendMessageWithContent(content) {
+    // 核心：带上下文的发送
+    async function sendMessageWithContext(content) {
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
         if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
         addMessageToDOM(content, 'user');
         saveMessageToCurrentConv('user', content);
         const thinkId = addThinkingMessage();
         try {
-            const requestBody = { model: currentModel, messages: [{ role: 'user', content: content }], stream: false };
+            // 获取当前对话的完整历史（不包括即将添加的assistant回复）
+            const conv = conversations.find(c => c.id == currentConvId);
+            const historyMessages = conv.messages.map(msg => ({
+                role: msg.role,
+                content: msg.content
+            }));
+            const requestBody = {
+                model: currentModel,
+                messages: historyMessages,
+                stream: false
+            };
             if (deepThinkEnabled) requestBody.reasoning_effort = "medium";
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -1060,28 +1071,28 @@
             removeThinkingMessage(thinkId);
             addMessageToDOM(aiContent, 'ai');
             saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
-        } catch(e) {
+        } catch (e) {
             removeThinkingMessage(thinkId);
             addMessageToDOM(`出错：${e.message}`, 'ai');
         }
     }
-    function renameConv(id){ let newName=prompt('新名称'); if(newName){ let c=conversations.find(c=>c.id==id); if(c) c.title=newName; saveConversations(); } }
-    function exportConv(id){ let c=conversations.find(c=>c.id==id); if(c){ let data=JSON.stringify(c,null,2); let blob=new Blob([data],{type:'application/json'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`${c.title}.json`; a.click(); URL.revokeObjectURL(url); } }
-    function deleteConv(id){ if(confirm('删除对话？')){ conversations=conversations.filter(c=>c.id!=id); if(conversations.length===0){ let newId=Date.now().toString(); conversations=[{id:newId, title:'新对话', messages:[]}]; currentConvId=newId; }else if(currentConvId===id) currentConvId=conversations[0].id; saveConversations(); loadCurrentConversation(); } }
-    function createNewDialog() { let newId=Date.now().toString(); conversations.unshift({id:newId, title:'新对话', messages:[]}); currentConvId=newId; saveConversations(); loadCurrentConversation(); }
-    function saveMessageToCurrentConv(role, content, thought=null) { let conv=conversations.find(c=>c.id==currentConvId); if(!conv) return; const msgId=Date.now()+'-'+Math.random(); conv.messages.push({id:msgId, role, content, thought, timestamp:Date.now()}); saveConversations(); if(conv.messages.length===1 && role==='user'){ conv.title=content.substring(0,20)+(content.length>20?'...':''); renderHistoryList(); } return msgId; }
-    async function sendMessage() { const inp=document.getElementById('userInput'); const msg=inp.value.trim(); if(!msg) return; await sendMessageWithContent(msg); inp.value=''; }
-    function addMessageToDOM(content,role){ const container=document.getElementById('chatMessages'); if(container.children.length===1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML=''; const wrapper=document.createElement('div'); wrapper.className=`message-wrapper message ${role}`; const id='tmp-'+Date.now()+'-'+Math.random(); wrapper.setAttribute('data-msgid',id); const bubbleDiv=document.createElement('div'); bubbleDiv.className='bubble'; bubbleDiv.innerHTML=escapeHtml(content).replace(/\n/g,'<br>'); wrapper.appendChild(bubbleDiv); const actionsDiv=document.createElement('div'); actionsDiv.className='message-actions'; if(role==='ai'){ actionsDiv.innerHTML=`<button class="msg-action" onclick="regenerateAI('${id}')">🔄</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>`; } else { actionsDiv.innerHTML=`<button class="msg-action" onclick="editMessage('${id}','${role}')">✏️</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>`; } wrapper.appendChild(actionsDiv); container.appendChild(wrapper); scrollToBottom(); }
-    function addThinkingMessage(){ const c=document.getElementById('chatMessages'); const id='think-'+Date.now(); const div=document.createElement('div'); div.id=id; div.className='message ai thinking'; div.innerHTML=`<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`; c.appendChild(div); scrollToBottom(); return id; }
-    function removeThinkingMessage(id){ const el=document.getElementById(id); if(el) el.remove(); }
-    function scrollToBottom(){ const c=document.getElementById('chatMessages'); if(c) c.scrollTop=c.scrollHeight; }
-    function toggleDeepThink(){ deepThinkEnabled=!deepThinkEnabled; document.getElementById('deepThinkBtn').classList.toggle('active'); }
-    function togglePreviewMode(){ previewModeEnabled=!previewModeEnabled; document.getElementById('previewModeBtn').classList.toggle('active'); }
-    function closePreview(){ document.getElementById('previewModal').classList.remove('active'); }
-    function escapeHtml(str){ return String(str).replace(/[&<>]/g, m=> ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-    function updateStorageInfo(){ let total=0; for(let i=0;i<localStorage.length;i++) total+=(localStorage.key(i).length+(localStorage.getItem(localStorage.key(i))||'').length)*2; const used=(total/1024).toFixed(1); const percent=((total/(5*1024*1024))*100).toFixed(1); const info=document.getElementById('storageInfo'); if(info) info.innerHTML=`本地存储容量 ${used}KB / 5MB (${percent}%)`; }
-    document.getElementById('userInput').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
-    document.getElementById('userInput').addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,100)+'px'; });
+    function renameConv(id) { let newName = prompt('新名称'); if (newName) { let c = conversations.find(c => c.id == id); if (c) c.title = newName; saveConversations(); } }
+    function exportConv(id) { let c = conversations.find(c => c.id == id); if (c) { let data = JSON.stringify(c, null, 2); let blob = new Blob([data], { type: 'application/json' }); let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = `${c.title}.json`; a.click(); URL.revokeObjectURL(url); } }
+    function deleteConv(id) { if (confirm('删除对话？')) { conversations = conversations.filter(c => c.id != id); if (conversations.length === 0) { let newId = Date.now().toString(); conversations = [{ id: newId, title: '新对话', messages: [] }]; currentConvId = newId; } else if (currentConvId === id) currentConvId = conversations[0].id; saveConversations(); loadCurrentConversation(); } }
+    function createNewDialog() { let newId = Date.now().toString(); conversations.unshift({ id: newId, title: '新对话', messages: [] }); currentConvId = newId; saveConversations(); loadCurrentConversation(); }
+    function saveMessageToCurrentConv(role, content, thought = null) { let conv = conversations.find(c => c.id == currentConvId); if (!conv) return; const msgId = Date.now() + '-' + Math.random(); conv.messages.push({ id: msgId, role, content, thought, timestamp: Date.now() }); saveConversations(); if (conv.messages.length === 1 && role === 'user') { conv.title = content.substring(0, 20) + (content.length > 20 ? '...' : ''); renderHistoryList(); } return msgId; }
+    async function sendMessage() { const inp = document.getElementById('userInput'); const msg = inp.value.trim(); if (!msg) return; await sendMessageWithContext(msg); inp.value = ''; }
+    function addMessageToDOM(content, role) { const container = document.getElementById('chatMessages'); if (container.children.length === 1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML = ''; const wrapper = document.createElement('div'); wrapper.className = `message-wrapper message ${role}`; const id = 'tmp-' + Date.now() + '-' + Math.random(); wrapper.setAttribute('data-msgid', id); const bubbleDiv = document.createElement('div'); bubbleDiv.className = 'bubble'; bubbleDiv.innerHTML = escapeHtml(content).replace(/\n/g, '<br>'); wrapper.appendChild(bubbleDiv); const actionsDiv = document.createElement('div'); actionsDiv.className = 'message-actions'; if (role === 'ai') { actionsDiv.innerHTML = `<button class="msg-action" onclick="regenerateAI('${id}')">🔄</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>`; } else { actionsDiv.innerHTML = `<button class="msg-action" onclick="editMessage('${id}','${role}')">✏️</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>`; } wrapper.appendChild(actionsDiv); container.appendChild(wrapper); scrollToBottom(); }
+    function addThinkingMessage() { const c = document.getElementById('chatMessages'); const id = 'think-' + Date.now(); const div = document.createElement('div'); div.id = id; div.className = 'message ai thinking'; div.innerHTML = `<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`; c.appendChild(div); scrollToBottom(); return id; }
+    function removeThinkingMessage(id) { const el = document.getElementById(id); if (el) el.remove(); }
+    function scrollToBottom() { const c = document.getElementById('chatMessages'); if (c) c.scrollTop = c.scrollHeight; }
+    function toggleDeepThink() { deepThinkEnabled = !deepThinkEnabled; document.getElementById('deepThinkBtn').classList.toggle('active'); }
+    function togglePreviewMode() { previewModeEnabled = !previewModeEnabled; document.getElementById('previewModeBtn').classList.toggle('active'); }
+    function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]); }
+    function updateStorageInfo() { let total = 0; for (let i = 0; i < localStorage.length; i++) total += (localStorage.key(i).length + (localStorage.getItem(localStorage.key(i)) || '').length) * 2; const used = (total / 1024).toFixed(1); const percent = ((total / (5 * 1024 * 1024)) * 100).toFixed(1); const info = document.getElementById('storageInfo'); if (info) info.innerHTML = `本地存储容量 ${used}KB / 5MB (${percent}%)`; }
+    document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    document.getElementById('userInput').addEventListener('input', function () { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 100) + 'px'; });
 </script>
 </body>
 </html>
