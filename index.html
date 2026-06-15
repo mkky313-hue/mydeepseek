@@ -20,27 +20,34 @@
             --accent-hover: #3e8b7a;
             --bubble-user: linear-gradient(135deg, #2e6b5e, #1f4e44);
             --bubble-ai: rgba(50, 58, 75, 0.85);
+            --btn-icon-bg: rgba(255, 255, 255, 0.15);
+            --btn-icon-hover: rgba(255, 255, 255, 0.25);
+            --icon-color: #eef2ff;
         }
         [data-theme="light"] {
-            --bg-primary: linear-gradient(145deg, #f5f7fa 0%, #e8ecf2 100%);
+            --bg-primary: linear-gradient(145deg, #f0f2f5 0%, #e0e4e9 100%);
             --bg-sidebar: rgba(255, 255, 255, 0.95);
-            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card: rgba(255, 255, 255, 0.9);
             --bg-nav: rgba(255, 255, 255, 0.9);
             --bg-input: #ffffff;
-            --border-color: rgba(0, 0, 0, 0.08);
+            --border-color: rgba(0, 0, 0, 0.1);
             --text-primary: #1a1e2c;
-            --text-secondary: #3a4258;
-            --text-muted: #8e9aaf;
+            --text-secondary: #2c3e50;
+            --text-muted: #5a6e8a;
             --accent-color: #2e6b5e;
             --bubble-user: linear-gradient(135deg, #2e6b5e, #1f4e44);
-            --bubble-ai: #e9ecef;
+            --bubble-ai: #f1f3f5;
+            --btn-icon-bg: rgba(0, 0, 0, 0.08);
+            --btn-icon-hover: rgba(0, 0, 0, 0.15);
+            --icon-color: #1a1e2c;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
             background: var(--bg-primary);
             min-height: 100vh;
-            transition: background 0.3s;
+            transition: background 0.3s, color 0.2s;
+            color: var(--text-primary);
         }
         .app-wrapper { display: flex; min-height: 100vh; position: relative; }
 
@@ -82,17 +89,19 @@
             font-size: 0.9rem;
             transition: all 0.2s;
         }
-        .nav-item:hover { background: rgba(128,128,128,0.1); color: var(--text-primary); }
+        .nav-item:hover { background: rgba(128,128,128,0.2); color: var(--text-primary); }
         .history-divider { border-top: 1px solid var(--border-color); margin: 8px 12px; }
         .history-header { padding: 8px 16px; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
         .history-list { max-height: 240px; overflow-y: auto; flex: 1; }
         .history-item {
             padding: 6px 12px; margin: 2px 8px; border-radius: 8px; cursor: pointer;
             display: flex; justify-content: space-between; align-items: center;
-            color: var(--text-secondary); font-size: 0.85rem;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            background: transparent;
         }
-        .history-item:hover { background: rgba(128,128,128,0.1); }
-        .history-item.active { background: rgba(46,107,94,0.3); color: #a3e0d0; }
+        .history-item:hover { background: rgba(128,128,128,0.15); }
+        .history-item.active { background: rgba(46,107,94,0.3); color: var(--accent-color); }
         .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .history-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
         .history-item:hover .history-actions { opacity: 1; }
@@ -102,12 +111,21 @@
         }
         .history-action-btn:hover { background: rgba(128,128,128,0.2); color: var(--text-primary); }
         .storage-info { padding: 10px 1rem; font-size: 0.7rem; color: var(--text-muted); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
-        .sidebar-footer { padding: 0.8rem 1rem; display: flex; gap: 12px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
+        .sidebar-footer { padding: 0.8rem 1rem; display: flex; gap: 8px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
         .footer-btn {
-            background: none; border: none; color: var(--text-secondary); font-size: 0.8rem;
-            cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 20px;
+            background: var(--btn-icon-bg);
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            transition: all 0.2s;
         }
-        .footer-btn:hover { background: rgba(128,128,128,0.1); color: var(--text-primary); }
+        .footer-btn:hover { background: var(--btn-icon-hover); }
 
         /* 主内容区 */
         .main-content {
@@ -118,7 +136,7 @@
         }
         .main-content.expanded { margin-left: 0; }
 
-        /* 顶部导航 - 自适应搜索模式 */
+        /* 顶部导航 */
         .top-nav {
             background: var(--bg-nav);
             backdrop-filter: blur(10px);
@@ -174,14 +192,16 @@
         }
         .top-nav-right { display: flex; gap: 8px; flex-shrink: 0; }
         .hamburger-icon, .icon-btn {
-            background: rgba(128,128,128,0.2);
+            background: var(--btn-icon-bg);
             border: none;
-            color: var(--text-primary);
+            color: var(--icon-color);
             font-size: 1.2rem;
             padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
+            transition: all 0.2s;
         }
+        .hamburger-icon:hover, .icon-btn:hover { background: var(--btn-icon-hover); }
 
         /* 聊天区域 */
         .chat-container {
@@ -229,13 +249,13 @@
         }
         .message-wrapper:hover .message-actions { opacity: 1; }
         .msg-action {
-            background: rgba(128,128,128,0.3);
+            background: var(--btn-icon-bg);
             border: none;
             border-radius: 12px;
             padding: 2px 6px;
             font-size: 0.7rem;
             cursor: pointer;
-            color: var(--text-secondary);
+            color: var(--text-primary);
         }
         .msg-action:hover { background: var(--accent-color); color: white; }
         .thinking .bubble { background: rgba(128,128,128,0.2); display: flex; align-items: center; gap: 8px; }
@@ -254,10 +274,10 @@
         .send-btn { background: linear-gradient(135deg, #3b6e62, #2c554a); border: none; color: white; padding: 6px 16px; border-radius: 24px; cursor: pointer; }
         .action-buttons { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .action-btn {
-            background: rgba(128,128,128,0.2); border: 1px solid var(--border-color);
-            color: var(--text-secondary); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;
+            background: var(--btn-icon-bg); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;
         }
-        .action-btn.active { background: var(--accent-color); color: white; }
+        .action-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
         .welcome-message { text-align: center; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 1rem; border-radius: 1rem; }
 
         /* 模态框通用 */
@@ -303,7 +323,7 @@
             flex-wrap: wrap;
         }
         .btn-save, .btn-primary { background: var(--accent-color); border: none; color: white; padding: 6px 16px; border-radius: 20px; cursor: pointer; }
-        .btn-secondary { background: rgba(128,128,128,0.2); border: none; color: var(--text-secondary); padding: 6px 16px; border-radius: 20px; cursor: pointer; }
+        .btn-secondary { background: var(--btn-icon-bg); border: none; color: var(--text-primary); padding: 6px 16px; border-radius: 20px; cursor: pointer; }
 
         /* 指令/角色卡片样式 */
         .instruction-card, .role-card {
@@ -317,7 +337,7 @@
         .instruction-content, .role-desc { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.8rem; }
         .card-actions { display: flex; gap: 8px; justify-content: flex-end; }
         .card-btn {
-            background: rgba(128,128,128,0.2); border: none; color: var(--text-secondary);
+            background: var(--btn-icon-bg); border: none; color: var(--text-primary);
             padding: 4px 12px; border-radius: 16px; cursor: pointer; font-size: 0.75rem;
         }
         .card-btn.primary { background: var(--accent-color); color: white; }
@@ -327,7 +347,7 @@
         .settings-section { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
         .settings-section h4 { color: #a3e0d0; margin-bottom: 8px; font-size: 0.9rem; }
         .font-size-options { display: flex; gap: 8px; flex-wrap: wrap; }
-        .font-option { background: rgba(128,128,128,0.2); padding: 4px 12px; border-radius: 16px; cursor: pointer; font-size: 0.8rem; }
+        .font-option { background: var(--btn-icon-bg); padding: 4px 12px; border-radius: 16px; cursor: pointer; font-size: 0.8rem; color: var(--text-primary); }
         .font-option.active { background: var(--accent-color); color: white; }
         .model-select, .api-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px; border-radius: 8px; }
 
@@ -432,7 +452,7 @@
 <div id="settingsModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>⚙️ 设置</h3><button class="modal-close" onclick="closeSettingsModal()">✕</button></div><div class="modal-body" id="settingsBody"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeSettingsModal()">取消</button><button class="btn-save" id="saveSettingsBtn">保存并关闭</button></div></div></div>
 
 <!-- API Key 首次弹窗 -->
-<div id="apiKeyModal" class="modal-overlay"><div class="modal-container" style="max-width:400px"><div class="modal-header"><h3>🔑 设置 API Key</h3><button class="modal-close" onclick="closeApiKeyModal()">✕</button></div><div class="modal-body"><p style="margin-bottom:12px">请填写你的 DeepSeek API Key：</p><input type="password" id="firstApiKey" placeholder="sk-..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); padding:8px; border-radius:20px;"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeApiKeyModal()">稍后</button><button class="btn-save" id="saveFirstApiKeyBtn">保存</button></div></div></div>
+<div id="apiKeyModal" class="modal-overlay"><div class="modal-container" style="max-width:400px"><div class="modal-header"><h3>🔑 设置 API Key</h3><button class="modal-close" onclick="closeApiKeyModal()">✕</button></div><div class="modal-body"><p style="margin-bottom:12px">请填写你的 DeepSeek API Key：</p><input type="password" id="firstApiKey" placeholder="sk-..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); padding:8px; border-radius:20px; color:var(--text-primary);"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeApiKeyModal()">稍后</button><button class="btn-save" id="saveFirstApiKeyBtn">保存</button></div></div></div>
 
 <!-- 收藏弹窗 -->
 <div id="favoriteModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>⭐ 收藏栏</h3><button class="modal-close" onclick="closeFavoriteModal()">✕</button></div><div class="modal-body" id="favoriteListContainer"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeFavoriteModal()">关闭</button></div></div></div>
@@ -463,10 +483,14 @@
         updateStorageInfo();
         setupSettingsUI();
         if (!DEEPSEEK_API_KEY) document.getElementById('apiKeyModal').classList.add('active');
-        document.getElementById('toggleSidebarBtn').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.getElementById('mainContent').classList.toggle('expanded');
-        });
+        // 三条杠按钮：切换侧边栏
+        const toggleBtn = document.getElementById('toggleSidebarBtn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+                document.getElementById('mainContent').classList.toggle('expanded');
+            });
+        }
         // 侧边栏菜单
         document.querySelectorAll('.nav-item').forEach(el => {
             el.addEventListener('click', () => {
@@ -528,7 +552,7 @@
     function setupSettingsUI() {
         const container = document.getElementById('settingsBody');
         container.innerHTML = `
-            <div class="settings-section"><h4>🔑 API Key</h4><input type="password" id="settingsApiKey" class="api-input" value="${DEEPSEEK_API_KEY}"></div>
+            <div class="settings-section"><h4>🔑 API Key</h4><input type="password" id="settingsApiKey" class="api-input" value="${DEEPSEEK_API_KEY.replace(/./g,'*')}"></div>
             <div class="settings-section"><h4>🎨 外观</h4><button class="btn-primary" id="themeToggleBtn">日间模式</button></div>
             <div class="settings-section"><h4>🔤 对话框字号</h4><div class="font-size-options" id="fontOptions"></div></div>
             <div class="settings-section"><h4>📊 显示设置</h4><label><input type="checkbox" id="showTokenCheckbox"> 显示Token预估</label></div>
@@ -564,7 +588,7 @@
         };
         document.getElementById('showTokenCheckbox').onchange = (e) => alert('Token预估开发中');
     }
-    function openSettingsModal() { document.getElementById('settingsModal').classList.add('active'); }
+    function openSettingsModal() { document.getElementById('settingsModal').classList.add('active'); document.getElementById('settingsApiKey').value = DEEPSEEK_API_KEY; }
     function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('active'); }
     function saveAllSettings() {
         const key = document.getElementById('settingsApiKey').value.trim();
@@ -621,7 +645,7 @@
     function loadRoles() { const stored=localStorage.getItem('my_roles'); if(stored) roles=JSON.parse(stored); else roles=[]; saveRoles(); }
     function saveRoles() { localStorage.setItem('my_roles', JSON.stringify(roles)); }
 
-    // 指令市场模态框 (完全仿第一张图)
+    // 指令市场模态框
     function openMarketModal() {
         currentModalType = 'market';
         const modal = document.getElementById('genericModal');
@@ -704,7 +728,7 @@
         } else alert('指令不存在');
     }
 
-    // 指令管理模态框 (完全仿第二张图)
+    // 指令管理模态框
     function openManageModal() {
         currentModalType = 'manage';
         const modal = document.getElementById('genericModal');
@@ -748,7 +772,7 @@
         `).join('');
     }
 
-    // 角色卡管理模态框 (完全仿第三张图)
+    // 角色卡管理模态框
     function openRoleModal() {
         currentModalType = 'role';
         const modal = document.getElementById('genericModal');
@@ -868,9 +892,21 @@
         wrapper.appendChild(bubbleDiv);
         const actionsDiv=document.createElement('div');
         actionsDiv.className='message-actions';
-        const commonActions = `<button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">✏️</button><button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">⭐</button><button class="msg-action" onclick="deleteMessage('${msgId}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">📋</button>`;
-        if(msg.role==='ai') actionsDiv.innerHTML = commonActions + `<button class="msg-action" onclick="regenerateAI('${msgId}')">🔄</button>`;
-        else actionsDiv.innerHTML = commonActions;
+        if (msg.role === 'ai') {
+            actionsDiv.innerHTML = `
+                <button class="msg-action" onclick="regenerateAI('${msgId}')">🔄</button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">⭐</button>
+                <button class="msg-action" onclick="deleteMessage('${msgId}')">🗑️</button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">📋</button>
+            `;
+        } else {
+            actionsDiv.innerHTML = `
+                <button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">✏️</button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">⭐</button>
+                <button class="msg-action" onclick="deleteMessage('${msgId}')">🗑️</button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">📋</button>
+            `;
+        }
         wrapper.appendChild(actionsDiv);
         container.appendChild(wrapper);
     }
@@ -881,15 +917,52 @@
     window.editMessage = (id, role) => { const newContent=prompt('编辑消息内容'); if(newContent){ for(let c of conversations){ let msg=c.messages.find(m=>m.id==id); if(msg){ msg.content=newContent; break; } } saveConversations(); loadCurrentConversation(); } };
     window.deleteMessage = (id) => { if(confirm('删除这条消息？')){ for(let c of conversations){ c.messages=c.messages.filter(m=>m.id!=id); } saveConversations(); loadCurrentConversation(); } };
     window.copyMessage = (txt) => { navigator.clipboard.writeText(txt); alert('已复制'); };
-    window.regenerateAI = async (id) => { alert('重新生成功能开发中'); };
+    window.regenerateAI = async (msgId) => {
+        // 找到当前对话中这条 AI 消息的上一条用户消息
+        const conv = conversations.find(c => c.id == currentConvId);
+        if (!conv) return;
+        const msgIndex = conv.messages.findIndex(m => m.id == msgId);
+        if (msgIndex <= 0) return;
+        const userMsg = conv.messages[msgIndex - 1];
+        if (!userMsg || userMsg.role !== 'user') return;
+        // 删除当前 AI 消息及之后的消息
+        conv.messages = conv.messages.slice(0, msgIndex);
+        saveConversations();
+        loadCurrentConversation();
+        // 重新发送用户消息
+        await sendMessageWithContent(userMsg.content);
+    };
+    async function sendMessageWithContent(content) {
+        DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
+        if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
+        addMessageToDOM(content, 'user');
+        saveMessageToCurrentConv('user', content);
+        const thinkId = addThinkingMessage();
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+                body: JSON.stringify({ model: currentModel, messages: [{ role: 'user', content: content }], stream: false })
+            });
+            if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+            const data = await response.json();
+            const aiContent = data.choices[0].message.content;
+            removeThinkingMessage(thinkId);
+            addMessageToDOM(aiContent, 'ai');
+            saveMessageToCurrentConv('assistant', aiContent);
+        } catch(e) {
+            removeThinkingMessage(thinkId);
+            addMessageToDOM(`出错：${e.message}`, 'ai');
+        }
+    }
     function renameConv(id){ let newName=prompt('新名称'); if(newName){ let c=conversations.find(c=>c.id==id); if(c) c.title=newName; saveConversations(); } }
     function releaseSpace(id){ let c=conversations.find(c=>c.id==id); if(c && confirm(`清空「${c.title}」的所有消息？`)){ c.messages=[]; saveConversations(); if(currentConvId==id) loadCurrentConversation(); } }
     function exportConv(id){ let c=conversations.find(c=>c.id==id); if(c){ let data=JSON.stringify(c,null,2); let blob=new Blob([data],{type:'application/json'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`${c.title}.json`; a.click(); URL.revokeObjectURL(url); } }
     function deleteConv(id){ if(confirm('删除对话？')){ conversations=conversations.filter(c=>c.id!=id); if(conversations.length===0){ let newId=Date.now().toString(); conversations=[{id:newId, title:'新对话', messages:[]}]; currentConvId=newId; }else if(currentConvId===id) currentConvId=conversations[0].id; saveConversations(); loadCurrentConversation(); } }
     function createNewDialog() { let newId=Date.now().toString(); conversations.unshift({id:newId, title:'新对话', messages:[]}); currentConvId=newId; saveConversations(); loadCurrentConversation(); }
     function saveMessageToCurrentConv(role, content) { let conv=conversations.find(c=>c.id==currentConvId); if(!conv) return; const msgId=Date.now()+'-'+Math.random(); conv.messages.push({id:msgId, role, content, timestamp:Date.now()}); saveConversations(); if(conv.messages.length===1 && role==='user'){ conv.title=content.substring(0,20)+(content.length>20?'...':''); renderHistoryList(); } return msgId; }
-    async function sendMessage() { const inp=document.getElementById('userInput'); const msg=inp.value.trim(); if(!msg) return; DEEPSEEK_API_KEY=localStorage.getItem('deepseek_api_key'); if(!DEEPSEEK_API_KEY){ alert('请先设置API Key'); return; } addMessageToDOM(msg,'user'); const msgId=saveMessageToCurrentConv('user',msg); inp.value=''; const thinkId=addThinkingMessage(); try{ const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${DEEPSEEK_API_KEY}`},body:JSON.stringify({model:currentModel,messages:[{role:'user',content:msg}],stream:false})}); if(!res.ok)throw new Error(`请求失败`); const data=await res.json(); const aiContent=data.choices[0].message.content; removeThinkingMessage(thinkId); addMessageToDOM(aiContent,'ai'); saveMessageToCurrentConv('assistant',aiContent); }catch(e){ removeThinkingMessage(thinkId); addMessageToDOM(`出错：${e.message}`,'ai'); } }
-    function addMessageToDOM(content,role){ const container=document.getElementById('chatMessages'); if(container.children.length===1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML=''; const wrapper=document.createElement('div'); wrapper.className=`message-wrapper message ${role}`; const id='tmp-'+Date.now()+'-'+Math.random(); wrapper.setAttribute('data-msgid',id); wrapper.innerHTML=`<div class="bubble">${escapeHtml(content).replace(/\n/g,'<br>')}</div><div class="message-actions"><button class="msg-action" onclick="editMessage('${id}','${role}')">✏️</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>${role==='ai'?`<button class="msg-action" onclick="regenerateAI('${id}')">🔄</button>`:''}</div>`; container.appendChild(wrapper); scrollToBottom(); }
+    async function sendMessage() { const inp=document.getElementById('userInput'); const msg=inp.value.trim(); if(!msg) return; await sendMessageWithContent(msg); inp.value=''; }
+    function addMessageToDOM(content,role){ const container=document.getElementById('chatMessages'); if(container.children.length===1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML=''; const wrapper=document.createElement('div'); wrapper.className=`message-wrapper message ${role}`; const id='tmp-'+Date.now()+'-'+Math.random(); wrapper.setAttribute('data-msgid',id); const bubbleDiv=document.createElement('div'); bubbleDiv.className='bubble'; bubbleDiv.innerHTML=escapeHtml(content).replace(/\n/g,'<br>'); wrapper.appendChild(bubbleDiv); const actionsDiv=document.createElement('div'); actionsDiv.className='message-actions'; if(role==='ai'){ actionsDiv.innerHTML=`<button class="msg-action" onclick="regenerateAI('${id}')">🔄</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>`; } else { actionsDiv.innerHTML=`<button class="msg-action" onclick="editMessage('${id}','${role}')">✏️</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>`; } wrapper.appendChild(actionsDiv); container.appendChild(wrapper); scrollToBottom(); }
     function addThinkingMessage(){ const c=document.getElementById('chatMessages'); const id='think-'+Date.now(); const div=document.createElement('div'); div.id=id; div.className='message ai thinking'; div.innerHTML=`<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`; c.appendChild(div); scrollToBottom(); return id; }
     function removeThinkingMessage(id){ const el=document.getElementById(id); if(el) el.remove(); }
     function scrollToBottom(){ const c=document.getElementById('chatMessages'); if(c) c.scrollTop=c.scrollHeight; }
