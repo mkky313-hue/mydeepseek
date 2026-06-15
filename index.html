@@ -146,6 +146,8 @@
             justify-content: space-between;
             gap: 12px;
             border-bottom: 1px solid var(--border-color);
+            position: relative;
+            z-index: 101;
         }
         .top-nav-left { flex-shrink: 0; }
         .top-nav-center {
@@ -200,6 +202,9 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .hamburger-icon:hover, .icon-btn:hover { background: var(--btn-icon-hover); }
 
@@ -384,6 +389,8 @@
             .message-wrapper { max-width: 90%; }
             .modal-container { max-width: 95%; }
             .footer-btn { font-size: 0.7rem; padding: 4px 8px; }
+            /* 确保三条杠在手机上可见 */
+            .hamburger-icon { display: inline-flex; }
         }
     </style>
 </head>
@@ -397,14 +404,12 @@
             <div class="nav-item" data-type="role">🎭 角色卡管理</div>
         </div>
         <div class="history-divider"></div>
-        <div class="history-header"><span>📋 历史对话</span><span style="font-size:0.7rem;">导出/导入</span></div>
+        <div class="history-header"><span>📋 历史对话</span></div>
         <div class="history-list" id="historyList"></div>
         <div class="storage-info" id="storageInfo">本地存储容量 0KB / 5MB (0%)</div>
         <div class="sidebar-footer">
             <button class="footer-btn" id="favoriteStarBtn">⭐ 收藏</button>
             <button class="footer-btn" id="settingsFooterBtn">⚙️ 设置</button>
-            <button class="footer-btn" id="exportDataBtn">📤 导出</button>
-            <button class="footer-btn" id="importDataBtn">📥 导入</button>
         </div>
     </div>
 
@@ -502,8 +507,6 @@
         });
         document.getElementById('favoriteStarBtn').addEventListener('click', openFavoriteModal);
         document.getElementById('settingsFooterBtn').addEventListener('click', openSettingsModal);
-        document.getElementById('exportDataBtn').addEventListener('click', exportAllData);
-        document.getElementById('importDataBtn').addEventListener('click', importAllData);
         // 搜索相关
         const searchIcon = document.getElementById('searchIconBtn');
         const searchWrapper = document.getElementById('searchWrapper');
@@ -645,14 +648,20 @@
     function loadRoles() { const stored=localStorage.getItem('my_roles'); if(stored) roles=JSON.parse(stored); else roles=[]; saveRoles(); }
     function saveRoles() { localStorage.setItem('my_roles', JSON.stringify(roles)); }
 
-    // 指令市场模态框
+    // 指令市场模态框（支持手动输入 + 智能生成）
     function openMarketModal() {
         currentModalType = 'market';
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '📋 指令市场';
         document.getElementById('modalBody').innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <span></span>
+            <div style="margin-bottom: 1rem;">
+                <textarea id="manualInstructionInput" rows="3" placeholder="在这里输入你自己的指令..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); border-radius:12px; padding:8px; color:var(--text-primary); resize:vertical;"></textarea>
+                <div style="display:flex; gap:8px; margin-top:8px; justify-content:flex-end;">
+                    <button class="btn-primary" id="addManualInstructionBtn">➕ 添加到指令市场</button>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin: 1rem 0 0.5rem 0;">
+                <span style="font-weight:500;">✨ 智能生成</span>
                 <button class="btn-primary" id="smartGenBtn">智能生成</button>
             </div>
             <div id="marketInstructionList"></div>
@@ -661,12 +670,23 @@
         modal.classList.add('active');
         renderMarketList();
         document.getElementById('smartGenBtn').onclick = generateSmartInstruction;
+        document.getElementById('addManualInstructionBtn').onclick = () => {
+            const userInput = document.getElementById('manualInstructionInput').value.trim();
+            if (!userInput) { alert('请先输入指令内容'); return; }
+            const title = userInput.split('\n')[0].substring(0, 40) || '手动指令';
+            const newInst = { id: Date.now(), title: title, content: userInput, type: 'manual' };
+            instructions.unshift(newInst);
+            saveInstructions();
+            renderMarketList();
+            document.getElementById('manualInstructionInput').value = '';
+            alert('已添加到指令市场');
+        };
     }
     function renderMarketList() {
         const container = document.getElementById('marketInstructionList');
         if (!container) return;
         if (instructions.length === 0) {
-            container.innerHTML = '<div class="empty-placeholder">暂无指令，点击“智能生成”创建</div>';
+            container.innerHTML = '<div class="empty-placeholder">暂无指令，点击“智能生成”或手动添加</div>';
             return;
         }
         container.innerHTML = instructions.map(inst => `
@@ -918,18 +938,15 @@
     window.deleteMessage = (id) => { if(confirm('删除这条消息？')){ for(let c of conversations){ c.messages=c.messages.filter(m=>m.id!=id); } saveConversations(); loadCurrentConversation(); } };
     window.copyMessage = (txt) => { navigator.clipboard.writeText(txt); alert('已复制'); };
     window.regenerateAI = async (msgId) => {
-        // 找到当前对话中这条 AI 消息的上一条用户消息
         const conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
         const msgIndex = conv.messages.findIndex(m => m.id == msgId);
         if (msgIndex <= 0) return;
         const userMsg = conv.messages[msgIndex - 1];
         if (!userMsg || userMsg.role !== 'user') return;
-        // 删除当前 AI 消息及之后的消息
         conv.messages = conv.messages.slice(0, msgIndex);
         saveConversations();
         loadCurrentConversation();
-        // 重新发送用户消息
         await sendMessageWithContent(userMsg.content);
     };
     async function sendMessageWithContent(content) {
@@ -971,8 +988,6 @@
     function closePreview(){ document.getElementById('previewModal').classList.remove('active'); }
     function escapeHtml(str){ return String(str).replace(/[&<>]/g, m=> ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
     function updateStorageInfo(){ let total=0; for(let i=0;i<localStorage.length;i++) total+=(localStorage.key(i).length+(localStorage.getItem(localStorage.key(i))||'').length)*2; const used=(total/1024).toFixed(1); const percent=((total/(5*1024*1024))*100).toFixed(1); const info=document.getElementById('storageInfo'); if(info) info.innerHTML=`本地存储容量 ${used}KB / 5MB (${percent}%)`; }
-    function exportAllData(){ const data={ conversations, instructions, roles, favorites, version:1 }; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='my_deepseek_backup.json'; a.click(); URL.revokeObjectURL(url); alert('已导出全部数据'); }
-    function importAllData(){ const input=document.createElement('input'); input.type='file'; input.accept='application/json'; input.onchange=e=>{ const file=e.target.files[0]; const reader=new FileReader(); reader.onload=ev=>{ try{ const data=JSON.parse(ev.target.result); if(data.conversations) conversations=data.conversations; if(data.instructions) instructions=data.instructions; if(data.roles) roles=data.roles; if(data.favorites) favorites=data.favorites; saveConversations(); saveInstructions(); saveRoles(); saveFavorites(); loadCurrentConversation(); renderHistoryList(); alert('导入成功，请刷新页面'); }catch(e){ alert('文件解析失败'); } }; reader.readAsText(file); }; input.click(); }
     document.getElementById('userInput').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
     document.getElementById('userInput').addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,100)+'px'; });
 </script>
