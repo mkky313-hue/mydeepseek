@@ -103,27 +103,29 @@
         .history-item:hover { background: rgba(128,128,128,0.15); }
         .history-item.active { background: rgba(46,107,94,0.3); color: var(--accent-color); }
         .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
-        .history-item:hover .history-actions { opacity: 1; }
+        /* 按钮常亮 */
+        .history-actions { display: flex; gap: 6px; opacity: 1; }
         .history-action-btn {
             background: none; border: none; color: var(--text-muted);
             cursor: pointer; font-size: 0.7rem; padding: 2px 4px; border-radius: 4px;
         }
         .history-action-btn:hover { background: rgba(128,128,128,0.2); color: var(--text-primary); }
         .storage-info { padding: 10px 1rem; font-size: 0.7rem; color: var(--text-muted); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
-        .sidebar-footer { padding: 0.8rem 1rem; display: flex; gap: 8px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
+        .sidebar-footer { padding: 0.8rem 1rem; display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
         .footer-btn {
             background: var(--btn-icon-bg);
             border: none;
             color: var(--text-primary);
-            font-size: 0.8rem;
+            font-size: 1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 4px;
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 20px;
             transition: all 0.2s;
+            flex: 1;
+            justify-content: center;
         }
         .footer-btn:hover { background: var(--btn-icon-hover); }
 
@@ -340,7 +342,7 @@
         }
         .instruction-title, .role-name { font-weight: 600; color: #a3e0d0; margin-bottom: 0.5rem; }
         .instruction-content, .role-desc { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.8rem; }
-        .card-actions { display: flex; gap: 8px; justify-content: flex-end; }
+        .card-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
         .card-btn {
             background: var(--btn-icon-bg); border: none; color: var(--text-primary);
             padding: 4px 12px; border-radius: 16px; cursor: pointer; font-size: 0.75rem;
@@ -388,9 +390,8 @@
             .chat-container { padding: 0.5rem; }
             .message-wrapper { max-width: 90%; }
             .modal-container { max-width: 95%; }
-            .footer-btn { font-size: 0.7rem; padding: 4px 8px; }
-            /* 确保三条杠在手机上可见 */
-            .hamburger-icon { display: inline-flex; }
+            .footer-btn { font-size: 0.9rem; padding: 4px 8px; }
+            .history-action-btn { font-size: 0.6rem; }
         }
     </style>
 </head>
@@ -494,6 +495,17 @@
             toggleBtn.addEventListener('click', () => {
                 document.getElementById('sidebar').classList.toggle('collapsed');
                 document.getElementById('mainContent').classList.toggle('expanded');
+            });
+        }
+        // 点击主内容区收起侧边栏（如果侧边栏展开）
+        const mainContent = document.getElementById('mainContent');
+        if (mainContent) {
+            mainContent.addEventListener('click', (e) => {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                }
             });
         }
         // 侧边栏菜单
@@ -648,7 +660,7 @@
     function loadRoles() { const stored=localStorage.getItem('my_roles'); if(stored) roles=JSON.parse(stored); else roles=[]; saveRoles(); }
     function saveRoles() { localStorage.setItem('my_roles', JSON.stringify(roles)); }
 
-    // 指令市场模态框（支持手动输入 + 智能生成）
+    // 指令市场模态框（支持手动输入 + 智能生成覆盖）
     function openMarketModal() {
         currentModalType = 'market';
         const modal = document.getElementById('genericModal');
@@ -727,8 +739,11 @@
                     { title: '【情感】暗恋十年的同学会', content: '暗恋十年，同学会上你突然坐到我身边。' }
                 ];
                 const rand = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-                newInstruction = { id: Date.now(), title: rand.title, content: rand.content, type: 'local' };
+                newInstruction = { id: Date.now(), title: rand.title, content: rand.content, type: 'ai' };
             }
+            // 删除上一条 AI 生成的指令（type === 'ai'）
+            const existingAiIndex = instructions.findIndex(i => i.type === 'ai');
+            if (existingAiIndex !== -1) instructions.splice(existingAiIndex, 1);
             instructions.unshift(newInstruction);
             saveInstructions();
             renderMarketList();
@@ -748,7 +763,7 @@
         } else alert('指令不存在');
     }
 
-    // 指令管理模态框
+    // 指令管理模态框（增加编辑、复制、删除）
     function openManageModal() {
         currentModalType = 'manage';
         const modal = document.getElementById('genericModal');
@@ -787,12 +802,41 @@
                 <div class="instruction-content">${escapeHtml(inst.content)}</div>
                 <div class="card-actions">
                     <button class="card-btn primary" onclick="newChatAndInsert('${inst.id}')">💬 新建会话并插入指令</button>
+                    <button class="card-btn" onclick="editInstruction('${inst.id}')">✏️ 编辑</button>
+                    <button class="card-btn" onclick="copyInstruction('${inst.id}')">📋 复制</button>
+                    <button class="card-btn" onclick="deleteInstruction('${inst.id}')">🗑️ 删除</button>
                 </div>
             </div>
         `).join('');
     }
+    function editInstruction(id) {
+        const inst = instructions.find(i => i.id == id);
+        if (!inst) return;
+        let newTitle = prompt('修改指令标题', inst.title);
+        if (newTitle) inst.title = newTitle;
+        let newContent = prompt('修改指令内容', inst.content);
+        if (newContent) inst.content = newContent;
+        saveInstructions();
+        renderManageList();
+        if (currentModalType === 'market') renderMarketList();
+    }
+    function copyInstruction(id) {
+        const inst = instructions.find(i => i.id == id);
+        if (inst) {
+            navigator.clipboard.writeText(inst.content);
+            alert('指令内容已复制到剪贴板');
+        }
+    }
+    function deleteInstruction(id) {
+        if (confirm('确定删除这条指令吗？')) {
+            instructions = instructions.filter(i => i.id != id);
+            saveInstructions();
+            renderManageList();
+            if (currentModalType === 'market') renderMarketList();
+        }
+    }
 
-    // 角色卡管理模态框
+    // 角色卡管理模态框（增加删除、复制）
     function openRoleModal() {
         currentModalType = 'role';
         const modal = document.getElementById('genericModal');
@@ -832,6 +876,8 @@
                 <div class="card-actions">
                     <button class="card-btn" onclick="useRoleInChat('${r.id}')">💬 使用</button>
                     <button class="card-btn" onclick="editRole('${r.id}')">✏️ 编辑</button>
+                    <button class="card-btn" onclick="copyRole('${r.id}')">📋 复制</button>
+                    <button class="card-btn" onclick="deleteRole('${r.id}')">🗑️ 删除</button>
                 </div>
             </div>
         `).join('');
@@ -845,6 +891,20 @@
         if (newDesc) role.desc = newDesc;
         saveRoles();
         renderRoleList();
+    }
+    function copyRole(id) {
+        const role = roles.find(r => r.id == id);
+        if (role) {
+            navigator.clipboard.writeText(`${role.name}: ${role.desc}`);
+            alert('角色描述已复制到剪贴板');
+        }
+    }
+    function deleteRole(id) {
+        if (confirm('确定删除这个角色卡吗？')) {
+            roles = roles.filter(r => r.id != id);
+            saveRoles();
+            renderRoleList();
+        }
     }
     function useRoleInChat(id) {
         const role = roles.find(r => r.id == id);
@@ -888,7 +948,25 @@
         const container=document.getElementById('historyList');
         if(!container) return;
         if(!conversations.length){ container.innerHTML='<div style="padding:8px 16px;color:var(--text-muted)">暂无对话</div>'; return; }
-        container.innerHTML=conversations.map(conv=>`<div class="history-item ${currentConvId===conv.id?'active':''}" onclick="switchConversation('${conv.id}')"><span class="history-title">${escapeHtml(conv.title)}</span><div class="history-actions"><button class="history-action-btn" title="修改名称" onclick="event.stopPropagation(); renameConv('${conv.id}')">✏️</button><button class="history-action-btn" title="释放空间" onclick="event.stopPropagation(); releaseSpace('${conv.id}')">🗑️</button><button class="history-action-btn" title="导出" onclick="event.stopPropagation(); exportConv('${conv.id}')">📤</button><button class="history-action-btn" title="删除" onclick="event.stopPropagation(); deleteConv('${conv.id}')">❌</button></div></div>`).join('');
+        container.innerHTML=conversations.map(conv=>`<div class="history-item ${currentConvId===conv.id?'active':''}" onclick="switchConversation('${conv.id}')"><span class="history-title">${escapeHtml(conv.title)}</span><div class="history-actions"><button class="history-action-btn" title="修改名称" onclick="event.stopPropagation(); renameConv('${conv.id}')">✏️</button><button class="history-action-btn" title="释放空间 (删除AI思考过程)" onclick="event.stopPropagation(); releaseThoughtSpace('${conv.id}')">🗑️</button><button class="history-action-btn" title="导出对话" onclick="event.stopPropagation(); exportConv('${conv.id}')">📤</button><button class="history-action-btn" title="删除对话" onclick="event.stopPropagation(); deleteConv('${conv.id}')">❌</button></div></div>`).join('');
+    }
+    function releaseThoughtSpace(convId) {
+        const conv = conversations.find(c => c.id == convId);
+        if (!conv) return;
+        let released = false;
+        for (let msg of conv.messages) {
+            if (msg.role === 'ai' && msg.thought) {
+                delete msg.thought;
+                released = true;
+            }
+        }
+        if (released) {
+            saveConversations();
+            if (currentConvId === convId) loadCurrentConversation();
+            alert('已释放该对话中的深度思考内容。');
+        } else {
+            alert('该对话没有可释放的内容（没有深度思考过程）。');
+        }
     }
     window.switchConversation = (id) => { currentConvId=id; renderHistoryList(); loadCurrentConversation(); };
     function loadCurrentConversation() {
@@ -908,7 +986,11 @@
         wrapper.setAttribute('data-msgid', msgId);
         const bubbleDiv=document.createElement('div');
         bubbleDiv.className='bubble';
-        bubbleDiv.innerHTML=escapeHtml(msg.content).replace(/\n/g,'<br>');
+        let displayContent = msg.content;
+        if (msg.role === 'ai' && msg.thought && deepThinkEnabled) {
+            displayContent = `💭 思考过程：\n${msg.thought}\n\n---\n${msg.content}`;
+        }
+        bubbleDiv.innerHTML=escapeHtml(displayContent).replace(/\n/g,'<br>');
         wrapper.appendChild(bubbleDiv);
         const actionsDiv=document.createElement('div');
         actionsDiv.className='message-actions';
@@ -956,28 +1038,30 @@
         saveMessageToCurrentConv('user', content);
         const thinkId = addThinkingMessage();
         try {
+            const requestBody = { model: currentModel, messages: [{ role: 'user', content: content }], stream: false };
+            if (deepThinkEnabled) requestBody.reasoning_effort = "medium";
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
-                body: JSON.stringify({ model: currentModel, messages: [{ role: 'user', content: content }], stream: false })
+                body: JSON.stringify(requestBody)
             });
             if (!response.ok) throw new Error(`请求失败: ${response.status}`);
             const data = await response.json();
             const aiContent = data.choices[0].message.content;
+            const reasoningContent = data.choices[0].message.reasoning_content || null;
             removeThinkingMessage(thinkId);
             addMessageToDOM(aiContent, 'ai');
-            saveMessageToCurrentConv('assistant', aiContent);
+            saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
         } catch(e) {
             removeThinkingMessage(thinkId);
             addMessageToDOM(`出错：${e.message}`, 'ai');
         }
     }
     function renameConv(id){ let newName=prompt('新名称'); if(newName){ let c=conversations.find(c=>c.id==id); if(c) c.title=newName; saveConversations(); } }
-    function releaseSpace(id){ let c=conversations.find(c=>c.id==id); if(c && confirm(`清空「${c.title}」的所有消息？`)){ c.messages=[]; saveConversations(); if(currentConvId==id) loadCurrentConversation(); } }
     function exportConv(id){ let c=conversations.find(c=>c.id==id); if(c){ let data=JSON.stringify(c,null,2); let blob=new Blob([data],{type:'application/json'}); let url=URL.createObjectURL(blob); let a=document.createElement('a'); a.href=url; a.download=`${c.title}.json`; a.click(); URL.revokeObjectURL(url); } }
     function deleteConv(id){ if(confirm('删除对话？')){ conversations=conversations.filter(c=>c.id!=id); if(conversations.length===0){ let newId=Date.now().toString(); conversations=[{id:newId, title:'新对话', messages:[]}]; currentConvId=newId; }else if(currentConvId===id) currentConvId=conversations[0].id; saveConversations(); loadCurrentConversation(); } }
     function createNewDialog() { let newId=Date.now().toString(); conversations.unshift({id:newId, title:'新对话', messages:[]}); currentConvId=newId; saveConversations(); loadCurrentConversation(); }
-    function saveMessageToCurrentConv(role, content) { let conv=conversations.find(c=>c.id==currentConvId); if(!conv) return; const msgId=Date.now()+'-'+Math.random(); conv.messages.push({id:msgId, role, content, timestamp:Date.now()}); saveConversations(); if(conv.messages.length===1 && role==='user'){ conv.title=content.substring(0,20)+(content.length>20?'...':''); renderHistoryList(); } return msgId; }
+    function saveMessageToCurrentConv(role, content, thought=null) { let conv=conversations.find(c=>c.id==currentConvId); if(!conv) return; const msgId=Date.now()+'-'+Math.random(); conv.messages.push({id:msgId, role, content, thought, timestamp:Date.now()}); saveConversations(); if(conv.messages.length===1 && role==='user'){ conv.title=content.substring(0,20)+(content.length>20?'...':''); renderHistoryList(); } return msgId; }
     async function sendMessage() { const inp=document.getElementById('userInput'); const msg=inp.value.trim(); if(!msg) return; await sendMessageWithContent(msg); inp.value=''; }
     function addMessageToDOM(content,role){ const container=document.getElementById('chatMessages'); if(container.children.length===1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML=''; const wrapper=document.createElement('div'); wrapper.className=`message-wrapper message ${role}`; const id='tmp-'+Date.now()+'-'+Math.random(); wrapper.setAttribute('data-msgid',id); const bubbleDiv=document.createElement('div'); bubbleDiv.className='bubble'; bubbleDiv.innerHTML=escapeHtml(content).replace(/\n/g,'<br>'); wrapper.appendChild(bubbleDiv); const actionsDiv=document.createElement('div'); actionsDiv.className='message-actions'; if(role==='ai'){ actionsDiv.innerHTML=`<button class="msg-action" onclick="regenerateAI('${id}')">🔄</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>`; } else { actionsDiv.innerHTML=`<button class="msg-action" onclick="editMessage('${id}','${role}')">✏️</button><button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐</button><button class="msg-action" onclick="deleteMessage('${id}')">🗑️</button><button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋</button>`; } wrapper.appendChild(actionsDiv); container.appendChild(wrapper); scrollToBottom(); }
     function addThinkingMessage(){ const c=document.getElementById('chatMessages'); const id='think-'+Date.now(); const div=document.createElement('div'); div.id=id; div.className='message ai thinking'; div.innerHTML=`<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`; c.appendChild(div); scrollToBottom(); return id; }
