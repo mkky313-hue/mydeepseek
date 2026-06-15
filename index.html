@@ -103,7 +103,6 @@
         .history-item:hover { background: rgba(128,128,128,0.15); }
         .history-item.active { background: rgba(46,107,94,0.3); color: var(--accent-color); }
         .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        /* 按钮常亮 */
         .history-actions { display: flex; gap: 6px; opacity: 1; }
         .history-action-btn {
             background: none; border: none; color: var(--text-muted);
@@ -439,7 +438,9 @@
             </div>
             <div class="input-section">
                 <div class="input-row">
-                    <div class="input-wrapper"><textarea id="userInput" rows="1" placeholder="在这里输入你的问题... Enter发送，Shift+Enter换行"></textarea></div>
+                    <div class="input-wrapper">
+                        <textarea id="userInput" rows="1" placeholder="输入信息..."></textarea>
+                    </div>
                     <button class="send-btn" onclick="sendMessage()">✈️ 发送</button>
                 </div>
                 <div class="action-buttons">
@@ -489,18 +490,23 @@
         updateStorageInfo();
         setupSettingsUI();
         if (!DEEPSEEK_API_KEY) document.getElementById('apiKeyModal').classList.add('active');
+        
         // 三条杠按钮：切换侧边栏
         const toggleBtn = document.getElementById('toggleSidebarBtn');
         if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                document.getElementById('sidebar').classList.toggle('collapsed');
-                document.getElementById('mainContent').classList.toggle('expanded');
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
             });
         }
-        // 点击主内容区收起侧边栏（如果侧边栏展开）
+        
+        // 点击主内容区收起侧边栏（如果侧边栏未折叠）
         const mainContent = document.getElementById('mainContent');
         if (mainContent) {
-            mainContent.addEventListener('click', (e) => {
+            mainContent.addEventListener('click', () => {
                 const sidebar = document.getElementById('sidebar');
                 if (!sidebar.classList.contains('collapsed')) {
                     sidebar.classList.add('collapsed');
@@ -508,6 +514,7 @@
                 }
             });
         }
+        
         // 侧边栏菜单
         document.querySelectorAll('.nav-item').forEach(el => {
             el.addEventListener('click', () => {
@@ -519,6 +526,7 @@
         });
         document.getElementById('favoriteStarBtn').addEventListener('click', openFavoriteModal);
         document.getElementById('settingsFooterBtn').addEventListener('click', openSettingsModal);
+        
         // 搜索相关
         const searchIcon = document.getElementById('searchIconBtn');
         const searchWrapper = document.getElementById('searchWrapper');
