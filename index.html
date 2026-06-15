@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>✨ My DeepSeek · 全能AI聊天室</title>
     <style>
-        /* ========== 主题变量 ========== */
         :root {
             --bg-primary: linear-gradient(145deg, #1a1e2c 0%, #2a2f3f 100%);
             --bg-sidebar: rgba(30, 35, 48, 0.95);
@@ -21,7 +20,6 @@
             --bubble-user: linear-gradient(135deg, #2e6b5e, #1f4e44);
             --bubble-ai: rgba(50, 58, 75, 0.85);
         }
-
         [data-theme="light"] {
             --bg-primary: linear-gradient(145deg, #f5f7fa 0%, #e8ecf2 100%);
             --bg-sidebar: rgba(255, 255, 255, 0.95);
@@ -37,25 +35,14 @@
             --bubble-user: linear-gradient(135deg, #2e6b5e, #1f4e44);
             --bubble-ai: #e9ecef;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
             background: var(--bg-primary);
             min-height: 100vh;
-            transition: background 0.3s ease;
+            transition: background 0.3s;
         }
-
-        .app-wrapper {
-            display: flex;
-            min-height: 100vh;
-            position: relative;
-        }
+        .app-wrapper { display: flex; min-height: 100vh; position: relative; }
 
         /* 侧边栏 */
         .sidebar {
@@ -72,29 +59,11 @@
             bottom: 0;
             z-index: 100;
         }
-
-        .sidebar.collapsed {
-            transform: translateX(-280px);
-        }
-
+        .sidebar.collapsed { transform: translateX(-280px); }
         .sidebar-header {
             padding: 1rem;
             border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
         }
-
-        .hamburger-btn {
-            background: rgba(128, 128, 128, 0.2);
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.4rem;
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
         .sidebar-header h3 {
             font-size: 1.1rem;
             font-weight: 500;
@@ -103,11 +72,7 @@
             -webkit-background-clip: text;
             color: transparent;
         }
-
-        .sidebar-nav {
-            padding: 0.5rem 0;
-        }
-
+        .sidebar-nav { padding: 0.5rem 0; }
         .nav-item {
             padding: 8px 1rem;
             margin: 2px 8px;
@@ -117,139 +82,43 @@
             font-size: 0.9rem;
             transition: all 0.2s;
         }
-
-        .nav-item:hover {
-            background: rgba(128, 128, 128, 0.1);
-            color: var(--text-primary);
-        }
-
-        .nav-item.active {
-            background: linear-gradient(135deg, rgba(46, 107, 94, 0.4), rgba(31, 78, 68, 0.4));
-            color: #a3e0d0;
-        }
-
-        /* 历史对话区域 - 紧跟在角色卡管理下面 */
-        .history-divider {
-            border-top: 1px solid var(--border-color);
-            margin: 8px 12px;
-        }
-
-        .history-header {
-            padding: 8px 16px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-list {
-            max-height: 240px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
+        .nav-item:hover { background: rgba(128,128,128,0.1); color: var(--text-primary); }
+        .history-divider { border-top: 1px solid var(--border-color); margin: 8px 12px; }
+        .history-header { padding: 8px 16px; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+        .history-list { max-height: 240px; overflow-y: auto; flex: 1; }
         .history-item {
-            padding: 6px 12px;
-            margin: 2px 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
+            padding: 6px 12px; margin: 2px 8px; border-radius: 8px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--text-secondary); font-size: 0.85rem;
         }
-
-        .history-item:hover {
-            background: rgba(128, 128, 128, 0.1);
-        }
-
-        .history-item.active {
-            background: rgba(46, 107, 94, 0.3);
-            color: #a3e0d0;
-        }
-
-        .history-title {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .history-actions {
-            display: flex;
-            gap: 6px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .history-item:hover .history-actions {
-            opacity: 1;
-        }
-
+        .history-item:hover { background: rgba(128,128,128,0.1); }
+        .history-item.active { background: rgba(46,107,94,0.3); color: #a3e0d0; }
+        .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
+        .history-item:hover .history-actions { opacity: 1; }
         .history-action-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.7rem;
-            padding: 2px 4px;
-            border-radius: 4px;
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 0.7rem; padding: 2px 4px; border-radius: 4px;
         }
-
-        .history-action-btn:hover {
-            background: rgba(128, 128, 128, 0.2);
-            color: var(--text-primary);
-        }
-
-        .storage-info {
-            padding: 10px 1rem;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sidebar-footer {
-            padding: 0.8rem 1rem;
-            display: flex;
-            gap: 16px;
-            border-top: 1px solid var(--border-color);
-        }
-
+        .history-action-btn:hover { background: rgba(128,128,128,0.2); color: var(--text-primary); }
+        .storage-info { padding: 10px 1rem; font-size: 0.7rem; color: var(--text-muted); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .sidebar-footer { padding: 0.8rem 1rem; display: flex; gap: 16px; border-top: 1px solid var(--border-color); }
         .footer-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
+            background: none; border: none; color: var(--text-secondary); font-size: 0.9rem;
+            cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px;
         }
+        .footer-btn:hover { background: rgba(128,128,128,0.1); color: var(--text-primary); }
 
-        .footer-btn:hover {
-            background: rgba(128, 128, 128, 0.1);
-            color: var(--text-primary);
-        }
-
-        /* 主内容区域 */
+        /* 主内容区 */
         .main-content {
             flex: 1;
             margin-left: 280px;
-            transition: margin-left 0.3s ease;
+            transition: margin-left 0.3s;
             min-height: 100vh;
         }
+        .main-content.expanded { margin-left: 0; }
 
-        .main-content.expanded {
-            margin-left: 0;
-        }
-
-        /* 顶部导航 */
+        /* 顶部导航 - 标题居中 */
         .top-nav {
             background: var(--bg-nav);
             backdrop-filter: blur(10px);
@@ -259,24 +128,18 @@
             align-items: center;
             border-bottom: 1px solid var(--border-color);
         }
-
-        .top-nav-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .mobile-hamburger {
-            display: none;
-            background: rgba(128, 128, 128, 0.2);
+        .top-nav-left { flex: 1; display: flex; justify-content: flex-start; }
+        .top-nav-center { flex: 1; text-align: center; }
+        .top-nav-right { flex: 1; display: flex; justify-content: flex-end; gap: 12px; }
+        .hamburger-icon, .icon-btn {
+            background: rgba(128,128,128,0.2);
             border: none;
             color: var(--text-primary);
-            font-size: 1.4rem;
-            padding: 6px 10px;
+            font-size: 1.2rem;
+            padding: 6px 12px;
             border-radius: 8px;
             cursor: pointer;
         }
-
         .top-nav h1 {
             font-size: 1.3rem;
             font-weight: 600;
@@ -284,147 +147,6 @@
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-        }
-
-        .top-nav-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .icon-btn {
-            background: rgba(128, 128, 128, 0.2);
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.2rem;
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        /* 面板容器 */
-        .panel {
-            display: none;
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 1.5rem;
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border-radius: 1.5rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .panel.active {
-            display: block;
-        }
-
-        /* 角色卡管理 */
-        .role-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .role-header h2 { color: #a3e0d0; font-size: 1.2rem; }
-        .add-role-btn {
-            background: var(--accent-color);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 2rem;
-            cursor: pointer;
-        }
-        .empty-roles {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-        }
-        .role-card {
-            background: var(--bg-input);
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-left: 3px solid var(--accent-color);
-        }
-        .role-name {
-            font-weight: 600;
-            color: #a3e0d0;
-            margin-bottom: 0.5rem;
-        }
-        .role-desc {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-bottom: 0.8rem;
-        }
-        .role-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-        .role-btn {
-            background: rgba(128, 128, 128, 0.2);
-            border: none;
-            color: var(--text-secondary);
-            padding: 4px 12px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-
-        /* 指令面板样式 */
-        .market-header, .manage-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .market-header h2, .manage-header h2 { color: #a3e0d0; }
-        .refresh-btn, .add-btn {
-            background: var(--accent-color);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 2rem;
-            cursor: pointer;
-        }
-        .instruction-card {
-            background: var(--bg-input);
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
-        }
-        .instruction-title {
-            font-weight: 600;
-            color: #a3e0d0;
-            margin-bottom: 0.5rem;
-        }
-        .instruction-content {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-bottom: 0.8rem;
-        }
-        .card-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-        .card-btn {
-            background: rgba(128, 128, 128, 0.2);
-            border: none;
-            color: var(--text-secondary);
-            padding: 4px 12px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-        .card-btn.primary {
-            background: var(--accent-color);
-            color: white;
         }
 
         /* 聊天区域 */
@@ -446,386 +168,185 @@
             flex-direction: column;
             gap: 1rem;
         }
-        .message {
-            display: flex;
-            max-width: 85%;
-            animation: fadeInUp 0.2s;
-        }
-        .message.user {
-            align-self: flex-end;
-            justify-content: flex-end;
-        }
-        .message.ai {
-            align-self: flex-start;
-            flex-direction: column;
-        }
-        .bubble {
-            padding: 0.7rem 1rem;
-            border-radius: 1.2rem;
-            line-height: 1.5;
-            font-size: 0.92rem;
-            word-break: break-word;
-            white-space: pre-wrap;
-        }
-        .user .bubble {
-            background: var(--bubble-user);
-            color: white;
-            border-bottom-right-radius: 0.3rem;
-        }
-        .ai .bubble {
-            background: var(--bubble-ai);
-            color: var(--text-primary);
-            border-bottom-left-radius: 0.3rem;
-            border: 1px solid var(--border-color);
-        }
-        .thinking .bubble {
-            background: rgba(128, 128, 128, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .dot-floating {
-            display: inline-flex;
-            gap: 4px;
-        }
-        .dot-floating span {
-            width: 8px;
-            height: 8px;
-            background: var(--text-muted);
-            border-radius: 50%;
-            animation: float 1.4s infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: scale(0.6); opacity: 0.4; }
-            50% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .message { display: flex; max-width: 85%; animation: fadeInUp 0.2s; }
+        .message.user { align-self: flex-end; justify-content: flex-end; }
+        .message.ai { align-self: flex-start; flex-direction: column; }
+        .bubble { padding: 0.7rem 1rem; border-radius: 1.2rem; line-height: 1.5; font-size: 0.92rem; word-break: break-word; white-space: pre-wrap; }
+        .user .bubble { background: var(--bubble-user); color: white; border-bottom-right-radius: 0.3rem; }
+        .ai .bubble { background: var(--bubble-ai); color: var(--text-primary); border-bottom-left-radius: 0.3rem; border: 1px solid var(--border-color); }
+        .thinking .bubble { background: rgba(128,128,128,0.2); display: flex; align-items: center; gap: 8px; }
+        .dot-floating { display: inline-flex; gap: 4px; }
+        .dot-floating span { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; animation: float 1.4s infinite; }
+        @keyframes float { 0%,100%{transform:scale(0.6);opacity:0.4;} 50%{transform:scale(1);opacity:1;} }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
         .input-section {
             background: var(--bg-card);
             border-radius: 1rem;
             padding: 1rem;
             margin-top: 1rem;
         }
-        .input-row {
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-        }
-        .input-wrapper {
-            flex: 1;
-            background: var(--bg-input);
-            border-radius: 24px;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-        }
-        textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            font-family: inherit;
-            resize: none;
-            outline: none;
-        }
-        .send-btn {
-            background: linear-gradient(135deg, #3b6e62, #2c554a);
-            border: none;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 24px;
-            cursor: pointer;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 12px;
-        }
+        .input-row { display: flex; gap: 12px; align-items: flex-end; }
+        .input-wrapper { flex: 1; background: var(--bg-input); border-radius: 24px; padding: 8px 12px; border: 1px solid var(--border-color); }
+        textarea { width: 100%; background: transparent; border: none; color: var(--text-primary); font-size: 0.9rem; font-family: inherit; resize: none; outline: none; }
+        .send-btn { background: linear-gradient(135deg, #3b6e62, #2c554a); border: none; color: white; padding: 8px 20px; border-radius: 24px; cursor: pointer; }
+        .action-buttons { display: flex; gap: 12px; margin-top: 12px; }
         .action-btn {
-            background: rgba(128, 128, 128, 0.2);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            cursor: pointer;
+            background: rgba(128,128,128,0.2); border: 1px solid var(--border-color);
+            color: var(--text-secondary); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
         }
-        .action-btn.active {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-        }
-        .welcome-message {
-            text-align: center;
-            color: var(--text-muted);
-            background: rgba(128, 128, 128, 0.1);
-            padding: 1rem;
-            border-radius: 1rem;
-        }
+        .action-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .welcome-message { text-align: center; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 1rem; border-radius: 1rem; }
 
-        /* 设置弹窗 */
-        .settings-modal {
+        /* 模态窗口通用样式 */
+        .modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7);
-            z-index: 300;
+            z-index: 200;
             justify-content: center;
             align-items: center;
         }
-        .settings-modal.active {
-            display: flex;
-        }
-        .settings-panel {
+        .modal-overlay.active { display: flex; }
+        .modal-container {
             background: var(--bg-card);
             width: 90%;
-            max-width: 500px;
+            max-width: 700px;
             max-height: 80vh;
-            border-radius: 20px;
+            border-radius: 1.5rem;
             overflow-y: auto;
-            padding: 1rem;
             border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
         }
-        .settings-header {
+        .modal-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
+            align-items: center;
+            padding: 1rem;
             border-bottom: 1px solid var(--border-color);
         }
-        .settings-section {
-            margin-bottom: 1.2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
+        .modal-header h3 { color: #a3e0d0; }
+        .modal-close {
+            background: none; border: none; font-size: 1.5rem; cursor: pointer;
+            color: var(--text-secondary);
         }
-        .settings-section h4 {
-            color: #a3e0d0;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+        .modal-body { padding: 1rem; }
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
         }
-        .theme-toggle-btn {
+        .btn-save, .btn-primary {
             background: var(--accent-color);
             border: none;
             color: white;
-            padding: 6px 12px;
+            padding: 6px 16px;
             border-radius: 20px;
             cursor: pointer;
         }
-        .font-size-options {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .font-option {
-            background: rgba(128, 128, 128, 0.2);
-            padding: 4px 12px;
-            border-radius: 16px;
+        .btn-secondary {
+            background: rgba(128,128,128,0.2);
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.8rem;
         }
-        .font-option.active {
-            background: var(--accent-color);
-            color: white;
-        }
-        .model-select {
-            width: 100%;
+
+        /* 指令/角色卡片样式（模态框内） */
+        .instruction-card, .role-card {
             background: var(--bg-input);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
             border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px;
-            border-radius: 8px;
         }
-        .memory-options {
-            display: flex;
-            gap: 16px;
+        .instruction-title, .role-name { font-weight: 600; color: #a3e0d0; margin-bottom: 0.5rem; }
+        .instruction-content, .role-desc { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.8rem; }
+        .card-actions { display: flex; gap: 8px; justify-content: flex-end; }
+        .card-btn {
+            background: rgba(128,128,128,0.2); border: none; color: var(--text-secondary);
+            padding: 4px 12px; border-radius: 16px; cursor: pointer; font-size: 0.75rem;
         }
-        .memory-options label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
+        .card-btn.primary { background: var(--accent-color); color: white; }
+        .empty-placeholder { text-align: center; padding: 2rem; color: var(--text-muted); }
+
+        /* 设置弹窗内部样式 */
+        .settings-section { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .settings-section h4 { color: #a3e0d0; margin-bottom: 8px; font-size: 0.9rem; }
+        .font-size-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .font-option {
+            background: rgba(128,128,128,0.2); padding: 4px 12px; border-radius: 16px; cursor: pointer; font-size: 0.8rem;
         }
+        .font-option.active { background: var(--accent-color); color: white; }
+        .model-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px; border-radius: 8px; }
+        .memory-options { display: flex; gap: 16px; }
+        .memory-options label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
         /* 预览弹窗 */
         .preview-modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8);
-            z-index: 400;
+            z-index: 300;
             justify-content: center;
             align-items: center;
         }
-        .preview-modal.active {
-            display: flex;
-        }
+        .preview-modal.active { display: flex; }
         .preview-content {
             background: var(--bg-input);
-            width: 90%;
-            height: 85%;
+            width: 90%; height: 85%;
             border-radius: 1rem;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-        .preview-header {
-            padding: 0.8rem;
-            background: var(--bg-card);
-            display: flex;
-            justify-content: space-between;
-        }
-        .preview-iframe {
-            flex: 1;
-            border: none;
-            background: white;
-        }
-
-        /* 会话名称编辑弹窗 */
-        .rename-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 350;
-            justify-content: center;
-            align-items: center;
-        }
-        .rename-modal.active {
-            display: flex;
-        }
-        .rename-panel {
-            background: var(--bg-card);
-            width: 300px;
-            border-radius: 16px;
-            padding: 1.2rem;
-            text-align: center;
-        }
-        .rename-panel input {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px;
-            border-radius: 8px;
-            margin: 12px 0;
-        }
-        .rename-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-        .rename-buttons button {
-            padding: 6px 16px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-        }
-        .rename-buttons button:first-child {
-            background: var(--accent-color);
-            color: white;
-        }
-        .rename-buttons button:last-child {
-            background: rgba(128, 128, 128, 0.2);
-            color: var(--text-secondary);
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 260px; }
-            .mobile-hamburger { display: block; }
-            .main-content { margin-left: 0; }
-        }
+        .preview-header { padding: 0.8rem; background: var(--bg-card); display: flex; justify-content: space-between; }
+        .preview-iframe { flex: 1; border: none; background: white; }
     </style>
 </head>
 <body>
 <div class="app-wrapper">
-    <!-- 左侧边栏 -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
-            <h3>My DeepSeek</h3>
-        </div>
+        <div class="sidebar-header"><h3>My DeepSeek</h3></div>
         <div class="sidebar-nav">
-            <div class="nav-item" data-panel="market" onclick="switchPanel('market')">📋 指令市场</div>
-            <div class="nav-item" data-panel="manage" onclick="switchPanel('manage')">📝 指令管理</div>
-            <div class="nav-item" data-panel="role" onclick="switchPanel('role')">🎭 角色卡管理</div>
+            <div class="nav-item" data-type="market">📋 指令市场</div>
+            <div class="nav-item" data-type="manage">📝 指令管理</div>
+            <div class="nav-item" data-type="role">🎭 角色卡管理</div>
         </div>
-
-        <!-- 历史对话区域（紧跟在角色卡管理下面） -->
         <div class="history-divider"></div>
-        <div class="history-header">
-            <span>📋 历史对话</span>
-        </div>
+        <div class="history-header"><span>📋 历史对话</span></div>
         <div class="history-list" id="historyList"></div>
-
         <div class="storage-info" id="storageInfo">本地存储容量 0KB / 5MB (0%)</div>
         <div class="sidebar-footer">
             <button class="footer-btn" onclick="openFavorites()">⭐ 收藏</button>
-            <button class="footer-btn" onclick="openSettings()">⚙️ 设置</button>
+            <button class="footer-btn" onclick="openSettingsModal()">⚙️ 设置</button>
         </div>
     </div>
 
-    <!-- 主内容区 -->
     <div class="main-content" id="mainContent">
         <div class="top-nav">
             <div class="top-nav-left">
-                <button class="mobile-hamburger" onclick="toggleSidebar()">☰</button>
-                <h1>✨ My DeepSeek</h1>
+                <button class="hamburger-icon" id="toggleSidebarBtn">☰</button>
             </div>
+            <div class="top-nav-center"><h1>✨ My DeepSeek</h1></div>
             <div class="top-nav-right">
-                <div class="icon-btn" onclick="createNewDialog()">➕</div>
-                <div class="icon-btn" onclick="toggleSearch()">🔍</div>
+                <button class="icon-btn" onclick="createNewDialog()">➕</button>
+                <button class="icon-btn" onclick="toggleSearch()">🔍</button>
             </div>
         </div>
 
-        <!-- 指令市场面板 -->
-        <div id="marketPanel" class="panel">
-            <div class="market-header">
-                <h2>📋 指令市场</h2>
-                <button class="refresh-btn" onclick="generateRandomInstruction()">🔄 智能生成</button>
-            </div>
-            <div id="marketList"></div>
-        </div>
-
-        <!-- 指令管理面板 -->
-        <div id="managePanel" class="panel">
-            <div class="manage-header">
-                <h2>📝 指令管理</h2>
-                <button class="add-btn" onclick="showAddInstructionDialog()">+ 新增指令</button>
-            </div>
-            <div id="manageList"></div>
-        </div>
-
-        <!-- 角色卡管理面板 -->
-        <div id="rolePanel" class="panel">
-            <div class="role-header">
-                <h2>🎭 角色卡管理</h2>
-                <button class="add-role-btn" onclick="showAddRoleDialog()">+ 新建角色</button>
-            </div>
-            <div id="roleList"></div>
-        </div>
-
-        <!-- 聊天区域（已移除 API Key 行） -->
-        <div id="chatPanel" class="chat-container" style="display: flex;">
+        <!-- 聊天区域 -->
+        <div id="chatPanel" class="chat-container">
             <div class="chat-messages" id="chatMessages">
                 <div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>
             </div>
             <div class="input-section">
                 <div class="input-row">
-                    <div class="input-wrapper">
-                        <textarea id="userInput" rows="1" placeholder="在这里输入你的问题... Enter发送，Shift+Enter换行"></textarea>
-                    </div>
+                    <div class="input-wrapper"><textarea id="userInput" rows="1" placeholder="在这里输入你的问题... Enter发送，Shift+Enter换行"></textarea></div>
                     <button class="send-btn" onclick="sendMessage()">✈️ 发送</button>
                 </div>
                 <div class="action-buttons">
@@ -837,78 +358,45 @@
     </div>
 </div>
 
-<!-- 设置弹窗 -->
-<div id="settingsModal" class="settings-modal">
-    <div class="settings-panel">
-        <div class="settings-header">
-            <h3>⚙️ 设置</h3>
-            <button class="icon-btn" onclick="closeSettings()" style="background:none">✕</button>
-        </div>
-        <div class="settings-section">
-            <h4>🔑 API Key</h4>
-            <input type="password" id="settingsApiKey" class="api-key-input" style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); padding:8px; border-radius:20px;">
-            <button class="save-key-btn" style="margin-top:8px; background:var(--accent-color); color:white; border:none; padding:6px 16px; border-radius:20px; cursor:pointer;" onclick="saveApiKeyFromSettings()">保存</button>
-        </div>
-        <div class="settings-section">
-            <h4>🎨 外观</h4>
-            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">日间模式</button>
-        </div>
-        <div class="settings-section">
-            <h4>🔤 对话框字号</h4>
-            <div class="font-size-options">
-                <span class="font-option" data-font="12px" onclick="setFontSize(this)">小</span>
-                <span class="font-option" data-font="14px" onclick="setFontSize(this)">较小</span>
-                <span class="font-option active" data-font="16px" onclick="setFontSize(this)">默认</span>
-                <span class="font-option" data-font="18px" onclick="setFontSize(this)">较大</span>
-                <span class="font-option" data-font="20px" onclick="setFontSize(this)">大</span>
-            </div>
-        </div>
-        <div class="settings-section">
-            <h4>📊 显示设置</h4>
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
-                <input type="checkbox" id="showTokenCheckbox" onchange="toggleTokenDisplay()"> 显示Token预估
-            </label>
-        </div>
-        <div class="settings-section">
-            <h4>🤖 模型选择</h4>
-            <select id="modelSelect" class="model-select">
-                <option value="deepseek-chat">V4-Flash (快速模式) 推荐</option>
-                <option value="deepseek-reasoner">V4-Pro (专家模式)</option>
-            </select>
-        </div>
-        <div class="settings-section">
-            <h4>💾 记忆策略</h4>
-            <div class="memory-options">
-                <label><input type="radio" name="memoryStrategy" value="sliding" checked> 滑动窗口摘要</label>
-                <label><input type="radio" name="memoryStrategy" value="full"> 全量发送</label>
-            </div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:8px">自动压缩早期对话，保留最近20条原文，节省token</div>
-        </div>
+<!-- 通用模态框结构（动态填充内容） -->
+<div id="genericModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header"><h3 id="modalTitle">标题</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
     </div>
 </div>
 
-<!-- 会话名称编辑弹窗 -->
-<div id="renameModal" class="rename-modal">
-    <div class="rename-panel">
-        <div style="font-weight:500">修改会话名称</div>
-        <input type="text" id="renameInput" placeholder="请输入会话名称">
-        <div class="rename-buttons">
-            <button onclick="confirmRename()">保存</button>
-            <button onclick="closeRenameModal()">取消</button>
+<!-- 设置弹窗 -->
+<div id="settingsModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header"><h3>⚙️ 设置</h3><button class="modal-close" onclick="closeSettingsModal()">✕</button></div>
+        <div class="modal-body">
+            <div class="settings-section"><h4>🔑 API Key</h4><input type="password" id="settingsApiKey" style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); padding:8px; border-radius:20px;"></div>
+            <div class="settings-section"><h4>🎨 外观</h4><button class="btn-primary" id="themeToggleBtn" onclick="toggleTheme()">日间模式</button></div>
+            <div class="settings-section"><h4>🔤 对话框字号</h4><div class="font-size-options" id="fontOptions"></div></div>
+            <div class="settings-section"><h4>📊 显示设置</h4><label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="showTokenCheckbox" onchange="toggleTokenDisplay()"> 显示Token预估</label></div>
+            <div class="settings-section"><h4>🤖 模型选择</h4><select id="modelSelect" class="model-select"><option value="deepseek-chat">V4-Flash (快速模式) 推荐</option><option value="deepseek-reasoner">V4-Pro (专家模式)</option></select></div>
+            <div class="settings-section"><h4>💾 记忆策略</h4><div class="memory-options"><label><input type="radio" name="memoryStrategy" value="sliding" checked> 滑动窗口摘要</label><label><input type="radio" name="memoryStrategy" value="full"> 全量发送</label></div><div style="font-size:0.7rem; color:var(--text-muted); margin-top:8px">自动压缩早期对话，保留最近20条原文，节省token</div></div>
         </div>
+        <div class="modal-footer"><button class="btn-secondary" onclick="closeSettingsModal()">取消</button><button class="btn-save" onclick="saveAllSettings()">保存并关闭</button></div>
+    </div>
+</div>
+
+<!-- API Key 首次弹窗 -->
+<div id="apiKeyModal" class="modal-overlay">
+    <div class="modal-container" style="max-width:400px">
+        <div class="modal-header"><h3>🔑 设置 API Key</h3><button class="modal-close" onclick="closeApiKeyModal()">✕</button></div>
+        <div class="modal-body">
+            <p style="margin-bottom:12px">请填写你的 DeepSeek API Key：</p>
+            <input type="password" id="firstApiKey" placeholder="sk-..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); padding:8px; border-radius:20px;">
+        </div>
+        <div class="modal-footer"><button class="btn-secondary" onclick="closeApiKeyModal()">稍后</button><button class="btn-save" onclick="saveFirstApiKey()">保存</button></div>
     </div>
 </div>
 
 <!-- 预览弹窗 -->
-<div id="previewModal" class="preview-modal">
-    <div class="preview-content">
-        <div class="preview-header">
-            <span>🌐 网页预览</span>
-            <button class="icon-btn" onclick="closePreview()" style="background:none">✕</button>
-        </div>
-        <iframe id="previewIframe" class="preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe>
-    </div>
-</div>
+<div id="previewModal" class="preview-modal"><div class="preview-content"><div class="preview-header"><span>🌐 网页预览</span><button class="icon-btn" onclick="closePreview()" style="background:none">✕</button></div><iframe id="previewIframe" class="preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe></div></div>
 
 <script>
     // ==================== 全局变量 ====================
@@ -925,65 +413,49 @@
 
     // ==================== 初始化 ====================
     document.addEventListener('DOMContentLoaded', () => {
-        if (DEEPSEEK_API_KEY) document.getElementById('settingsApiKey').value = DEEPSEEK_API_KEY;
         loadInstructions();
         loadRoles();
         loadConversations();
         updateStorageInfo();
         document.getElementById('modelSelect').value = currentModel;
-        document.getElementById('modelSelect').onchange = (e) => {
-            currentModel = e.target.value;
-            localStorage.setItem('selected_model', currentModel);
-        };
+        document.getElementById('modelSelect').onchange = (e) => { currentModel = e.target.value; localStorage.setItem('selected_model', currentModel); };
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            document.getElementById('themeToggleBtn').textContent = '夜间模式';
-        }
+        if (savedTheme === 'light') { document.documentElement.setAttribute('data-theme', 'light'); document.getElementById('themeToggleBtn').textContent = '夜间模式'; }
         const savedFontSize = localStorage.getItem('font_size');
-        if (savedFontSize) {
-            document.querySelectorAll('.bubble, .chat-messages').forEach(e => e.style.fontSize = savedFontSize);
-            document.querySelectorAll('.font-option').forEach(opt => {
-                if (opt.getAttribute('data-font') === savedFontSize) opt.classList.add('active');
+        if (savedFontSize) { document.querySelectorAll('.bubble, .chat-messages').forEach(e => e.style.fontSize = savedFontSize); }
+        renderFontOptions();
+        // 首次打开如果没有API Key，弹出模态框
+        if (!DEEPSEEK_API_KEY) { document.getElementById('apiKeyModal').classList.add('active'); }
+        // 侧边栏折叠控制
+        document.getElementById('toggleSidebarBtn').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('mainContent').classList.toggle('expanded');
+        });
+        // 侧边栏菜单点击：打开对应模态框
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const type = item.getAttribute('data-type');
+                if (type === 'market') openMarketModal();
+                else if (type === 'manage') openManageModal();
+                else if (type === 'role') openRoleModal();
             });
-        }
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.icon-btn[onclick="toggleSearch()"]') && !document.getElementById('searchModal')?.contains(e.target)) closeSearch();
         });
     });
 
-    // ==================== 侧边栏 ====================
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('collapsed');
-        document.getElementById('mainContent').classList.toggle('expanded');
+    function renderFontOptions() {
+        const container = document.getElementById('fontOptions');
+        const sizes = ['12px','14px','16px','18px','20px'];
+        const labels = ['小','较小','默认','较大','大'];
+        const current = localStorage.getItem('font_size') || '16px';
+        container.innerHTML = sizes.map((sz,idx) => `<span class="font-option ${current===sz?'active':''}" data-font="${sz}" onclick="setFontSize(this)">${labels[idx]}</span>`).join('');
     }
-
-    function switchPanel(panelId) {
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('chatPanel').style.display = 'none';
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-        const activeNav = document.querySelector(`.nav-item[data-panel="${panelId}"]`);
-        if (activeNav) activeNav.classList.add('active');
-
-        if (panelId === 'market') {
-            document.getElementById('marketPanel').classList.add('active');
-            renderMarket();
-        } else if (panelId === 'manage') {
-            document.getElementById('managePanel').classList.add('active');
-            renderManage();
-        } else if (panelId === 'role') {
-            document.getElementById('rolePanel').classList.add('active');
-            renderRolePanel();
-        } else {
-            document.getElementById('chatPanel').style.display = 'flex';
-        }
+    function setFontSize(el) {
+        document.querySelectorAll('.font-option').forEach(opt => opt.classList.remove('active'));
+        el.classList.add('active');
+        const fontSize = el.getAttribute('data-font');
+        document.querySelectorAll('.bubble, .chat-messages').forEach(e => e.style.fontSize = fontSize);
+        localStorage.setItem('font_size', fontSize);
     }
-
-    function openFavorites() { alert('⭐ 收藏功能开发中~'); }
-    function openSettings() { document.getElementById('settingsModal').classList.add('active'); }
-    function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
-
-    // ==================== 主题切换 ====================
     function toggleTheme() {
         const html = document.documentElement;
         const btn = document.getElementById('themeToggleBtn');
@@ -997,121 +469,54 @@
             btn.textContent = '夜间模式';
         }
     }
-
-    function setFontSize(el) {
-        document.querySelectorAll('.font-option').forEach(opt => opt.classList.remove('active'));
-        el.classList.add('active');
-        const fontSize = el.getAttribute('data-font');
-        document.querySelectorAll('.bubble, .chat-messages').forEach(e => e.style.fontSize = fontSize);
-        localStorage.setItem('font_size', fontSize);
-    }
-
-    function toggleTokenDisplay() {
-        const checked = document.getElementById('showTokenCheckbox').checked;
-        alert(checked ? 'Token预估功能开发中~' : '已关闭Token显示');
-    }
-
-    // ==================== API Key管理 ====================
-    function saveApiKeyFromSettings() {
+    function toggleTokenDisplay() { alert('Token预估功能开发中~'); }
+    function saveAllSettings() {
         const key = document.getElementById('settingsApiKey').value.trim();
-        if (key) {
-            localStorage.setItem('deepseek_api_key', key);
-            DEEPSEEK_API_KEY = key;
-            alert('API Key 已保存！');
-        }
+        if (key) { localStorage.setItem('deepseek_api_key', key); DEEPSEEK_API_KEY = key; }
+        closeSettingsModal();
     }
+    function openSettingsModal() { document.getElementById('settingsModal').classList.add('active'); document.getElementById('settingsApiKey').value = DEEPSEEK_API_KEY; }
+    function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('active'); }
+    function saveFirstApiKey() {
+        const key = document.getElementById('firstApiKey').value.trim();
+        if (key) { localStorage.setItem('deepseek_api_key', key); DEEPSEEK_API_KEY = key; }
+        closeApiKeyModal();
+    }
+    function closeApiKeyModal() { document.getElementById('apiKeyModal').classList.remove('active'); }
+    function openFavorites() { alert('⭐ 收藏功能开发中~'); }
 
-    // ==================== 深度思考 & 预览模式 ====================
-    function toggleDeepThink() {
-        deepThinkEnabled = !deepThinkEnabled;
-        document.getElementById('deepThinkBtn').classList.toggle('active');
+    // ==================== 模态框通用 ====================
+    let currentModalType = null;
+    function closeModal() { document.getElementById('genericModal').classList.remove('active'); currentModalType = null; }
+    function openMarketModal() {
+        currentModalType = 'market';
+        document.getElementById('modalTitle').innerText = '📋 指令市场';
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `<div style="margin-bottom:1rem"><button class="btn-primary" onclick="generateRandomInstruction()">🔄 智能生成</button></div><div id="marketModalList"></div>`;
+        document.getElementById('modalFooter').innerHTML = `<button class="btn-secondary" onclick="closeModal()">关闭</button>`;
+        document.getElementById('genericModal').classList.add('active');
+        renderMarketModal();
     }
-    function togglePreviewMode() {
-        previewModeEnabled = !previewModeEnabled;
-        document.getElementById('previewModeBtn').classList.toggle('active');
+    function openManageModal() {
+        currentModalType = 'manage';
+        document.getElementById('modalTitle').innerText = '📝 指令管理';
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `<div style="margin-bottom:1rem"><button class="btn-primary" onclick="showAddInstructionDialog()">+ 新增指令</button></div><div id="manageModalList"></div>`;
+        document.getElementById('modalFooter').innerHTML = `<button class="btn-secondary" onclick="closeModal()">关闭</button>`;
+        document.getElementById('genericModal').classList.add('active');
+        renderManageModal();
     }
-    function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
-
-    // ==================== 角色卡管理 ====================
-    function loadRoles() {
-        const stored = localStorage.getItem('my_roles');
-        if (stored) roles = JSON.parse(stored);
-        else {
-            roles = [{ id: Date.now(), name: '青梅竹马', desc: '我们是青梅竹马，从幼儿园就认识，每天一起上下学。' }];
-            saveRoles();
-        }
+    function openRoleModal() {
+        currentModalType = 'role';
+        document.getElementById('modalTitle').innerText = '🎭 角色卡管理';
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `<div style="margin-bottom:1rem"><button class="btn-primary" onclick="showAddRoleDialog()">+ 新建角色</button></div><div id="roleModalList"></div>`;
+        document.getElementById('modalFooter').innerHTML = `<button class="btn-secondary" onclick="closeModal()">关闭</button>`;
+        document.getElementById('genericModal').classList.add('active');
+        renderRoleModal();
     }
-    function saveRoles() { localStorage.setItem('my_roles', JSON.stringify(roles)); }
-    function renderRolePanel() {
-        const container = document.getElementById('roleList');
-        if (!container) return;
-        if (roles.length === 0) {
-            container.innerHTML = '<div class="empty-roles">还没有创建任何角色<br>点击下方按钮创建角色卡，或用 AI 智能生成。</div>';
-        } else {
-            container.innerHTML = roles.map(r => `
-                <div class="role-card">
-                    <div class="role-name">🎭 ${escapeHtml(r.name)}</div>
-                    <div class="role-desc">${escapeHtml(r.desc)}</div>
-                    <div class="role-actions">
-                        <button class="role-btn" onclick="useRoleInChat('${r.id}')">💬 使用</button>
-                        <button class="role-btn" onclick="editRole('${r.id}')">✏️ 编辑</button>
-                        <button class="role-btn" onclick="deleteRole('${r.id}')">🗑️ 删除</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-    }
-    function showAddRoleDialog() {
-        let name = prompt('输入角色名称');
-        if (!name) return;
-        let desc = prompt('输入角色描述');
-        if (!desc) return;
-        roles.unshift({ id: Date.now(), name: name, desc: desc });
-        saveRoles();
-        renderRolePanel();
-    }
-    function editRole(id) {
-        const role = roles.find(r => r.id == id);
-        if (!role) return;
-        let newName = prompt('修改角色名称', role.name);
-        if (newName) role.name = newName;
-        let newDesc = prompt('修改角色描述', role.desc);
-        if (newDesc) role.desc = newDesc;
-        saveRoles();
-        renderRolePanel();
-    }
-    function deleteRole(id) {
-        if (!confirm('确定删除这个角色卡吗？')) return;
-        roles = roles.filter(r => r.id != id);
-        saveRoles();
-        renderRolePanel();
-    }
-    function useRoleInChat(id) {
-        const role = roles.find(r => r.id == id);
-        if (!role) return;
-        createNewDialog();
-        setTimeout(() => {
-            const input = document.getElementById('userInput');
-            if (input) {
-                input.value = `【角色扮演】你是${role.name}。${role.desc}`;
-                input.dispatchEvent(new Event('input'));
-            }
-        }, 100);
-        switchPanel('chat');
-    }
-
-    // ==================== 指令管理 ====================
-    function loadInstructions() {
-        const stored = localStorage.getItem('my_instructions');
-        if (stored) instructions = JSON.parse(stored);
-        else {
-            instructions = [{ id: Date.now(), title: '角色扮演 | 异地恋分手通话', content: '【角色扮演】你是异地恋多年即将分手的恋人，我是不舍的一方，我们进行最后一通通话，满是遗憾与不舍。', type: 'roleplay' }];
-            saveInstructions();
-        }
-    }
-    function saveInstructions() { localStorage.setItem('my_instructions', JSON.stringify(instructions)); }
-    function renderMarket() {
-        const container = document.getElementById('marketList');
+    function renderMarketModal() {
+        const container = document.getElementById('marketModalList');
         if (!container) return;
         container.innerHTML = instructions.map(inst => `
             <div class="instruction-card">
@@ -1124,8 +529,8 @@
             </div>
         `).join('');
     }
-    function renderManage() {
-        const container = document.getElementById('manageList');
+    function renderManageModal() {
+        const container = document.getElementById('manageModalList');
         if (!container) return;
         container.innerHTML = instructions.map(inst => `
             <div class="instruction-card">
@@ -1138,22 +543,46 @@
             </div>
         `).join('');
     }
+    function renderRoleModal() {
+        const container = document.getElementById('roleModalList');
+        if (!container) return;
+        if (roles.length === 0) container.innerHTML = '<div class="empty-placeholder">还没有创建任何角色<br>点击下方按钮创建角色卡，或用 AI 智能生成。</div>';
+        else container.innerHTML = roles.map(r => `
+            <div class="role-card">
+                <div class="role-name">🎭 ${escapeHtml(r.name)}</div>
+                <div class="role-desc">${escapeHtml(r.desc)}</div>
+                <div class="card-actions">
+                    <button class="card-btn" onclick="useRoleInChat('${r.id}')">💬 使用</button>
+                    <button class="card-btn" onclick="editRole('${r.id}')">✏️ 编辑</button>
+                    <button class="card-btn" onclick="deleteRole('${r.id}')">🗑️ 删除</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ==================== 指令和角色数据操作 ====================
+    function loadInstructions() {
+        const stored = localStorage.getItem('my_instructions');
+        if (stored) instructions = JSON.parse(stored);
+        else instructions = [{ id: Date.now(), title: '角色扮演 | 异地恋分手通话', content: '【角色扮演】你是异地恋多年即将分手的恋人，我是不舍的一方，我们进行最后一通通话，满是遗憾与不舍。', type: 'roleplay' }];
+        saveInstructions();
+    }
+    function saveInstructions() { localStorage.setItem('my_instructions', JSON.stringify(instructions)); }
     function saveToManage(instId) {
         const inst = instructions.find(i => i.id == instId);
         if (inst && !instructions.some(i => i.id === instId)) {
             instructions.push({ ...inst, id: Date.now() + Math.random() });
             saveInstructions();
-            renderManage();
+            if (currentModalType === 'market') renderMarketModal();
+            if (currentModalType === 'manage') renderManageModal();
             alert('已保存到指令管理');
-        } else {
-            alert('指令已存在');
-        }
+        } else alert('指令已存在');
     }
     function deleteInstruction(id) {
         instructions = instructions.filter(i => i.id != id);
         saveInstructions();
-        renderManage();
-        renderMarket();
+        if (currentModalType === 'market') renderMarketModal();
+        if (currentModalType === 'manage') renderManageModal();
     }
     function showAddInstructionDialog() {
         let title = prompt('输入指令标题');
@@ -1162,8 +591,8 @@
         if (!content) return;
         instructions.unshift({ id: Date.now(), title: title, content: content, type: 'manual' });
         saveInstructions();
-        renderManage();
-        renderMarket();
+        if (currentModalType === 'market') renderMarketModal();
+        if (currentModalType === 'manage') renderManageModal();
     }
     function generateRandomInstruction() {
         const titles = ['【角色扮演】你是古代将军，我是谋士', '【情感】暗恋十年的同学会', '【职场】老板深夜发来消息', '【奇幻】我捡到了一只会说话的猫'];
@@ -1172,8 +601,50 @@
         const newId = Date.now();
         instructions.unshift({ id: newId, title: titles[randomIdx], content: contents[randomIdx], type: 'ai' });
         saveInstructions();
-        renderMarket();
+        renderMarketModal();
         alert('✨ 已生成新指令');
+    }
+    function loadRoles() {
+        const stored = localStorage.getItem('my_roles');
+        if (stored) roles = JSON.parse(stored);
+        else roles = [{ id: Date.now(), name: '青梅竹马', desc: '我们是青梅竹马，从幼儿园就认识，每天一起上下学。' }];
+        saveRoles();
+    }
+    function saveRoles() { localStorage.setItem('my_roles', JSON.stringify(roles)); }
+    function showAddRoleDialog() {
+        let name = prompt('输入角色名称');
+        if (!name) return;
+        let desc = prompt('输入角色描述');
+        if (!desc) return;
+        roles.unshift({ id: Date.now(), name: name, desc: desc });
+        saveRoles();
+        if (currentModalType === 'role') renderRoleModal();
+    }
+    function editRole(id) {
+        const role = roles.find(r => r.id == id);
+        if (!role) return;
+        let newName = prompt('修改角色名称', role.name);
+        if (newName) role.name = newName;
+        let newDesc = prompt('修改角色描述', role.desc);
+        if (newDesc) role.desc = newDesc;
+        saveRoles();
+        if (currentModalType === 'role') renderRoleModal();
+    }
+    function deleteRole(id) {
+        if (!confirm('确定删除这个角色卡吗？')) return;
+        roles = roles.filter(r => r.id != id);
+        saveRoles();
+        if (currentModalType === 'role') renderRoleModal();
+    }
+    function useRoleInChat(id) {
+        const role = roles.find(r => r.id == id);
+        if (!role) return;
+        createNewDialog();
+        setTimeout(() => {
+            const input = document.getElementById('userInput');
+            if (input) { input.value = `【角色扮演】你是${role.name}。${role.desc}`; input.dispatchEvent(new Event('input')); }
+        }, 100);
+        closeModal();
     }
     function newChatAndInsert(instId) {
         const inst = instructions.find(i => i.id == instId);
@@ -1181,41 +652,25 @@
         createNewDialog();
         setTimeout(() => {
             const input = document.getElementById('userInput');
-            if (input) {
-                input.value = inst.content;
-                input.dispatchEvent(new Event('input'));
-            }
+            if (input) { input.value = inst.content; input.dispatchEvent(new Event('input')); }
         }, 100);
-        switchPanel('chat');
+        closeModal();
     }
 
     // ==================== 历史对话管理 ====================
     function loadConversations() {
         const saved = localStorage.getItem('my_conversations');
-        if (saved) {
-            conversations = JSON.parse(saved);
-        } else {
-            const defaultId = Date.now().toString();
-            conversations = [{ id: defaultId, title: '新对话', messages: [] }];
-            currentConvId = defaultId;
-            saveConversations();
-        }
+        if (saved) conversations = JSON.parse(saved);
+        else { const defaultId = Date.now().toString(); conversations = [{ id: defaultId, title: '新对话', messages: [] }]; currentConvId = defaultId; saveConversations(); }
         if (!currentConvId && conversations.length) currentConvId = conversations[0].id;
         renderHistoryList();
         loadCurrentConversation();
     }
-    function saveConversations() {
-        localStorage.setItem('my_conversations', JSON.stringify(conversations));
-        updateStorageInfo();
-        renderHistoryList();
-    }
+    function saveConversations() { localStorage.setItem('my_conversations', JSON.stringify(conversations)); updateStorageInfo(); renderHistoryList(); }
     function renderHistoryList() {
         const container = document.getElementById('historyList');
         if (!container) return;
-        if (conversations.length === 0) {
-            container.innerHTML = '<div style="padding:8px 16px; color:var(--text-muted); font-size:0.8rem">暂无对话</div>';
-            return;
-        }
+        if (conversations.length === 0) { container.innerHTML = '<div style="padding:8px 16px; color:var(--text-muted);">暂无对话</div>'; return; }
         container.innerHTML = conversations.map(conv => `
             <div class="history-item ${currentConvId === conv.id ? 'active' : ''}" onclick="switchConversation('${conv.id}')">
                 <span class="history-title">${escapeHtml(conv.title)}</span>
@@ -1240,13 +695,8 @@
         const container = document.getElementById('chatMessages');
         if (!conv) return;
         container.innerHTML = '';
-        if (conv.messages.length === 0) {
-            container.innerHTML = '<div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>';
-        } else {
-            conv.messages.forEach(msg => {
-                addMessageToDOM(msg.content, msg.role);
-            });
-        }
+        if (conv.messages.length === 0) container.innerHTML = '<div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>';
+        else conv.messages.forEach(msg => addMessageToDOM(msg.content, msg.role));
         scrollToBottom();
     }
     function createNewDialog() {
@@ -1254,53 +704,34 @@
         conversations.unshift({ id: newId, title: '新对话', messages: [] });
         currentConvId = newId;
         saveConversations();
-        clearChatMessages();
-        switchPanel('chat');
-    }
-    function clearChatMessages() {
         const container = document.getElementById('chatMessages');
         container.innerHTML = '<div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>';
     }
     function showRenameModal(convId) {
         pendingRenameConvId = convId;
         const conv = conversations.find(c => c.id == convId);
-        document.getElementById('renameInput').value = conv ? conv.title : '';
-        document.getElementById('renameModal').classList.add('active');
-    }
-    function confirmRename() {
-        const newName = document.getElementById('renameInput').value.trim();
+        const newName = prompt('修改会话名称', conv ? conv.title : '');
         if (newName && pendingRenameConvId) {
-            const conv = conversations.find(c => c.id == pendingRenameConvId);
-            if (conv) conv.title = newName;
+            const c = conversations.find(c => c.id == pendingRenameConvId);
+            if (c) c.title = newName;
             saveConversations();
         }
-        closeRenameModal();
-    }
-    function closeRenameModal() {
-        document.getElementById('renameModal').classList.remove('active');
         pendingRenameConvId = null;
     }
     function releaseSpace(convId) {
         const conv = conversations.find(c => c.id == convId);
-        if (conv) {
-            if (confirm(`确定要释放「${conv.title}」的对话空间吗？对话内容将被清空。`)) {
-                conv.messages = [];
-                saveConversations();
-                if (currentConvId === convId) loadCurrentConversation();
-                alert('对话空间已释放');
-            }
+        if (conv && confirm(`确定要释放「${conv.title}」的对话空间吗？对话内容将被清空。`)) {
+            conv.messages = [];
+            saveConversations();
+            if (currentConvId === convId) loadCurrentConversation();
+            alert('对话空间已释放');
         }
     }
     function deleteConversation(convId) {
         if (confirm('确定删除这个对话吗？')) {
             conversations = conversations.filter(c => c.id != convId);
-            if (conversations.length === 0) {
-                const newId = Date.now().toString();
-                conversations = [{ id: newId, title: '新对话', messages: [] }];
-                currentConvId = newId;
-            } else if (currentConvId === convId) {
-                currentConvId = conversations[0].id;
-            }
+            if (conversations.length === 0) { const newId = Date.now().toString(); conversations = [{ id: newId, title: '新对话', messages: [] }]; currentConvId = newId; }
+            else if (currentConvId === convId) currentConvId = conversations[0].id;
             saveConversations();
             loadCurrentConversation();
         }
@@ -1308,13 +739,11 @@
     function exportConversation(convId) {
         const conv = conversations.find(c => c.id == convId);
         if (!conv) return;
-        const exportData = JSON.stringify(conv, null, 2);
-        const blob = new Blob([exportData], { type: 'application/json' });
+        const data = JSON.stringify(conv, null, 2);
+        const blob = new Blob([data], {type:'application/json'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `${conv.title}.json`;
-        a.click();
+        a.href = url; a.download = `${conv.title}.json`; a.click();
         URL.revokeObjectURL(url);
         alert('对话已导出');
     }
@@ -1324,18 +753,18 @@
         conv.messages.push({ role, content, timestamp: Date.now() });
         saveConversations();
         if (conv.messages.length === 1 && role === 'user') {
-            conv.title = content.substring(0, 20) + (content.length > 20 ? '...' : '');
+            conv.title = content.substring(0,20)+(content.length>20?'...':'');
             renderHistoryList();
         }
     }
 
-    // ==================== 聊天消息发送 ====================
+    // ==================== 聊天功能 ====================
     async function sendMessage() {
         const input = document.getElementById('userInput');
         const message = input.value.trim();
         if (!message) return;
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
-        if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
+        if (!DEEPSEEK_API_KEY) { alert('请先设置API Key（点击左下角⚙️设置）'); return; }
         addMessageToDOM(message, 'user');
         saveMessageToCurrentConv('user', message);
         input.value = '';
@@ -1368,29 +797,22 @@
     }
     function addThinkingMessage() {
         const container = document.getElementById('chatMessages');
-        const id = 'think-' + Date.now();
-        const div = document.createElement('div');
-        div.id = id;
-        div.className = 'message ai thinking';
+        const id = 'think-'+Date.now();
+        const div = document.createElement('div'); div.id=id; div.className='message ai thinking';
         div.innerHTML = `<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`;
-        container.appendChild(div);
-        scrollToBottom();
-        return id;
+        container.appendChild(div); scrollToBottom(); return id;
     }
-    function removeThinkingMessage(id) { const el = document.getElementById(id); if(el) el.remove(); }
-    function scrollToBottom() { const c = document.getElementById('chatMessages'); if(c) c.scrollTop = c.scrollHeight; }
-
-    // ==================== 辅助功能 ====================
+    function removeThinkingMessage(id) { const el=document.getElementById(id); if(el) el.remove(); }
+    function scrollToBottom() { const c=document.getElementById('chatMessages'); if(c) c.scrollTop=c.scrollHeight; }
+    function toggleDeepThink() { deepThinkEnabled=!deepThinkEnabled; document.getElementById('deepThinkBtn').classList.toggle('active'); }
+    function togglePreviewMode() { previewModeEnabled=!previewModeEnabled; document.getElementById('previewModeBtn').classList.toggle('active'); }
+    function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
     function toggleSearch() { alert('🔍 搜索对话功能开发中~'); }
-    function closeSearch() {}
     function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
     function updateStorageInfo() {
-        let total = 0;
-        for (let i = 0; i < localStorage.length; i++) total += (localStorage.key(i).length + (localStorage.getItem(localStorage.key(i)) || '').length) * 2;
-        const used = (total / 1024).toFixed(1);
-        const percent = ((total / (5 * 1024 * 1024)) * 100).toFixed(1);
-        const infoEl = document.getElementById('storageInfo');
-        if (infoEl) infoEl.innerHTML = `本地存储容量 ${used}KB / 5MB (${percent}%)`;
+        let total=0; for(let i=0;i<localStorage.length;i++) total+=(localStorage.key(i).length+(localStorage.getItem(localStorage.key(i))||'').length)*2;
+        const used=(total/1024).toFixed(1); const percent=((total/(5*1024*1024))*100).toFixed(1);
+        const info=document.getElementById('storageInfo'); if(info) info.innerHTML=`本地存储容量 ${used}KB / 5MB (${percent}%)`;
     }
     document.getElementById('userInput').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
     document.getElementById('userInput').addEventListener('input', function() { this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,100)+'px'; });
