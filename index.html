@@ -235,7 +235,7 @@
         }
         .hamburger-icon:hover, .icon-btn:hover { background: var(--btn-icon-hover); }
 
-        /* 聊天区域 */
+        /* ===== 聊天区域 ===== */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -258,15 +258,39 @@
             gap: 1rem;
             overflow-x: hidden;
         }
+
+        /* ===== 消息气泡 - 自适应宽度 ===== */
         .message-wrapper {
             display: flex;
             flex-direction: column;
             max-width: 85%;
-            width: 100%;
+            width: auto;
             box-sizing: border-box;
         }
-        .message.user { align-self: flex-end; }
-        .message.ai { align-self: flex-start; }
+        /* 用户消息：靠右，文本左对齐 */
+        .message.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        .message.user .bubble {
+            text-align: left;
+            background: var(--bubble-user);
+            color: white;
+            border-bottom-right-radius: 0.3rem;
+        }
+        /* AI消息：靠左，文本左对齐 */
+        .message.ai {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+        .message.ai .bubble {
+            text-align: left;
+            background: var(--bubble-ai);
+            color: var(--text-primary);
+            border-bottom-left-radius: 0.3rem;
+            border: 1px solid var(--border-color);
+        }
+
         .bubble {
             padding: 0.7rem 1rem;
             border-radius: 1.2rem;
@@ -275,9 +299,10 @@
             word-break: break-word;
             white-space: pre-wrap;
             overflow-wrap: break-word;
+            width: auto;
+            max-width: 100%;
+            display: inline-block;
         }
-        .user .bubble { background: var(--bubble-user); color: white; border-bottom-right-radius: 0.3rem; }
-        .ai .bubble { background: var(--bubble-ai); color: var(--text-primary); border-bottom-left-radius: 0.3rem; border: 1px solid var(--border-color); }
 
         /* 消息操作按钮 - 常亮 + tooltip */
         .message-actions {
@@ -288,6 +313,13 @@
             opacity: 1;
             flex-wrap: wrap;
         }
+        .message.user .message-actions {
+            justify-content: flex-end;
+        }
+        .message.ai .message-actions {
+            justify-content: flex-start;
+        }
+
         .msg-action {
             background: var(--btn-icon-bg);
             border: none;
@@ -430,7 +462,7 @@
         .font-option.active { background: var(--accent-color); color: white; }
         .model-select, .api-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px; border-radius: 8px; }
 
-        /* 预览弹窗（原预览网页功能已替换为新的模态框） */
+        /* 预览实际网页的 iframe 弹窗 */
         .preview-modal {
             display: none;
             position: fixed;
@@ -533,6 +565,120 @@
             transform: translateX(20px);
         }
 
+        /* ===== 预览网页弹窗专用样式 ===== */
+        .preview-web-modal .modal-container {
+            max-width: 550px;
+        }
+        .preview-web-modal .modal-body {
+            padding: 1rem 1.2rem;
+        }
+        .preview-web-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .preview-web-desc strong {
+            color: var(--text-primary);
+        }
+        .preview-example-box {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .preview-example-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .preview-example-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .preview-example-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .preview-example-btn {
+            background: var(--btn-icon-bg);
+            border: none;
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .preview-example-btn:hover {
+            background: var(--btn-icon-hover);
+            color: var(--text-primary);
+        }
+        .preview-example-btn .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: auto;
+            min-width: 60px;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.65rem;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        .preview-example-btn .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: rgba(0,0,0,0.8);
+        }
+        .preview-example-btn:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .preview-example-text {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .preview-example-text strong {
+            color: #a3e0d0;
+        }
+        .preview-start-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .preview-start-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(0.98);
+        }
+
         /* 手机自适应 */
         @media (max-width: 768px) {
             .sidebar { width: 260px; }
@@ -549,6 +695,8 @@
             .export-option label { font-size: 0.85rem; }
             .export-toggle-row { padding: 8px 12px; }
             .export-toggle-row span { font-size: 0.85rem; }
+            .preview-web-modal .modal-container { max-width: 95%; }
+            .preview-example-btn { font-size: 0.7rem; padding: 3px 6px; }
         }
     </style>
 </head>
@@ -665,7 +813,7 @@
     </div>
 </div>
 
-<!-- ===== 编辑消息弹窗 ===== -->
+<!-- 编辑消息弹窗 -->
 <div id="editMessageModal" class="modal-overlay">
     <div class="modal-container" style="max-width:450px;">
         <div class="modal-header">
@@ -682,40 +830,47 @@
     </div>
 </div>
 
-<!-- ===== 预览网页弹窗 ===== -->
-<div id="previewWebModal" class="modal-overlay">
-    <div class="modal-container" style="max-width:550px;">
+<!-- ===== 预览网页弹窗（完善版：多个示例 + 换一个 + 复制） ===== -->
+<div id="previewWebModal" class="modal-overlay preview-web-modal">
+    <div class="modal-container">
         <div class="modal-header">
             <h3>🌐 预览网页 · 把创意变成能看见的页面</h3>
             <button class="modal-close" onclick="closePreviewWebModal()">✕</button>
         </div>
         <div class="modal-body">
-            <p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:16px;">
+            <div class="preview-web-desc">
                 开启后，AI 的回答会自动变成一个真实可预览的网页——无论是角色资料卡、同人作品展示页，还是一张纪念你和 CP 故事的"证件"，生成完成后一键预览即可。<br><br>
                 <strong>不用懂代码，描述你想要的样子就行。</strong>
-            </p>
-            <div style="background:var(--bg-input); border-radius:12px; padding:14px; border:1px solid var(--border-color); margin-bottom:12px;">
-                <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">📌 指令示例</div>
-                <div style="color:var(--text-primary); font-size:0.9rem; line-height:1.5; word-break:break-word;">
-                    请根据 <strong>**</strong> 的性格特点，创作 10 条生动、贴合其个性的微博内容。每条需体现转发、评论、点赞、热搜、话题标签、配图 / 长图 / 视频、仅粉丝可见、分组屏蔽、特别关注提醒、发布时间、置顶、私信互动等微博平台功能。
-                </div>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closePreviewWebModal()">取消</button>
-            <button class="btn-save" id="startCreationBtn">✨ 好，开始创作</button>
+            <div class="preview-example-box">
+                <div class="preview-example-header">
+                    <span class="preview-example-label">📌 指令示例</span>
+                    <div class="preview-example-actions">
+                        <button class="preview-example-btn" id="refreshExampleBtn" title="换一个示例">
+                            🔄
+                            <span class="tooltip">换一个示例</span>
+                        </button>
+                        <button class="preview-example-btn" id="copyExampleBtn" title="复制到输入框">
+                            📋
+                            <span class="tooltip">复制到输入框</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="previewExampleText" class="preview-example-text"></div>
+            </div>
+            <button class="preview-start-btn" id="startCreationBtn">✨ 好，开始创作</button>
         </div>
     </div>
 </div>
 
-<!-- 预览实际网页的 iframe 弹窗（保留原有功能） -->
+<!-- 预览实际网页的 iframe 弹窗 -->
 <div id="previewModal" class="preview-modal"><div class="preview-content"><div class="preview-header"><span>🌐 网页预览</span><button class="icon-btn" onclick="closePreview()" style="background:none">✕</button></div><iframe id="previewIframe" class="preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe></div></div>
 
 <script>
     // ==================== 全局变量 ====================
     let DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key') || '';
     let deepThinkEnabled = false;
-    let previewModeEnabled = false; // 保留以备后用，但不再使用原 toggle
+    let previewModeEnabled = false;
     let currentModel = localStorage.getItem('selected_model') || 'deepseek-chat';
     let conversations = [];
     let currentConvId = null;
@@ -723,8 +878,21 @@
     let roles = [];
     let favorites = [];
     let currentModalType = null;
-    let editingMessageId = null; // 用于编辑消息
+    let editingMessageId = null;
     const API_URL = "https://api.deepseek.com/v1/chat/completions";
+
+    // ===== 预览网页示例列表 =====
+    const previewExamples = [
+        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的微博内容。每条需体现转发、评论、点赞、热搜、话题标签、配图 / 长图 / 视频、仅粉丝可见、分组屏蔽、特别关注提醒、发布时间、置顶、私信互动等微博平台功能。',
+        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的贴吧发帖内容。每条需体现楼中楼评论、层主回复、点赞 / 踩、收藏、帖子配图 / 视频、仅吧友可见、拉黑屏蔽、吧内 @提醒、发帖时间、精品帖、置顶帖、楼主追更等贴吧平台功能。',
+        '设计一个角色资料卡页面，包含头像（用 🧑‍🎤 表情代替）、姓名、年龄、身份、性格标签、背景故事简述、经典台词、人际关系（至少 3 个角色），用 HTML 和 CSS 实现，风格简约但精致。',
+        '创作一张 CP 故事的"证件"页面，包含两人姓名、相遇日期、专属称号、共同经历（至少 3 件事）、未来约定，用 HTML 和 CSS 实现，风格温暖浪漫。',
+        '设计一个同人作品展示页，包含作品名称、作者、配对、分级、摘要、章节列表（至少 3 章）、标签云，用 HTML 和 CSS 实现，风格适合同人圈展示。',
+        '设计一个角色卡页面，包含角色名、种族、职业、属性（力量、敏捷、智力等）、技能列表、背景故事、立绘占位，用 HTML 和 CSS 实现，风格像 RPG 游戏角色面板。',
+        '创作一张"纪念日"主题的网页，包含日期、标题、照片墙（用 emoji 代替）、回忆文字、音乐推荐，用 HTML 和 CSS 实现，风格温馨怀旧。'
+    ];
+
+    let currentExampleIndex = 0;
 
     // ==================== 初始化 ====================
     document.addEventListener('DOMContentLoaded', () => {
@@ -748,7 +916,7 @@
             });
         }
 
-        // 点击主内容区收起侧边栏（如果侧边栏未折叠）
+        // 点击主内容区收起侧边栏
         const mainContent = document.getElementById('mainContent');
         if (mainContent) {
             mainContent.addEventListener('click', () => {
@@ -792,7 +960,7 @@
         document.getElementById('saveSettingsBtn').addEventListener('click', saveAllSettings);
         document.getElementById('saveFirstApiKeyBtn').addEventListener('click', saveFirstApiKey);
 
-        // 收藏搜索框事件绑定
+        // 收藏搜索框
         const favSearch = document.getElementById('favoriteSearchInput');
         if (favSearch) {
             favSearch.addEventListener('input', () => {
@@ -800,15 +968,73 @@
             });
         }
 
-        // 导出确认按钮
+        // 导出确认
         document.getElementById('confirmExportBtn').addEventListener('click', confirmExport);
 
-        // 编辑消息保存按钮
+        // 编辑消息保存
         document.getElementById('saveEditMessageBtn').addEventListener('click', saveEditedMessage);
 
-        // 预览网页“开始创作”按钮
+        // ===== 预览网页弹窗事件 =====
+        // 初始化示例
+        updateExampleDisplay();
+
+        // 换一个示例
+        document.getElementById('refreshExampleBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentExampleIndex = (currentExampleIndex + 1) % previewExamples.length;
+            updateExampleDisplay();
+        });
+
+        // 复制到输入框
+        document.getElementById('copyExampleBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const text = previewExamples[currentExampleIndex];
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ 已复制到剪贴板，可粘贴到输入框使用');
+            }).catch(() => {
+                // 降级方案
+                const input = document.getElementById('userInput');
+                if (input) {
+                    input.value = text;
+                    input.dispatchEvent(new Event('input'));
+                    alert('✅ 已复制到输入框');
+                }
+            });
+        });
+
+        // 开始创作
         document.getElementById('startCreationBtn').addEventListener('click', startCreation);
     });
+
+    // ===== 更新示例显示 =====
+    function updateExampleDisplay() {
+        const container = document.getElementById('previewExampleText');
+        if (container) {
+            const text = previewExamples[currentExampleIndex];
+            // 将 ** 加粗显示
+            container.innerHTML = text.replace(/\*\*/g, '<strong>**</strong>');
+        }
+    }
+
+    // ===== 预览网页弹窗控制 =====
+    function openPreviewWebModal() {
+        // 随机选择一个示例
+        currentExampleIndex = Math.floor(Math.random() * previewExamples.length);
+        updateExampleDisplay();
+        document.getElementById('previewWebModal').classList.add('active');
+    }
+
+    function closePreviewWebModal() {
+        document.getElementById('previewWebModal').classList.remove('active');
+    }
+
+    function startCreation() {
+        closePreviewWebModal();
+        const text = previewExamples[currentExampleIndex];
+        document.getElementById('userInput').value = text;
+        document.getElementById('userInput').dispatchEvent(new Event('input'));
+        sendMessage();
+    }
 
     // ==================== 搜索功能 ====================
     function performSearch() {
@@ -1034,36 +1260,16 @@
         const msgIndex = conv.messages.findIndex(m => m.id == editingMessageId);
         if (msgIndex === -1) return;
 
-        // 更新用户消息内容
         conv.messages[msgIndex].content = newContent;
-        // 删除该消息之后的所有消息（包括AI回复）
         conv.messages = conv.messages.slice(0, msgIndex + 1);
         saveConversations();
         loadCurrentConversation();
         closeEditMessageModal();
 
-        // 重新发送用户消息，让AI重新生成
         await sendMessageWithContext(newContent);
     }
 
-    // ==================== 预览网页功能 ====================
-    function openPreviewWebModal() {
-        document.getElementById('previewWebModal').classList.add('active');
-    }
-
-    function closePreviewWebModal() {
-        document.getElementById('previewWebModal').classList.remove('active');
-    }
-
-    function startCreation() {
-        closePreviewWebModal();
-        const exampleInstruction = '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的微博内容。每条需体现转发、评论、点赞、热搜、话题标签、配图 / 长图 / 视频、仅粉丝可见、分组屏蔽、特别关注提醒、发布时间、置顶、私信互动等微博平台功能。';
-        document.getElementById('userInput').value = exampleInstruction;
-        document.getElementById('userInput').dispatchEvent(new Event('input'));
-        sendMessage();
-    }
-
-    // 保留原有的预览实际网页的功能（当AI回复包含代码时使用）
+    // ==================== 预览实际网页 ====================
     function previewAsWebpage(content) {
         let htmlContent = content;
         const codeBlockMatch = content.match(/```html?([\s\S]*?)```/i);
@@ -1407,6 +1613,7 @@
         wrapper.className = `message-wrapper message ${msg.role}`;
         const msgId = msg.id || (msg.id = Date.now() + '-' + idx);
         wrapper.setAttribute('data-msgid', msgId);
+
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'bubble';
         let displayContent = msg.content;
@@ -1509,12 +1716,6 @@
             removeThinkingMessage(thinkId);
             addMessageToDOM(aiContent, 'ai');
             saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
-
-            // 如果开启了预览模式，但这里我们已改为弹窗，但保留自动检测代码块预览（用户可手动点击）
-            if (previewModeEnabled && (aiContent.includes('```') || aiContent.toLowerCase().includes('html'))) {
-                // 我们不再自动弹出，而是让用户点击预览按钮（如果有）
-                // 但为了兼容，可以添加一个提示
-            }
         } catch (e) {
             removeThinkingMessage(thinkId);
             addMessageToDOM(`出错：${e.message}`, 'ai');
@@ -1532,6 +1733,7 @@
         wrapper.className = `message-wrapper message ${role}`;
         const id = 'tmp-' + Date.now() + '-' + Math.random();
         wrapper.setAttribute('data-msgid', id);
+
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'bubble';
         bubbleDiv.innerHTML = escapeHtml(content).replace(/\n/g, '<br>');
@@ -1578,7 +1780,6 @@
     function removeThinkingMessage(id) { const el = document.getElementById(id); if (el) el.remove(); }
     function scrollToBottom() { const c = document.getElementById('chatMessages'); if (c) c.scrollTop = c.scrollHeight; }
     function toggleDeepThink() { deepThinkEnabled = !deepThinkEnabled; document.getElementById('deepThinkBtn').classList.toggle('active'); }
-    function togglePreviewMode() { previewModeEnabled = !previewModeEnabled; document.getElementById('previewModeBtn').classList.toggle('active'); } // 保留但不再使用
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]); }
     function updateStorageInfo() { let total = 0; for (let i = 0; i < localStorage.length; i++) total += (localStorage.key(i).length + (localStorage.getItem(localStorage.key(i)) || '').length) * 2; const used = (total / 1024).toFixed(1); const percent = ((total / (5 * 1024 * 1024)) * 100).toFixed(1); const info = document.getElementById('storageInfo'); if (info) info.innerHTML = `本地存储容量 ${used}KB / 5MB (${percent}%)`; }
     document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
