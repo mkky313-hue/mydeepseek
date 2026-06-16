@@ -219,7 +219,54 @@
             font-size: 1rem;
             flex-shrink: 0;
         }
-        .top-nav-right { display: flex; gap: 8px; flex-shrink: 0; }
+        .top-nav-right { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+
+        /* 加号下拉菜单 */
+        .add-dropdown-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .add-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 4px);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 6px 0;
+            min-width: 170px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .add-dropdown.open { display: block; }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .dropdown-item:hover {
+            background: rgba(128,128,128,0.2);
+            color: var(--text-primary);
+        }
+        .dropdown-item svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
         .hamburger-icon, .icon-btn {
             background: var(--btn-icon-bg);
             border: none;
@@ -259,7 +306,7 @@
             overflow-x: hidden;
         }
 
-        /* ===== 消息气泡 - 自适应宽度 ===== */
+        /* ===== 消息气泡 ===== */
         .message-wrapper {
             display: flex;
             flex-direction: column;
@@ -267,7 +314,6 @@
             width: auto;
             box-sizing: border-box;
         }
-        /* 用户消息：靠右，文本左对齐 */
         .message.user {
             align-self: flex-end;
             align-items: flex-end;
@@ -278,7 +324,6 @@
             color: white;
             border-bottom-right-radius: 0.3rem;
         }
-        /* AI消息：靠左，文本左对齐 */
         .message.ai {
             align-self: flex-start;
             align-items: flex-start;
@@ -304,7 +349,6 @@
             display: inline-block;
         }
 
-        /* 消息操作按钮 - 常亮 + tooltip */
         .message-actions {
             display: flex;
             gap: 6px;
@@ -313,12 +357,8 @@
             opacity: 1;
             flex-wrap: wrap;
         }
-        .message.user .message-actions {
-            justify-content: flex-end;
-        }
-        .message.ai .message-actions {
-            justify-content: flex-start;
-        }
+        .message.user .message-actions { justify-content: flex-end; }
+        .message.ai .message-actions { justify-content: flex-start; }
 
         .msg-action {
             background: var(--btn-icon-bg);
@@ -388,7 +428,7 @@
         .action-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
         .welcome-message { text-align: center; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 1rem; border-radius: 1rem; }
 
-        /* 模态框通用 */
+        /* 通用模态框 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -404,8 +444,8 @@
         .modal-container {
             background: var(--bg-card);
             width: 100%;
-            max-width: 600px;
-            max-height: 80vh;
+            max-width: 700px;
+            max-height: 85vh;
             border-radius: 1.5rem;
             overflow-y: auto;
             border: 1px solid var(--border-color);
@@ -419,8 +459,15 @@
             align-items: center;
             padding: 1rem;
             border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        .modal-header h3 { color: #a3e0d0; font-size: 1.1rem; }
+        .modal-header h3 { color: #a3e0d0; font-size: 1.1rem; margin: 0; }
+        .modal-header .modal-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
         .modal-close {
             background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);
         }
@@ -435,8 +482,10 @@
         }
         .btn-save, .btn-primary { background: var(--accent-color); border: none; color: white; padding: 6px 16px; border-radius: 20px; cursor: pointer; }
         .btn-secondary { background: var(--btn-icon-bg); border: none; color: var(--text-primary); padding: 6px 16px; border-radius: 20px; cursor: pointer; }
+        .btn-gray { background: var(--btn-icon-bg); border: none; color: var(--text-primary); padding: 6px 16px; border-radius: 20px; cursor: pointer; }
+        .btn-blue { background: var(--accent-color); border: none; color: white; padding: 6px 16px; border-radius: 20px; cursor: pointer; }
 
-        /* 指令/角色卡片样式 */
+        /* 指令/角色卡片样式 (保持原有风格) */
         .instruction-card, .role-card {
             background: var(--bg-input);
             border-radius: 1rem;
@@ -453,6 +502,93 @@
         }
         .card-btn.primary { background: var(--accent-color); color: white; }
         .empty-placeholder { text-align: center; padding: 2rem; color: var(--text-muted); }
+
+        /* 角色卡编辑表单 */
+        .character-edit-field {
+            margin-bottom: 1rem;
+        }
+        .character-field-label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+        .prompt-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        .prompt-textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            resize: vertical;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .talkativeness-slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .talkativeness-slider {
+            flex: 1;
+            accent-color: var(--accent-color);
+        }
+        .talkativeness-value {
+            min-width: 30px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        .character-brief-wrapper {
+            position: relative;
+        }
+        .character-brief-ai-btn {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-card);
+            padding: 2px 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .character-brief-ai-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+        .prompt-ai-opt-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 2px;
+        }
+        .prompt-ai-opt-btn:hover {
+            color: var(--accent-color);
+        }
+        .prompt-ai-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .prompt-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 1rem;
+        }
 
         /* 设置内部样式 */
         .settings-section { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
@@ -565,7 +701,7 @@
             transform: translateX(20px);
         }
 
-        /* ===== 预览网页弹窗专用样式 ===== */
+        /* 预览网页弹窗 */
         .preview-web-modal .modal-container {
             max-width: 550px;
         }
@@ -702,7 +838,7 @@
 </head>
 <body>
 <div class="app-wrapper">
-    <!-- 默认收起侧边栏 -->
+    <!-- 侧边栏（默认收起） -->
     <div class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header"><h3>My DeepSeek</h3></div>
         <div class="sidebar-nav">
@@ -720,7 +856,7 @@
         </div>
     </div>
 
-    <!-- 主内容区默认展开 -->
+    <!-- 主内容区 -->
     <div class="main-content expanded" id="mainContent">
         <div class="top-nav">
             <div class="top-nav-left">
@@ -735,7 +871,24 @@
                 </div>
             </div>
             <div class="top-nav-right">
-                <button class="icon-btn" onclick="createNewDialog()">➕</button>
+                <!-- 加号下拉菜单 -->
+                <div class="add-dropdown-wrapper">
+                    <button class="icon-btn" id="addMenuBtn">➕</button>
+                    <div class="add-dropdown" id="addDropdown">
+                        <div class="dropdown-item" data-action="single">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            新建对话
+                        </div>
+                        <div class="dropdown-item" data-action="group">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            新建群聊
+                        </div>
+                        <div class="dropdown-item" data-action="character">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            新建角色对话
+                        </div>
+                    </div>
+                </div>
                 <button class="icon-btn" id="searchIconBtn">🔍</button>
             </div>
         </div>
@@ -760,7 +913,7 @@
     </div>
 </div>
 
-<!-- 通用模态框（指令市场/管理/角色卡共用） -->
+<!-- 通用模态框 -->
 <div id="genericModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="modalTitle">标题</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body" id="modalBody"></div><div class="modal-footer" id="modalFooter"></div></div></div>
 
 <!-- 设置弹窗 -->
@@ -784,10 +937,7 @@
 <!-- 导出弹窗 -->
 <div id="exportModal" class="modal-overlay">
     <div class="modal-container" style="max-width:420px;">
-        <div class="modal-header">
-            <h3>📤 导出对话</h3>
-            <button class="modal-close" onclick="closeExportModal()">✕</button>
-        </div>
+        <div class="modal-header"><h3>📤 导出对话</h3><button class="modal-close" onclick="closeExportModal()">✕</button></div>
         <div class="modal-body">
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:14px;">请选择导出内容：</p>
             <div class="export-option" onclick="document.getElementById('exportAllRadio').checked=true;">
@@ -816,10 +966,7 @@
 <!-- 编辑消息弹窗 -->
 <div id="editMessageModal" class="modal-overlay">
     <div class="modal-container" style="max-width:450px;">
-        <div class="modal-header">
-            <h3>✏️ 编辑消息</h3>
-            <button class="modal-close" onclick="closeEditMessageModal()">✕</button>
-        </div>
+        <div class="modal-header"><h3>✏️ 编辑消息</h3><button class="modal-close" onclick="closeEditMessageModal()">✕</button></div>
         <div class="modal-body">
             <textarea id="editMessageInput" rows="4" style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); border-radius:12px; padding:10px; color:var(--text-primary); resize:vertical; font-size:0.95rem; box-sizing:border-box;"></textarea>
         </div>
@@ -830,30 +977,18 @@
     </div>
 </div>
 
-<!-- ===== 预览网页弹窗（完善版：多个示例 + 换一个 + 复制） ===== -->
+<!-- 预览网页弹窗 -->
 <div id="previewWebModal" class="modal-overlay preview-web-modal">
     <div class="modal-container">
-        <div class="modal-header">
-            <h3>🌐 预览网页 · 把创意变成能看见的页面</h3>
-            <button class="modal-close" onclick="closePreviewWebModal()">✕</button>
-        </div>
+        <div class="modal-header"><h3>🌐 预览网页 · 把创意变成能看见的页面</h3><button class="modal-close" onclick="closePreviewWebModal()">✕</button></div>
         <div class="modal-body">
-            <div class="preview-web-desc">
-                开启后，AI 的回答会自动变成一个真实可预览的网页——无论是角色资料卡、同人作品展示页，还是一张纪念你和 CP 故事的"证件"，生成完成后一键预览即可。<br><br>
-                <strong>不用懂代码，描述你想要的样子就行。</strong>
-            </div>
+            <div class="preview-web-desc">开启后，AI 的回答会自动变成一个真实可预览的网页——无论是角色资料卡、同人作品展示页，还是一张纪念你和 CP 故事的"证件"，生成完成后一键预览即可。<br><br><strong>不用懂代码，描述你想要的样子就行。</strong></div>
             <div class="preview-example-box">
                 <div class="preview-example-header">
                     <span class="preview-example-label">📌 指令示例</span>
                     <div class="preview-example-actions">
-                        <button class="preview-example-btn" id="refreshExampleBtn" title="换一个示例">
-                            🔄
-                            <span class="tooltip">换一个示例</span>
-                        </button>
-                        <button class="preview-example-btn" id="copyExampleBtn" title="复制到输入框">
-                            📋
-                            <span class="tooltip">复制到输入框</span>
-                        </button>
+                        <button class="preview-example-btn" id="refreshExampleBtn" title="换一个示例">🔄<span class="tooltip">换一个示例</span></button>
+                        <button class="preview-example-btn" id="copyExampleBtn" title="复制到输入框">📋<span class="tooltip">复制到输入框</span></button>
                     </div>
                 </div>
                 <div id="previewExampleText" class="preview-example-text"></div>
@@ -863,7 +998,7 @@
     </div>
 </div>
 
-<!-- 预览实际网页的 iframe 弹窗 -->
+<!-- 预览实际网页 iframe -->
 <div id="previewModal" class="preview-modal"><div class="preview-content"><div class="preview-header"><span>🌐 网页预览</span><button class="icon-btn" onclick="closePreview()" style="background:none">✕</button></div><iframe id="previewIframe" class="preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe></div></div>
 
 <script>
@@ -879,6 +1014,8 @@
     let favorites = [];
     let currentModalType = null;
     let editingMessageId = null;
+    let editingRoleId = null; // 用于角色卡编辑
+    let editingInstructionId = null; // 用于指令编辑
     const API_URL = "https://api.deepseek.com/v1/chat/completions";
 
     // ===== 预览网页示例列表 =====
@@ -891,7 +1028,6 @@
         '设计一个角色卡页面，包含角色名、种族、职业、属性（力量、敏捷、智力等）、技能列表、背景故事、立绘占位，用 HTML 和 CSS 实现，风格像 RPG 游戏角色面板。',
         '创作一张"纪念日"主题的网页，包含日期、标题、照片墙（用 emoji 代替）、回忆文字、音乐推荐，用 HTML 和 CSS 实现，风格温馨怀旧。'
     ];
-
     let currentExampleIndex = 0;
 
     // ==================== 初始化 ====================
@@ -904,7 +1040,7 @@
         setupSettingsUI();
         if (!DEEPSEEK_API_KEY) document.getElementById('apiKeyModal').classList.add('active');
 
-        // 三条杠按钮：切换侧边栏
+        // 侧边栏切换
         const toggleBtn = document.getElementById('toggleSidebarBtn');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', (e) => {
@@ -960,7 +1096,7 @@
         document.getElementById('saveSettingsBtn').addEventListener('click', saveAllSettings);
         document.getElementById('saveFirstApiKeyBtn').addEventListener('click', saveFirstApiKey);
 
-        // 收藏搜索框
+        // 收藏搜索
         const favSearch = document.getElementById('favoriteSearchInput');
         if (favSearch) {
             favSearch.addEventListener('input', () => {
@@ -974,25 +1110,44 @@
         // 编辑消息保存
         document.getElementById('saveEditMessageBtn').addEventListener('click', saveEditedMessage);
 
-        // ===== 预览网页弹窗事件 =====
-        // 初始化示例
-        updateExampleDisplay();
+        // ===== 加号下拉菜单 =====
+        const addMenuBtn = document.getElementById('addMenuBtn');
+        const addDropdown = document.getElementById('addDropdown');
+        addMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            addDropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', () => {
+            addDropdown.classList.remove('open');
+        });
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const action = item.getAttribute('data-action');
+                addDropdown.classList.remove('open');
+                if (action === 'single') {
+                    createNewDialog();
+                } else if (action === 'group') {
+                    openCreateGroupPanel();
+                } else if (action === 'character') {
+                    openCharacterSelectForNewChat();
+                }
+            });
+        });
 
-        // 换一个示例
+        // ===== 预览网页弹窗 =====
+        updateExampleDisplay();
         document.getElementById('refreshExampleBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             currentExampleIndex = (currentExampleIndex + 1) % previewExamples.length;
             updateExampleDisplay();
         });
-
-        // 复制到输入框
         document.getElementById('copyExampleBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             const text = previewExamples[currentExampleIndex];
             navigator.clipboard.writeText(text).then(() => {
                 alert('✅ 已复制到剪贴板，可粘贴到输入框使用');
             }).catch(() => {
-                // 降级方案
                 const input = document.getElementById('userInput');
                 if (input) {
                     input.value = text;
@@ -1001,33 +1156,25 @@
                 }
             });
         });
-
-        // 开始创作
         document.getElementById('startCreationBtn').addEventListener('click', startCreation);
     });
 
-    // ===== 更新示例显示 =====
+    // ===== 预览网页辅助函数 =====
     function updateExampleDisplay() {
         const container = document.getElementById('previewExampleText');
         if (container) {
             const text = previewExamples[currentExampleIndex];
-            // 将 ** 加粗显示
             container.innerHTML = text.replace(/\*\*/g, '<strong>**</strong>');
         }
     }
-
-    // ===== 预览网页弹窗控制 =====
     function openPreviewWebModal() {
-        // 随机选择一个示例
         currentExampleIndex = Math.floor(Math.random() * previewExamples.length);
         updateExampleDisplay();
         document.getElementById('previewWebModal').classList.add('active');
     }
-
     function closePreviewWebModal() {
         document.getElementById('previewWebModal').classList.remove('active');
     }
-
     function startCreation() {
         closePreviewWebModal();
         const text = previewExamples[currentExampleIndex];
@@ -1036,7 +1183,74 @@
         sendMessage();
     }
 
-    // ==================== 搜索功能 ====================
+    // ===== 加号下拉菜单功能 =====
+    // 新建对话（已有）
+    // 新建群聊：打开群聊面板（简化：弹出角色选择，多选？我们简化为新建对话并设定角色为多个？但优秀网页有群聊面板，我们做一个简单版本）
+    function openCreateGroupPanel() {
+        // 简单实现：打开角色选择面板，允许多选，然后新建对话并设置角色列表
+        // 但我们先简单实现为打开角色卡管理，让用户选择多个角色，然后新建对话时设置角色
+        // 为了模仿，我们直接打开角色卡管理，并提示选择角色后新建
+        // 或者我们可以直接复用角色选择面板（但尚未实现多选）
+        // 这里简化：弹窗提示选择角色，然后打开角色卡管理，关闭后新建对话并插入选择的角色信息
+        // 由于时间，我们提供一个简化版：新建对话，并在输入框中提示“请选择角色”
+        // 更完整的实现可以参考优秀网页的群聊，但这里我们保持简单
+        alert('群聊功能开发中，请先用角色对话。');
+        // 或者直接打开角色卡管理，让用户选择单个角色，然后新建角色对话
+        // 我们可以调用 openCharacterSelectForNewChat 来实现
+        openCharacterSelectForNewChat();
+    }
+
+    // 新建角色对话：打开角色选择面板，选择角色后新建对话并插入角色设定
+    function openCharacterSelectForNewChat() {
+        // 显示角色列表让用户选择
+        const rolesList = roles.length ? roles : [{id:'default', name:'无角色', desc:'普通对话'}];
+        // 使用一个简单的模态框选择
+        const modal = document.getElementById('genericModal');
+        document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
+        let html = '<div style="max-height:300px; overflow-y:auto;">';
+        rolesList.forEach(r => {
+            html += `<div class="role-card" style="cursor:pointer;" onclick="selectCharacterAndNewChat('${r.id}')">
+                <div class="role-name">🎭 ${escapeHtml(r.name)}</div>
+                <div class="role-desc">${escapeHtml(r.desc || '')}</div>
+            </div>`;
+        });
+        html += '</div>';
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('modalFooter').innerHTML = '<button class="btn-secondary" onclick="closeModal()">取消</button>';
+        modal.classList.add('active');
+        // 存储当前选中的角色ID，在selectCharacterAndNewChat中使用
+        window._selectRoleId = null;
+    }
+
+    function selectCharacterAndNewChat(roleId) {
+        const role = roles.find(r => r.id == roleId);
+        if (!role) {
+            // 如果没有角色，直接新建普通对话
+            createNewDialog();
+            closeModal();
+            return;
+        }
+        // 新建对话，并填充角色设定
+        createNewDialog();
+        setTimeout(() => {
+            const inp = document.getElementById('userInput');
+            if (inp) {
+                let content = `【角色扮演】你是${role.name}。`;
+                if (role.desc) content += ` ${role.desc}`;
+                // 如果有其他字段，也加进去
+                if (role.personality) content += ` 性格：${role.personality}`;
+                if (role.background) content += ` 背景：${role.background}`;
+                if (role.appearance) content += ` 外貌：${role.appearance}`;
+                if (role.speakingStyle) content += ` 说话风格：${role.speakingStyle}`;
+                if (role.catchphrases) content += ` 口头禅：${role.catchphrases}`;
+                inp.value = content;
+                inp.dispatchEvent(new Event('input'));
+            }
+        }, 200);
+        closeModal();
+    }
+
+    // ==================== 搜索 ====================
     function performSearch() {
         const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
         if (!keyword) return;
@@ -1060,7 +1274,7 @@
         alert(`找到 ${results.length} 条结果，已跳转到第一条`);
     }
 
-    // ==================== 设置UI ====================
+    // ==================== 设置 ====================
     function setupSettingsUI() {
         const container = document.getElementById('settingsBody');
         container.innerHTML = `
@@ -1114,11 +1328,10 @@
     }
     function closeApiKeyModal() { document.getElementById('apiKeyModal').classList.remove('active'); }
 
-    // ==================== 收藏功能 ====================
+    // ==================== 收藏 ====================
     function openFavoriteModal() {
         document.getElementById('favoriteModal').classList.add('active');
-        const searchInput = document.getElementById('favoriteSearchInput');
-        if (searchInput) searchInput.value = '';
+        document.getElementById('favoriteSearchInput').value = '';
         renderFavoriteList('');
     }
     function closeFavoriteModal() { document.getElementById('favoriteModal').classList.remove('active'); }
@@ -1134,10 +1347,10 @@
             return;
         }
         container.innerHTML = filtered.map(fav => `
-            <div class="favorite-item">
-                <div class="fav-meta">来自：${escapeHtml(fav.convTitle)} · ${new Date(fav.timestamp).toLocaleString()}</div>
-                <div class="fav-content">${escapeHtml(fav.content.substring(0,200))}${fav.content.length>200?'...':''}</div>
-                <div class="fav-actions">
+            <div class="favorite-item" style="background:var(--bg-input); border-radius:10px; padding:10px; margin-bottom:8px; border:1px solid var(--border-color);">
+                <div class="fav-meta" style="color:var(--text-muted); font-size:0.75rem;">来自：${escapeHtml(fav.convTitle)} · ${new Date(fav.timestamp).toLocaleString()}</div>
+                <div class="fav-content" style="color:var(--text-secondary); font-size:0.85rem; margin:4px 0;">${escapeHtml(fav.content.substring(0,200))}${fav.content.length>200?'...':''}</div>
+                <div class="fav-actions" style="display:flex; gap:6px; justify-content:flex-end;">
                     <button class="card-btn" onclick="jumpToMessage('${fav.convId}','${fav.id}')">跳转</button>
                     <button class="card-btn" onclick="removeFavorite('${fav.id}')">取消收藏</button>
                 </div>
@@ -1167,42 +1380,30 @@
         alert('已收藏');
     }
 
-    // ==================== 导出功能 ====================
+    // ==================== 导出 ====================
     let pendingExportConvId = null;
-
     function openExportModal(convId) {
         pendingExportConvId = convId;
         document.getElementById('exportAllRadio').checked = true;
         document.getElementById('exportReasoningToggle').checked = true;
         document.getElementById('exportModal').classList.add('active');
     }
-
-    function closeExportModal() {
-        document.getElementById('exportModal').classList.remove('active');
-        pendingExportConvId = null;
-    }
-
+    function closeExportModal() { document.getElementById('exportModal').classList.remove('active'); pendingExportConvId = null; }
     function confirmExport() {
         const convId = pendingExportConvId;
         if (!convId) { alert('请先选择要导出的对话'); return; }
         const conv = conversations.find(c => c.id == convId);
         if (!conv || !conv.messages.length) { alert('该对话为空，无法导出'); return; }
-
         const scopeAll = document.getElementById('exportAllRadio').checked;
         const includeReasoning = document.getElementById('exportReasoningToggle').checked;
-
         let lines = [];
         const title = conv.title || '未命名对话';
         lines.push(`对话名称：${title}`);
         lines.push(`导出时间：${new Date().toLocaleString()}`);
         lines.push('='.repeat(50));
         lines.push('');
-
         let messages = conv.messages;
-        if (!scopeAll) {
-            messages = messages.filter(msg => msg.role === 'assistant');
-        }
-
+        if (!scopeAll) messages = messages.filter(msg => msg.role === 'assistant');
         for (let msg of messages) {
             const roleLabel = msg.role === 'user' ? '用户' : 'DeepSeek';
             lines.push(`【${roleLabel}】`);
@@ -1216,24 +1417,21 @@
             lines.push('-'.repeat(30));
             lines.push('');
         }
-
         const text = lines.join('\n');
         const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        const fileName = `${title}_${new Date().toISOString().slice(0,10)}.txt`;
-        a.download = fileName;
+        a.download = `${title}_${new Date().toISOString().slice(0,10)}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-
         closeExportModal();
-        alert(`✅ 已导出为 ${fileName}`);
+        alert(`✅ 已导出`);
     }
 
-    // ==================== 编辑消息功能 ====================
+    // ==================== 编辑消息 ====================
     window.editMessage = function(msgId, role) {
         if (role !== 'user') return;
         const conv = conversations.find(c => c.id == currentConvId);
@@ -1244,32 +1442,24 @@
         document.getElementById('editMessageInput').value = msg.content;
         document.getElementById('editMessageModal').classList.add('active');
     };
-
-    function closeEditMessageModal() {
-        document.getElementById('editMessageModal').classList.remove('active');
-        editingMessageId = null;
-    }
-
+    function closeEditMessageModal() { document.getElementById('editMessageModal').classList.remove('active'); editingMessageId = null; }
     async function saveEditedMessage() {
         const newContent = document.getElementById('editMessageInput').value.trim();
         if (!newContent) { alert('消息内容不能为空'); return; }
         if (!editingMessageId) return;
-
         const conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
         const msgIndex = conv.messages.findIndex(m => m.id == editingMessageId);
         if (msgIndex === -1) return;
-
         conv.messages[msgIndex].content = newContent;
         conv.messages = conv.messages.slice(0, msgIndex + 1);
         saveConversations();
         loadCurrentConversation();
         closeEditMessageModal();
-
         await sendMessageWithContext(newContent);
     }
 
-    // ==================== 预览实际网页 ====================
+    // ==================== 预览网页 ====================
     function previewAsWebpage(content) {
         let htmlContent = content;
         const codeBlockMatch = content.match(/```html?([\s\S]*?)```/i);
@@ -1279,149 +1469,139 @@
         iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${htmlContent}</body></html>`;
         modal.classList.add('active');
     }
+    function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
 
-    function closePreview() {
-        document.getElementById('previewModal').classList.remove('active');
+    // ==================== 指令 & 角色数据 ====================
+    function loadInstructions() {
+        const stored = localStorage.getItem('my_instructions');
+        if (stored) instructions = JSON.parse(stored);
+        else {
+            instructions = [
+                { id: Date.now(), title: '角色扮演 | 异地恋多年即将分手的恋人', content: '【角色扮演】你是异地恋多年即将分手的恋人，我是不舍的一方，我们进行最后一通通话，满是遗憾与不舍。', type: 'roleplay' }
+            ];
+            saveInstructions();
+        }
     }
-
-    // ==================== 指令&角色数据 ====================
-    function loadInstructions() { const stored=localStorage.getItem('my_instructions'); if(stored) instructions=JSON.parse(stored); else instructions=[{id:Date.now(), title:'角色扮演 | 异地恋多年即将分手的恋人', content:'【角色扮演】你是异地恋多年即将分手的恋人，我是不舍的一方，我们进行最后一通通话，满是遗憾与不舍。', type:'roleplay'}]; saveInstructions(); }
     function saveInstructions() { localStorage.setItem('my_instructions', JSON.stringify(instructions)); }
-    function loadRoles() { const stored=localStorage.getItem('my_roles'); if(stored) roles=JSON.parse(stored); else roles=[]; saveRoles(); }
+
+    function loadRoles() {
+        const stored = localStorage.getItem('my_roles');
+        if (stored) roles = JSON.parse(stored);
+        else roles = [];
+        // 补全字段
+        roles = roles.map(r => ({
+            id: r.id || Date.now() + Math.random(),
+            name: r.name || '未命名',
+            desc: r.desc || '',
+            summary: r.summary || '',
+            personality: r.personality || '',
+            background: r.background || '',
+            appearance: r.appearance || '',
+            speakingStyle: r.speakingStyle || '',
+            catchphrases: r.catchphrases || '',
+            talkativeness: r.talkativeness || 0.8,
+            replyLanguage: r.replyLanguage || 'zh-CN'
+        }));
+        saveRoles();
+    }
     function saveRoles() { localStorage.setItem('my_roles', JSON.stringify(roles)); }
 
-    // 指令市场模态框
+    // ==================== 指令市场 ====================
     function openMarketModal() {
         currentModalType = 'market';
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '📋 指令市场';
-        document.getElementById('modalBody').innerHTML = `
-            <div style="margin-bottom: 1rem;">
-                <textarea id="manualInstructionInput" rows="3" placeholder="在这里输入你自己的指令..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); border-radius:12px; padding:8px; color:var(--text-primary); resize:vertical;"></textarea>
-                <div style="display:flex; gap:8px; margin-top:8px; justify-content:flex-end;">
-                    <button class="btn-primary" id="addManualInstructionBtn">➕ 添加到指令市场</button>
+        // 显示一个文本域，刷新按钮，保存和新建按钮
+        let html = `
+            <div style="margin-bottom:1rem;">
+                <textarea id="marketInstructionDisplay" rows="4" style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); border-radius:12px; padding:8px; color:var(--text-primary); resize:vertical; font-family:inherit;"></textarea>
+                <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+                    <button class="btn-secondary" id="refreshMarketBtn">🔄 刷新</button>
+                    <button class="btn-secondary" id="saveMarketBtn">📥 保存进指令管理</button>
+                    <button class="btn-primary" id="newChatMarketBtn">💬 新建对话并插入指令</button>
                 </div>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin: 1rem 0 0.5rem 0;">
-                <span style="font-weight:500;">✨ 智能生成</span>
-                <button class="btn-primary" id="smartGenBtn">智能生成</button>
-            </div>
-            <div id="marketInstructionList"></div>
         `;
+        document.getElementById('modalBody').innerHTML = html;
         document.getElementById('modalFooter').innerHTML = '<button class="btn-secondary" onclick="closeModal()">关闭</button>';
         modal.classList.add('active');
-        renderMarketList();
-        document.getElementById('smartGenBtn').onclick = generateSmartInstruction;
-        document.getElementById('addManualInstructionBtn').onclick = () => {
-            const userInput = document.getElementById('manualInstructionInput').value.trim();
-            if (!userInput) { alert('请先输入指令内容'); return; }
-            const title = userInput.split('\n')[0].substring(0, 40) || '手动指令';
-            const newInst = { id: Date.now(), title: title, content: userInput, type: 'manual' };
-            instructions.unshift(newInst);
-            saveInstructions();
-            renderMarketList();
-            document.getElementById('manualInstructionInput').value = '';
-            alert('已添加到指令市场');
-        };
-    }
-    function renderMarketList() {
-        const container = document.getElementById('marketInstructionList');
-        if (!container) return;
-        if (instructions.length === 0) {
-            container.innerHTML = '<div class="empty-placeholder">暂无指令，点击“智能生成”或手动添加</div>';
-            return;
-        }
-        container.innerHTML = instructions.map(inst => `
-            <div class="instruction-card">
-                <div class="instruction-title">${escapeHtml(inst.title)}</div>
-                <div class="instruction-content">${escapeHtml(inst.content)}</div>
-                <div class="card-actions">
-                    <button class="card-btn" onclick="saveToManage('${inst.id}')">📥 保存进指令管理</button>
-                    <button class="card-btn primary" onclick="newChatAndInsert('${inst.id}')">💬 新建对话并插入指令</button>
-                </div>
-            </div>
-        `).join('');
-    }
-    async function generateSmartInstruction() {
-        const btn = document.getElementById('smartGenBtn');
-        btn.textContent = '生成中...';
-        btn.disabled = true;
-        try {
-            let newInstruction = null;
-            if (DEEPSEEK_API_KEY) {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
-                    body: JSON.stringify({ model: currentModel, messages: [{ role: 'user', content: '请生成一个【角色扮演】类的指令，格式为：标题（一句概括） + 换行 + 详细描述。要求有创意，大约100字。只输出指令文本，不要额外说明。' }], stream: false })
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    const content = data.choices[0].message.content;
-                    const lines = content.split('\n');
-                    const title = lines[0].substring(0, 40) || '智能生成指令';
-                    newInstruction = { id: Date.now(), title: title, content: content, type: 'ai' };
-                }
-            }
-            if (!newInstruction) {
-                const fallbacks = [
-                    { title: '【角色扮演】你是失去全部法力的上神', content: '【角色扮演】你是失去全部法力的上神，跌落凡尘后被我收留，我不知你身份，只当你是失忆的异乡人，你要隐忍克制，默默守护却不能透露半分真相。' },
-                    { title: '【角色扮演】你是古代将军，我是谋士', content: '你是征战沙场的将军，我是你的谋士。今天敌军压境，你找我商议对策。' },
-                    { title: '【情感】暗恋十年的同学会', content: '暗恋十年，同学会上你突然坐到我身边。' }
-                ];
-                const rand = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-                newInstruction = { id: Date.now(), title: rand.title, content: rand.content, type: 'ai' };
-            }
-            const existingAiIndex = instructions.findIndex(i => i.type === 'ai');
-            if (existingAiIndex !== -1) instructions.splice(existingAiIndex, 1);
-            instructions.unshift(newInstruction);
-            saveInstructions();
-            renderMarketList();
-        } catch(e) { alert('生成失败，请稍后重试'); } finally {
-            btn.textContent = '智能生成';
-            btn.disabled = false;
-        }
-    }
-    function saveToManage(instId) {
-        const inst = instructions.find(i => i.id == instId);
-        if (inst) {
-            if (!instructions.some(i => i.id === instId)) {
-                instructions.push({ ...inst, id: Date.now() + Math.random() });
-                saveInstructions();
-            }
-            alert('已保存到指令管理');
-        } else alert('指令不存在');
+
+        // 填充一条随机指令
+        refreshMarketInstruction();
+
+        document.getElementById('refreshMarketBtn').addEventListener('click', refreshMarketInstruction);
+        document.getElementById('saveMarketBtn').addEventListener('click', saveMarketToManage);
+        document.getElementById('newChatMarketBtn').addEventListener('click', newChatWithMarket);
     }
 
-    // 指令管理模态框
+    // 内置指令库（用于市场）
+    const marketLibrary = [
+        { title: '角色扮演 | 咖啡店偶遇', content: '【角色扮演】你在一家咖啡店偶遇一个陌生人，你们目光交汇，似乎有故事要发生。' },
+        { title: '角色扮演 | 古代将军与谋士', content: '你是征战沙场的将军，我是你的谋士。今天敌军压境，你找我商议对策。' },
+        { title: '情感 | 暗恋十年', content: '暗恋十年，同学会上你突然坐到我身边。' },
+        { title: '悬疑 | 失忆的侦探', content: '你是一个失忆的侦探，醒来时发现身边有一具尸体，而你是唯一的嫌疑人。' },
+        { title: '科幻 | 外星人降临', content: '外星飞船降临地球，你是人类代表，与外星人进行首次接触。' },
+        { title: '日常 | 室友的烦恼', content: '你的室友最近总是深夜不归，你决定找他谈谈。' }
+    ];
+
+    function refreshMarketInstruction() {
+        const random = marketLibrary[Math.floor(Math.random() * marketLibrary.length)];
+        document.getElementById('marketInstructionDisplay').value = random.content;
+    }
+
+    function saveMarketToManage() {
+        const content = document.getElementById('marketInstructionDisplay').value.trim();
+        if (!content) { alert('没有内容可保存'); return; }
+        const title = content.split('\n')[0].substring(0, 40) || '市场指令';
+        // 检查是否已存在相同内容
+        if (instructions.some(i => i.content === content)) {
+            alert('该指令已存在于指令管理中');
+            return;
+        }
+        instructions.unshift({ id: Date.now(), title, content, type: 'market' });
+        saveInstructions();
+        alert('已保存到指令管理');
+    }
+
+    function newChatWithMarket() {
+        const content = document.getElementById('marketInstructionDisplay').value.trim();
+        if (!content) { alert('没有内容'); return; }
+        createNewDialog();
+        setTimeout(() => {
+            const inp = document.getElementById('userInput');
+            if (inp) {
+                inp.value = content;
+                inp.dispatchEvent(new Event('input'));
+            }
+        }, 100);
+        closeModal();
+    }
+
+    // ==================== 指令管理 ====================
     function openManageModal() {
         currentModalType = 'manage';
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '📝 指令管理';
-        document.getElementById('modalBody').innerHTML = `
+        let html = `
             <div style="margin-bottom:1rem;">
-                <button class="btn-primary" id="addManageInstructionBtn">+ 新增指令</button>
+                <button class="btn-primary" id="addManageBtn">+ 新增指令</button>
             </div>
             <div id="manageInstructionList"></div>
         `;
+        document.getElementById('modalBody').innerHTML = html;
         document.getElementById('modalFooter').innerHTML = '<button class="btn-secondary" onclick="closeModal()">关闭</button>';
         modal.classList.add('active');
         renderManageList();
-        document.getElementById('addManageInstructionBtn').onclick = () => {
-            let title = prompt('输入指令标题');
-            if (title) {
-                let content = prompt('输入指令内容');
-                if (content) {
-                    instructions.unshift({ id: Date.now(), title: title, content: content, type: 'manual' });
-                    saveInstructions();
-                    renderManageList();
-                }
-            }
-        };
+        document.getElementById('addManageBtn').addEventListener('click', () => {
+            // 打开表单编辑（直接使用模态框）
+            showInstructionForm(null);
+        });
     }
+
     function renderManageList() {
         const container = document.getElementById('manageInstructionList');
         if (!container) return;
-        if (instructions.length === 0) {
+        if (!instructions.length) {
             container.innerHTML = '<div class="empty-placeholder">暂无指令，点击“+ 新增指令”添加</div>';
             return;
         }
@@ -1430,126 +1610,91 @@
                 <div class="instruction-title">${escapeHtml(inst.title)}</div>
                 <div class="instruction-content">${escapeHtml(inst.content)}</div>
                 <div class="card-actions">
-                    <button class="card-btn primary" onclick="newChatAndInsert('${inst.id}')">💬 新建会话并插入指令</button>
-                    <button class="card-btn" onclick="editInstruction('${inst.id}')">✏️ 编辑</button>
-                    <button class="card-btn" onclick="copyInstruction('${inst.id}')">📋 复制</button>
-                    <button class="card-btn" onclick="deleteInstruction('${inst.id}')">🗑️ 删除</button>
+                    <button class="card-btn primary" onclick="newChatWithInstruction('${inst.id}')">💬 新建会话并插入指令</button>
+                    <button class="card-btn" onclick="editInstructionFromManage('${inst.id}')">✏️ 编辑</button>
+                    <button class="card-btn" onclick="copyInstructionContent('${inst.id}')">📋 复制</button>
+                    <button class="card-btn" onclick="deleteInstructionFromManage('${inst.id}')">🗑️ 删除</button>
                 </div>
             </div>
         `).join('');
     }
-    function editInstruction(id) {
-        const inst = instructions.find(i => i.id == id);
-        if (!inst) return;
-        let newTitle = prompt('修改指令标题', inst.title);
-        if (newTitle) inst.title = newTitle;
-        let newContent = prompt('修改指令内容', inst.content);
-        if (newContent) inst.content = newContent;
-        saveInstructions();
-        renderManageList();
-        if (currentModalType === 'market') renderMarketList();
+
+    function showInstructionForm(instId) {
+        const inst = instId ? instructions.find(i => i.id == instId) : null;
+        editingInstructionId = instId || null;
+        const modal = document.getElementById('genericModal');
+        // 临时改变modal内容为表单
+        const title = inst ? '编辑指令' : '新增指令';
+        document.getElementById('modalTitle').innerHTML = title;
+        let html = `
+            <div style="margin-bottom:1rem;">
+                <label style="color:var(--text-secondary);font-size:0.8rem;">标题</label>
+                <input id="instFormTitle" class="prompt-input" value="${inst ? escapeHtml(inst.title) : ''}" placeholder="输入标题（可选）">
+            </div>
+            <div>
+                <label style="color:var(--text-secondary);font-size:0.8rem;">内容</label>
+                <textarea id="instFormContent" rows="5" class="prompt-textarea" placeholder="输入指令内容">${inst ? escapeHtml(inst.content) : ''}</textarea>
+            </div>
+            <div style="margin-top:0.5rem;">
+                <button class="btn-secondary" id="instOptimizeBtn" style="font-size:0.8rem;">🧠 智能优化</button>
+            </div>
+        `;
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('modalFooter').innerHTML = `
+            <button class="btn-secondary" onclick="cancelInstructionForm()">取消</button>
+            <button class="btn-primary" id="saveInstFormBtn">保存</button>
+        `;
+        document.getElementById('saveInstFormBtn').addEventListener('click', saveInstructionForm);
+        document.getElementById('instOptimizeBtn').addEventListener('click', optimizeInstruction);
+        // 存储当前编辑ID
+        window._editingInstId = instId;
     }
-    function copyInstruction(id) {
-        const inst = instructions.find(i => i.id == id);
-        if (inst) {
-            navigator.clipboard.writeText(inst.content);
-            alert('指令内容已复制到剪贴板');
+
+    function cancelInstructionForm() {
+        // 返回列表视图
+        openManageModal();
+    }
+
+    function saveInstructionForm() {
+        const title = document.getElementById('instFormTitle').value.trim() || '未命名指令';
+        const content = document.getElementById('instFormContent').value.trim();
+        if (!content) { alert('请填写指令内容'); return; }
+        const id = window._editingInstId;
+        if (id) {
+            const inst = instructions.find(i => i.id == id);
+            if (inst) {
+                inst.title = title;
+                inst.content = content;
+            }
+        } else {
+            instructions.unshift({ id: Date.now(), title, content, type: 'manual' });
         }
+        saveInstructions();
+        openManageModal(); // 刷新列表
     }
-    function deleteInstruction(id) {
+
+    function editInstructionFromManage(id) {
+        showInstructionForm(id);
+    }
+
+    function deleteInstructionFromManage(id) {
         if (confirm('确定删除这条指令吗？')) {
             instructions = instructions.filter(i => i.id != id);
             saveInstructions();
             renderManageList();
-            if (currentModalType === 'market') renderMarketList();
         }
     }
 
-    // 角色卡管理模态框
-    function openRoleModal() {
-        currentModalType = 'role';
-        const modal = document.getElementById('genericModal');
-        document.getElementById('modalTitle').innerHTML = '🎭 角色卡管理';
-        document.getElementById('modalBody').innerHTML = `
-            <div style="margin-bottom:1rem;">
-                <button class="btn-primary" id="addRoleBtn">+ 新建角色</button>
-            </div>
-            <div id="roleCardList"></div>
-        `;
-        document.getElementById('modalFooter').innerHTML = '<button class="btn-secondary" onclick="closeModal()">关闭</button>';
-        modal.classList.add('active');
-        renderRoleList();
-        document.getElementById('addRoleBtn').onclick = () => {
-            let name = prompt('输入角色名称');
-            if (name) {
-                let desc = prompt('输入角色描述');
-                if (desc) {
-                    roles.unshift({ id: Date.now(), name: name, desc: desc });
-                    saveRoles();
-                    renderRoleList();
-                }
-            }
-        };
-    }
-    function renderRoleList() {
-        const container = document.getElementById('roleCardList');
-        if (!container) return;
-        if (roles.length === 0) {
-            container.innerHTML = '<div class="empty-placeholder">还没有创建任何角色<br>点击下方按钮创建角色卡，或用 AI 智能生成。</div>';
-            return;
-        }
-        container.innerHTML = roles.map(r => `
-            <div class="role-card">
-                <div class="role-name">🎭 ${escapeHtml(r.name)}</div>
-                <div class="role-desc">${escapeHtml(r.desc)}</div>
-                <div class="card-actions">
-                    <button class="card-btn" onclick="useRoleInChat('${r.id}')">💬 使用</button>
-                    <button class="card-btn" onclick="editRole('${r.id}')">✏️ 编辑</button>
-                    <button class="card-btn" onclick="copyRole('${r.id}')">📋 复制</button>
-                    <button class="card-btn" onclick="deleteRole('${r.id}')">🗑️ 删除</button>
-                </div>
-            </div>
-        `).join('');
-    }
-    function editRole(id) {
-        const role = roles.find(r => r.id == id);
-        if (!role) return;
-        let newName = prompt('修改角色名称', role.name);
-        if (newName) role.name = newName;
-        let newDesc = prompt('修改角色描述', role.desc);
-        if (newDesc) role.desc = newDesc;
-        saveRoles();
-        renderRoleList();
-    }
-    function copyRole(id) {
-        const role = roles.find(r => r.id == id);
-        if (role) {
-            navigator.clipboard.writeText(`${role.name}: ${role.desc}`);
-            alert('角色描述已复制到剪贴板');
+    function copyInstructionContent(id) {
+        const inst = instructions.find(i => i.id == id);
+        if (inst) {
+            navigator.clipboard.writeText(inst.content);
+            alert('已复制内容');
         }
     }
-    function deleteRole(id) {
-        if (confirm('确定删除这个角色卡吗？')) {
-            roles = roles.filter(r => r.id != id);
-            saveRoles();
-            renderRoleList();
-        }
-    }
-    function useRoleInChat(id) {
-        const role = roles.find(r => r.id == id);
-        if (!role) return;
-        createNewDialog();
-        setTimeout(() => {
-            const inp = document.getElementById('userInput');
-            if (inp) {
-                inp.value = `【角色扮演】你是${role.name}。${role.desc}`;
-                inp.dispatchEvent(new Event('input'));
-            }
-        }, 100);
-        closeModal();
-    }
-    function newChatAndInsert(instId) {
-        const inst = instructions.find(i => i.id == instId);
+
+    function newChatWithInstruction(id) {
+        const inst = instructions.find(i => i.id == id);
         if (!inst) return;
         createNewDialog();
         setTimeout(() => {
@@ -1561,7 +1706,279 @@
         }, 100);
         closeModal();
     }
-    function closeModal() { document.getElementById('genericModal').classList.remove('active'); }
+
+    async function optimizeInstruction() {
+        const content = document.getElementById('instFormContent').value.trim();
+        if (!content) { alert('请先输入要优化的内容'); return; }
+        if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
+        const btn = document.getElementById('instOptimizeBtn');
+        btn.textContent = '优化中...';
+        btn.disabled = true;
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+                body: JSON.stringify({
+                    model: currentModel,
+                    messages: [{ role: 'user', content: `请优化以下指令，使其更清晰、更有吸引力，保持原意和长度相近，只输出优化后的指令文本：\n\n${content}` }],
+                    stream: false
+                })
+            });
+            if (!response.ok) throw new Error('API请求失败');
+            const data = await response.json();
+            const optimized = data.choices[0].message.content;
+            document.getElementById('instFormContent').value = optimized;
+            alert('优化完成，请检查内容');
+        } catch(e) {
+            alert('优化失败：' + e.message);
+        } finally {
+            btn.textContent = '🧠 智能优化';
+            btn.disabled = false;
+        }
+    }
+
+    // ==================== 角色卡管理 ====================
+    function openRoleModal() {
+        currentModalType = 'role';
+        const modal = document.getElementById('genericModal');
+        document.getElementById('modalTitle').innerHTML = '🎭 角色卡管理';
+        let html = `
+            <div style="margin-bottom:1rem;">
+                <button class="btn-primary" id="addRoleBtn">+ 新建角色</button>
+            </div>
+            <div id="roleCardList"></div>
+        `;
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('modalFooter').innerHTML = '<button class="btn-secondary" onclick="closeModal()">关闭</button>';
+        modal.classList.add('active');
+        renderRoleList();
+        document.getElementById('addRoleBtn').addEventListener('click', () => {
+            showRoleForm(null);
+        });
+    }
+
+    function renderRoleList() {
+        const container = document.getElementById('roleCardList');
+        if (!container) return;
+        if (!roles.length) {
+            container.innerHTML = '<div class="empty-placeholder">还没有创建任何角色<br>点击下方按钮创建角色卡，或用 AI 智能生成。</div>';
+            return;
+        }
+        container.innerHTML = roles.map(r => `
+            <div class="role-card">
+                <div class="role-name">🎭 ${escapeHtml(r.name)}</div>
+                <div class="role-desc">${escapeHtml(r.desc || r.summary || '')}</div>
+                <div class="card-actions">
+                    <button class="card-btn primary" onclick="useRoleInChat('${r.id}')">💬 使用</button>
+                    <button class="card-btn" onclick="editRoleFromManage('${r.id}')">✏️ 编辑</button>
+                    <button class="card-btn" onclick="copyRoleContent('${r.id}')">📋 复制</button>
+                    <button class="card-btn" onclick="deleteRoleFromManage('${r.id}')">🗑️ 删除</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function showRoleForm(roleId) {
+        const role = roleId ? roles.find(r => r.id == roleId) : null;
+        editingRoleId = roleId || null;
+        const modal = document.getElementById('genericModal');
+        document.getElementById('modalTitle').innerHTML = role ? '编辑角色卡' : '新建角色卡';
+        let html = `
+            <div class="character-edit-field">
+                <label class="character-field-label">角色名字 *</label>
+                <input id="roleFormName" class="prompt-input" value="${role ? escapeHtml(role.name) : ''}" placeholder="例如：林小雨">
+            </div>
+            <div class="character-edit-field">
+                <label class="character-field-label">一句话摘要</label>
+                <input id="roleFormSummary" class="prompt-input" value="${role ? escapeHtml(role.summary || '') : ''}" placeholder="例如：傲娇少女，18岁，说话带'哼'">
+            </div>
+            <div class="character-edit-field">
+                <label class="character-field-label">性格</label>
+                <textarea id="roleFormPersonality" class="prompt-textarea" rows="3" placeholder="详细描述角色的性格特征...">${role ? escapeHtml(role.personality || '') : ''}</textarea>
+            </div>
+            <div class="character-edit-field">
+                <label class="character-field-label">背景经历</label>
+                <textarea id="roleFormBackground" class="prompt-textarea" rows="3" placeholder="角色的背景故事...">${role ? escapeHtml(role.background || '') : ''}</textarea>
+            </div>
+            <div class="character-edit-field">
+                <label class="character-field-label">外貌描写</label>
+                <textarea id="roleFormAppearance" class="prompt-textarea" rows="2" placeholder="角色的外貌特征...">${role ? escapeHtml(role.appearance || '') : ''}</textarea>
+            </div>
+            <div class="character-edit-field">
+                <label class="character-field-label">说话风格</label>
+                <textarea id="roleFormSpeakingStyle" class="prompt-textarea" rows="2" placeholder="角色的说话方式和语气...">${role ? escapeHtml(role.speakingStyle || '') : ''}</textarea>
+            </div>
+            <div class="character-edit-field">
+                <label class="character-field-label">口头禅</label>
+                <input id="roleFormCatchphrases" class="prompt-input" value="${role ? escapeHtml(role.catchphrases || '') : ''}" placeholder="用顿号分隔，如：哼、才不是呢、别误会">
+            </div>
+            <div class="character-edit-field">
+                <label class="character-field-label">活跃度</label>
+                <div class="talkativeness-slider-wrapper">
+                    <span class="talkativeness-label-left">冷淡</span>
+                    <input id="roleFormTalkativeness" type="range" min="0.5" max="1.0" step="0.1" value="${role ? role.talkativeness : 0.8}" class="talkativeness-slider">
+                    <span class="talkativeness-label-right">活泼</span>
+                </div>
+                <span id="talkativenessDisplay" class="talkativeness-value">${role ? role.talkativeness : 0.8}</span>
+            </div>
+            <div class="character-edit-field">
+                <label class="character-field-label">回复语言</label>
+                <select id="roleFormReplyLanguage" class="prompt-input" style="padding:0.5rem 0.75rem;">
+                    <option value="zh-CN" ${role && role.replyLanguage==='zh-CN'?'selected':''}>简体中文（默认）</option>
+                    <option value="en" ${role && role.replyLanguage==='en'?'selected':''}>English（自带中文翻译）</option>
+                    <option value="ja" ${role && role.replyLanguage==='ja'?'selected':''}>日本語（自带中文翻译）</option>
+                    <option value="ko" ${role && role.replyLanguage==='ko'?'selected':''}>한국어（自带中文翻译）</option>
+                </select>
+            </div>
+            <div style="margin-top:0.5rem;">
+                <button class="btn-secondary" id="roleAiGenerateBtn" style="font-size:0.8rem;">🤖 AI 生成（基于简要描述）</button>
+                <span style="font-size:0.7rem;color:var(--text-muted);margin-left:8px;">点击后根据上方的“一句话摘要”自动填充</span>
+            </div>
+        `;
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('modalFooter').innerHTML = `
+            <button class="btn-secondary" onclick="cancelRoleForm()">取消</button>
+            <button class="btn-primary" id="saveRoleFormBtn">保存</button>
+        `;
+        document.getElementById('saveRoleFormBtn').addEventListener('click', saveRoleForm);
+        document.getElementById('roleAiGenerateBtn').addEventListener('click', aiGenerateRole);
+
+        // 活跃度滑块实时显示
+        const slider = document.getElementById('roleFormTalkativeness');
+        const display = document.getElementById('talkativenessDisplay');
+        if (slider && display) {
+            slider.addEventListener('input', () => {
+                display.textContent = slider.value;
+            });
+        }
+        // 存储当前编辑ID
+        window._editingRoleId = roleId;
+    }
+
+    function cancelRoleForm() {
+        openRoleModal();
+    }
+
+    function saveRoleForm() {
+        const name = document.getElementById('roleFormName').value.trim();
+        if (!name) { alert('请输入角色名字'); return; }
+        const summary = document.getElementById('roleFormSummary').value.trim();
+        const personality = document.getElementById('roleFormPersonality').value.trim();
+        const background = document.getElementById('roleFormBackground').value.trim();
+        const appearance = document.getElementById('roleFormAppearance').value.trim();
+        const speakingStyle = document.getElementById('roleFormSpeakingStyle').value.trim();
+        const catchphrases = document.getElementById('roleFormCatchphrases').value.trim();
+        const talkativeness = parseFloat(document.getElementById('roleFormTalkativeness').value) || 0.8;
+        const replyLanguage = document.getElementById('roleFormReplyLanguage').value;
+        const id = window._editingRoleId;
+        const roleData = {
+            id: id || Date.now() + Math.random(),
+            name,
+            desc: summary || personality || background || '', // 保持兼容
+            summary,
+            personality,
+            background,
+            appearance,
+            speakingStyle,
+            catchphrases,
+            talkativeness,
+            replyLanguage
+        };
+        if (id) {
+            const idx = roles.findIndex(r => r.id == id);
+            if (idx !== -1) roles[idx] = roleData;
+        } else {
+            roles.unshift(roleData);
+        }
+        saveRoles();
+        openRoleModal();
+    }
+
+    function editRoleFromManage(id) {
+        showRoleForm(id);
+    }
+
+    function deleteRoleFromManage(id) {
+        if (confirm('确定删除这个角色吗？')) {
+            roles = roles.filter(r => r.id != id);
+            saveRoles();
+            renderRoleList();
+        }
+    }
+
+    function copyRoleContent(id) {
+        const role = roles.find(r => r.id == id);
+        if (role) {
+            const text = `${role.name}: ${role.desc || role.summary || ''}`;
+            navigator.clipboard.writeText(text);
+            alert('已复制');
+        }
+    }
+
+    function useRoleInChat(id) {
+        const role = roles.find(r => r.id == id);
+        if (!role) return;
+        createNewDialog();
+        setTimeout(() => {
+            const inp = document.getElementById('userInput');
+            if (inp) {
+                let content = `【角色扮演】你是${role.name}。`;
+                if (role.desc) content += ` ${role.desc}`;
+                if (role.personality) content += ` 性格：${role.personality}`;
+                if (role.background) content += ` 背景：${role.background}`;
+                if (role.appearance) content += ` 外貌：${role.appearance}`;
+                if (role.speakingStyle) content += ` 说话风格：${role.speakingStyle}`;
+                if (role.catchphrases) content += ` 口头禅：${role.catchphrases}`;
+                inp.value = content;
+                inp.dispatchEvent(new Event('input'));
+            }
+        }, 200);
+        closeModal();
+    }
+
+    async function aiGenerateRole() {
+        const brief = document.getElementById('roleFormSummary').value.trim();
+        if (!brief) { alert('请先在“一句话摘要”中填写简要描述'); return; }
+        if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
+        const btn = document.getElementById('roleAiGenerateBtn');
+        btn.textContent = '生成中...';
+        btn.disabled = true;
+        try {
+            const prompt = `请根据以下简要描述，生成一个完整的角色卡信息，以JSON格式输出，包含字段：name（名字）、summary（一句话摘要）、personality（性格）、background（背景）、appearance（外貌）、speakingStyle（说话风格）、catchphrases（口头禅，用顿号分隔）。只输出JSON，不要其他文字。\n简要描述：${brief}`;
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+                body: JSON.stringify({ model: currentModel, messages: [{ role: 'user', content: prompt }], stream: false })
+            });
+            if (!response.ok) throw new Error('API请求失败');
+            const data = await response.json();
+            const jsonStr = data.choices[0].message.content;
+            // 尝试解析JSON
+            let parsed;
+            try {
+                // 可能包含markdown代码块
+                const match = jsonStr.match(/```json\s*([\s\S]*?)\s*```/);
+                if (match) parsed = JSON.parse(match[1]);
+                else parsed = JSON.parse(jsonStr);
+            } catch(e) {
+                throw new Error('解析JSON失败，请重试');
+            }
+            // 填充表单
+            if (parsed.name) document.getElementById('roleFormName').value = parsed.name;
+            if (parsed.summary) document.getElementById('roleFormSummary').value = parsed.summary;
+            if (parsed.personality) document.getElementById('roleFormPersonality').value = parsed.personality;
+            if (parsed.background) document.getElementById('roleFormBackground').value = parsed.background;
+            if (parsed.appearance) document.getElementById('roleFormAppearance').value = parsed.appearance;
+            if (parsed.speakingStyle) document.getElementById('roleFormSpeakingStyle').value = parsed.speakingStyle;
+            if (parsed.catchphrases) document.getElementById('roleFormCatchphrases').value = parsed.catchphrases;
+            alert('AI生成完成，请检查并保存');
+        } catch(e) {
+            alert('生成失败：' + e.message);
+        } finally {
+            btn.textContent = '🤖 AI 生成（基于简要描述）';
+            btn.disabled = false;
+        }
+    }
 
     // ==================== 对话管理 ====================
     function loadConversations() {
@@ -1625,36 +2042,19 @@
 
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'message-actions';
-
         if (msg.role === 'ai') {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="regenerateAI('${msgId}')">
-                    🔄<span class="tooltip">重新生成</span>
-                </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
-                    ⭐<span class="tooltip">收藏</span>
-                </button>
-                <button class="msg-action" onclick="deleteMessage('${msgId}')">
-                    🗑️<span class="tooltip">删除</span>
-                </button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">
-                    📋<span class="tooltip">复制</span>
-                </button>
+                <button class="msg-action" onclick="regenerateAI('${msgId}')">🔄<span class="tooltip">重新生成</span></button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">⭐<span class="tooltip">收藏</span></button>
+                <button class="msg-action" onclick="deleteMessage('${msgId}')">🗑️<span class="tooltip">删除</span></button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">📋<span class="tooltip">复制</span></button>
             `;
         } else {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">
-                    ✏️<span class="tooltip">编辑</span>
-                </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
-                    ⭐<span class="tooltip">收藏</span>
-                </button>
-                <button class="msg-action" onclick="deleteMessage('${msgId}')">
-                    🗑️<span class="tooltip">删除</span>
-                </button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">
-                    📋<span class="tooltip">复制</span>
-                </button>
+                <button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">✏️<span class="tooltip">编辑</span></button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">⭐<span class="tooltip">收藏</span></button>
+                <button class="msg-action" onclick="deleteMessage('${msgId}')">🗑️<span class="tooltip">删除</span></button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">📋<span class="tooltip">复制</span></button>
             `;
         }
         wrapper.appendChild(actionsDiv);
@@ -1743,33 +2143,17 @@
         actionsDiv.className = 'message-actions';
         if (role === 'ai') {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="regenerateAI('${id}')">
-                    🔄<span class="tooltip">重新生成</span>
-                </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
-                    ⭐<span class="tooltip">收藏</span>
-                </button>
-                <button class="msg-action" onclick="deleteMessage('${id}')">
-                    🗑️<span class="tooltip">删除</span>
-                </button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
-                    📋<span class="tooltip">复制</span>
-                </button>
+                <button class="msg-action" onclick="regenerateAI('${id}')">🔄<span class="tooltip">重新生成</span></button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐<span class="tooltip">收藏</span></button>
+                <button class="msg-action" onclick="deleteMessage('${id}')">🗑️<span class="tooltip">删除</span></button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋<span class="tooltip">复制</span></button>
             `;
         } else {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="editMessage('${id}','${role}')">
-                    ✏️<span class="tooltip">编辑</span>
-                </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
-                    ⭐<span class="tooltip">收藏</span>
-                </button>
-                <button class="msg-action" onclick="deleteMessage('${id}')">
-                    🗑️<span class="tooltip">删除</span>
-                </button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
-                    📋<span class="tooltip">复制</span>
-                </button>
+                <button class="msg-action" onclick="editMessage('${id}','${role}')">✏️<span class="tooltip">编辑</span></button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐<span class="tooltip">收藏</span></button>
+                <button class="msg-action" onclick="deleteMessage('${id}')">🗑️<span class="tooltip">删除</span></button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋<span class="tooltip">复制</span></button>
             `;
         }
         wrapper.appendChild(actionsDiv);
