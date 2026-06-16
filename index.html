@@ -23,6 +23,8 @@
             --btn-icon-bg: rgba(255, 255, 255, 0.15);
             --btn-icon-hover: rgba(255, 255, 255, 0.25);
             --icon-color: #eef2ff;
+            --highlight-color: #ffd700;
+            --token-info-color: #7a8aa0;
         }
         [data-theme="light"] {
             --bg-primary: linear-gradient(145deg, #f0f2f5 0%, #e0e4e9 100%);
@@ -40,6 +42,8 @@
             --btn-icon-bg: rgba(0, 0, 0, 0.08);
             --btn-icon-hover: rgba(0, 0, 0, 0.15);
             --icon-color: #1a1e2c;
+            --highlight-color: #fbbf24;
+            --token-info-color: #5a6e8a;
         }
 
         * {
@@ -127,7 +131,38 @@
             cursor: pointer; font-size: 0.7rem; padding: 2px 4px; border-radius: 4px;
         }
         .history-action-btn:hover { background: rgba(128,128,128,0.2); color: var(--text-primary); }
-        .storage-info { padding: 10px 1rem; font-size: 0.7rem; color: var(--text-muted); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .storage-info {
+            padding: 10px 1rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        /* 【修改点3】侧边栏官网超链接 */
+        .storage-link {
+            padding: 10px 1rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            display: block;
+            text-decoration: none;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        .storage-link:hover {
+            color: var(--accent-color);
+        }
+        .storage-link a {
+            color: inherit;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .storage-link a:hover {
+            color: var(--accent-color);
+        }
+
         .sidebar-footer { padding: 0.8rem 1rem; display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
         .footer-btn {
             background: var(--btn-icon-bg);
@@ -313,6 +348,12 @@
             max-width: 85%;
             width: auto;
             box-sizing: border-box;
+            transition: background 0.3s;
+        }
+        .message-wrapper.highlight {
+            background: var(--highlight-color);
+            border-radius: 12px;
+            padding: 2px 4px;
         }
         .message.user {
             align-self: flex-end;
@@ -403,6 +444,28 @@
         .msg-action:hover .tooltip {
             visibility: visible;
             opacity: 1;
+        }
+
+        /* 【修改点2】Token统计信息 - 横排显示 */
+        .token-info {
+            font-size: 0.65rem;
+            color: var(--token-info-color);
+            margin-top: 2px;
+            padding: 0 4px;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .message.user .token-info {
+            text-align: right;
+        }
+        .message.ai .token-info {
+            text-align: left;
+        }
+        .token-info.hidden-token {
+            display: none;
         }
 
         .thinking .bubble { background: rgba(128,128,128,0.2); display: flex; align-items: center; gap: 8px; }
@@ -590,13 +653,183 @@
             margin-top: 1rem;
         }
 
-        /* 设置内部样式 */
-        .settings-section { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
-        .settings-section h4 { color: #a3e0d0; margin-bottom: 8px; font-size: 0.9rem; }
-        .font-size-options { display: flex; gap: 8px; flex-wrap: wrap; }
-        .font-option { background: var(--btn-icon-bg); padding: 4px 12px; border-radius: 16px; cursor: pointer; font-size: 0.8rem; color: var(--text-primary); }
-        .font-option.active { background: var(--accent-color); color: white; }
-        .model-select, .api-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px; border-radius: 8px; }
+        /* 设置内部样式 - 保持与优秀网页一致但保留皮肤 */
+        .settings-section {
+            margin-bottom: 1.2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .settings-section h4 {
+            color: #a3e0d0;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .settings-api-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .settings-api-row input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .settings-api-row input:focus {
+            border-color: var(--accent-color);
+        }
+        .settings-icon-btn {
+            background: var(--btn-icon-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .settings-icon-btn:hover {
+            background: var(--btn-icon-hover);
+            color: var(--text-primary);
+        }
+        .settings-save-key-btn {
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .settings-save-key-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* 日间模式开关（仿优秀网页） */
+        .settings-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-input);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .settings-toggle-row span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #4a5568;
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--accent-color);
+        }
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(20px);
+        }
+
+        /* 字体选项网格 */
+        .settings-font-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .font-size-option {
+            padding: 6px 0;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .font-size-option:hover {
+            background: var(--btn-icon-hover);
+        }
+        .font-size-option.active {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* 模型和记忆策略选项 */
+        .settings-radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .settings-radio-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-input);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .settings-radio-option:hover {
+            background: var(--btn-icon-hover);
+        }
+        .settings-radio-option input[type="radio"] {
+            accent-color: var(--accent-color);
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .settings-radio-option .radio-label {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        .settings-radio-option .radio-desc {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-left: 4px;
+        }
 
         /* 预览实际网页的 iframe 弹窗 */
         .preview-modal {
@@ -660,45 +893,6 @@
         .export-toggle-row span {
             color: var(--text-primary);
             font-size: 0.95rem;
-        }
-        .toggle-switch {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .toggle-slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #4a5568;
-            border-radius: 24px;
-            transition: 0.3s;
-        }
-        .toggle-slider::before {
-            content: '';
-            position: absolute;
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.3s;
-        }
-        .toggle-switch input:checked + .toggle-slider {
-            background: var(--accent-color);
-        }
-        .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(20px);
         }
 
         /* 预览网页弹窗 */
@@ -833,6 +1027,8 @@
             .export-toggle-row span { font-size: 0.85rem; }
             .preview-web-modal .modal-container { max-width: 95%; }
             .preview-example-btn { font-size: 0.7rem; padding: 3px 6px; }
+            .settings-font-grid { grid-template-columns: repeat(3, 1fr); }
+            .token-info { font-size: 0.55rem; white-space: normal; }
         }
     </style>
 </head>
@@ -850,6 +1046,12 @@
         <div class="history-header"><span>📋 历史对话</span></div>
         <div class="history-list" id="historyList"></div>
         <div class="storage-info" id="storageInfo">本地存储容量 0KB / 5MB (0%)</div>
+        <!-- 【修改点3】侧边栏官网超链接 -->
+        <div class="storage-link">
+            <a href="https://platform.deepseek.com/usage" target="_blank" rel="noopener noreferrer">
+                🔗 查看DeepSeek官网用量
+            </a>
+        </div>
         <div class="sidebar-footer">
             <button class="footer-btn" id="favoriteStarBtn">⭐ 收藏</button>
             <button class="footer-btn" id="settingsFooterBtn">⚙️ 设置</button>
@@ -926,7 +1128,19 @@
 </div>
 
 <!-- 设置弹窗 -->
-<div id="settingsModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>⚙️ 设置</h3><button class="modal-close" onclick="closeSettingsModal()">✕</button></div><div class="modal-body" id="settingsBody"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeSettingsModal()">取消</button><button class="btn-save" id="saveSettingsBtn">保存并关闭</button></div></div></div>
+<div id="settingsModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>⚙️ 设置</h3>
+            <button class="modal-close" onclick="closeSettingsModal()">✕</button>
+        </div>
+        <div class="modal-body" id="settingsBody"></div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeSettingsModal()">取消</button>
+            <button class="btn-save" id="saveSettingsBtn">保存并关闭</button>
+        </div>
+    </div>
+</div>
 
 <!-- API Key 首次弹窗 -->
 <div id="apiKeyModal" class="modal-overlay"><div class="modal-container" style="max-width:400px"><div class="modal-header"><h3>🔑 设置 API Key</h3><button class="modal-close" onclick="closeApiKeyModal()">✕</button></div><div class="modal-body"><p style="margin-bottom:12px">请填写你的 DeepSeek API Key：</p><input type="password" id="firstApiKey" placeholder="sk-..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); padding:8px; border-radius:20px; color:var(--text-primary);"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeApiKeyModal()">稍后</button><button class="btn-save" id="saveFirstApiKeyBtn">保存</button></div></div></div>
@@ -1015,7 +1229,11 @@
     let DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key') || '';
     let deepThinkEnabled = false;
     let previewModeEnabled = false;
-    let currentModel = localStorage.getItem('selected_model') || 'deepseek-chat';
+    // 【修改3】模型默认值改为 deepseek-v4-flash（与优秀网页一致）
+    let currentModel = localStorage.getItem('selected_model') || 'deepseek-v4-flash';
+    let memoryStrategy = localStorage.getItem('memory_strategy') || 'window';
+    // 【修改点1】Token预估开关
+    let showTokenEstimate = localStorage.getItem('show_token_estimate') !== 'false'; // 默认开启
     let conversations = [];
     let currentConvId = null;
     let instructions = [];
@@ -1026,6 +1244,24 @@
     let editingRoleId = null;
     let editingInstructionId = null;
     const API_URL = "https://api.deepseek.com/v1/chat/completions";
+
+    // ===== Token估算工具函数 =====
+    function estimateTokens(text) {
+        if (!text) return 0;
+        // 粗略估算：中文约1.5字符≈1 token，英文约0.75词≈1 token
+        // 混合场景用 字符数/1.8 作为折中
+        const charCount = text.length;
+        const chineseCount = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+        const englishCount = charCount - chineseCount;
+        // 中文：1.5字/token，英文：4字符/token（约0.75词/token）
+        const tokens = Math.round(chineseCount / 1.5 + englishCount / 4);
+        return Math.max(tokens, 1);
+    }
+
+    function countChars(text) {
+        if (!text) return 0;
+        return text.length;
+    }
 
     // ===== 预览网页示例列表 =====
     const previewExamples = [
@@ -1041,6 +1277,15 @@
 
     // ==================== 初始化 ====================
     document.addEventListener('DOMContentLoaded', () => {
+        // 默认主题为日间模式
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+        }
+
         loadInstructions();
         loadRoles();
         loadFavorites();
@@ -1168,7 +1413,7 @@
         document.getElementById('startCreationBtn').addEventListener('click', startCreation);
     });
 
-    // ===== 通用关闭函数（确保所有模态框可关闭） =====
+    // ===== 通用关闭函数 =====
     function closeModal() {
         const modal = document.getElementById('genericModal');
         if (modal) modal.classList.remove('active');
@@ -1199,14 +1444,11 @@
     }
 
     // ===== 加号下拉菜单功能 =====
-    // 新建群聊（暂时简化，提示并打开角色选择）
     function openCreateGroupPanel() {
         alert('群聊功能开发中，请先使用“新建角色对话”选择单个角色。');
-        // 也可以直接打开角色选择
         openCharacterSelectForNewChat();
     }
 
-    // 新建角色对话：打开角色选择面板
     function openCharacterSelectForNewChat() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
@@ -1230,7 +1472,6 @@
     function selectCharacterAndNewChat(roleId) {
         const role = roles.find(r => r.id == roleId);
         if (!role) {
-            // 如果没有角色，直接新建普通对话
             createNewDialog();
             closeModal();
             return;
@@ -1271,7 +1512,11 @@
         switchConversation(first.convId);
         setTimeout(() => {
             const msgElements = document.querySelectorAll('.message-wrapper');
-            if (msgElements[first.messageIndex]) msgElements[first.messageIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (msgElements[first.messageIndex]) {
+                msgElements[first.messageIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                msgElements[first.messageIndex].classList.add('highlight');
+                setTimeout(() => msgElements[first.messageIndex].classList.remove('highlight'), 3000);
+            }
         }, 100);
         document.getElementById('closeSearchBtn').click();
         alert(`找到 ${results.length} 条结果，已跳转到第一条`);
@@ -1280,49 +1525,203 @@
     // ==================== 设置 ====================
     function setupSettingsUI() {
         const container = document.getElementById('settingsBody');
-        container.innerHTML = `
-            <div class="settings-section"><h4>🔑 API Key</h4><input type="password" id="settingsApiKey" class="api-input" value="${DEEPSEEK_API_KEY.replace(/./g,'*')}"></div>
-            <div class="settings-section"><h4>🎨 外观</h4><button class="btn-primary" id="themeToggleBtn">日间模式</button></div>
-            <div class="settings-section"><h4>🔤 对话框字号</h4><div class="font-size-options" id="fontOptions"></div></div>
-            <div class="settings-section"><h4>📊 显示设置</h4><label><input type="checkbox" id="showTokenCheckbox"> 显示Token预估</label></div>
-            <div class="settings-section"><h4>🤖 模型选择</h4><select id="modelSelect" class="model-select"><option value="deepseek-chat">V4-Flash (快速模式) 推荐</option><option value="deepseek-reasoner">V4-Pro (专家模式)</option></select></div>
-            <div class="settings-section"><h4>💾 记忆策略</h4><div><label><input type="radio" name="memoryStrategy" value="sliding" checked> 滑动窗口摘要</label> <label><input type="radio" name="memoryStrategy" value="full"> 全量发送</label></div><div style="font-size:0.7rem; margin-top:5px">自动压缩早期对话，保留最近20条原文</div></div>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedFontSize = localStorage.getItem('font_size') || '16px';
+        const fontSizes = ['12px', '14px', '16px', '18px', '20px'];
+        const fontLabels = ['小', '较小', '默认', '较大', '大'];
+        const model = currentModel;
+        // 【修改点1】读取Token预估开关状态
+        const tokenEstimateChecked = localStorage.getItem('show_token_estimate') !== 'false';
+
+        let html = `
+            <!-- API Key -->
+            <div class="settings-section">
+                <h4>API Key</h4>
+                <div class="settings-api-row">
+                    <input type="password" id="settingsApiKey" placeholder="sk-xxxxxxxxxxxxxxxx" value="${DEEPSEEK_API_KEY.replace(/./g,'*')}">
+                    <button class="settings-icon-btn" id="settingsCopyKeyBtn" title="复制 API Key">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                    <button class="settings-save-key-btn" id="settingsSaveKeyBtn">保存</button>
+                </div>
+            </div>
+
+            <!-- 外观 -->
+            <div class="settings-section">
+                <h4>外观</h4>
+                <div class="settings-toggle-row">
+                    <span>日间模式</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingsDayModeToggle" ${savedTheme === 'light' ? 'checked' : ''}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 对话框字号 -->
+            <div class="settings-section">
+                <h4>对话框字号</h4>
+                <div class="settings-font-grid" id="fontOptionsGrid">
+                    ${fontSizes.map((sz, i) => `
+                        <button class="font-size-option ${savedFontSize === sz ? 'active' : ''}" data-size="${sz}">${fontLabels[i]}</button>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- 【修改点1】显示设置 - Token预估 -->
+            <div class="settings-section">
+                <h4>显示设置</h4>
+                <div class="settings-toggle-row">
+                    <span>显示Token预估</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingsTokenEstimateToggle" ${tokenEstimateChecked ? 'checked' : ''}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 模型选择 -->
+            <div class="settings-section">
+                <h4>模型选择</h4>
+                <div class="settings-radio-group">
+                    <label class="settings-radio-option">
+                        <input type="radio" name="modelChoice" value="deepseek-v4-flash" ${model === 'deepseek-v4-flash' ? 'checked' : ''}>
+                        <span class="radio-label">V4-Flash (快速模式) <span class="radio-desc" style="color:var(--accent-color);">推荐</span></span>
+                    </label>
+                    <label class="settings-radio-option">
+                        <input type="radio" name="modelChoice" value="deepseek-v4-pro" ${model === 'deepseek-v4-pro' ? 'checked' : ''}>
+                        <span class="radio-label">V4-Pro (专家模式)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 记忆策略 -->
+            <div class="settings-section" style="border-bottom: none;">
+                <h4>记忆策略</h4>
+                <div class="settings-radio-group">
+                    <label class="settings-radio-option">
+                        <input type="radio" name="memoryStrategy" value="window" ${memoryStrategy === 'window' ? 'checked' : ''}>
+                        <span class="radio-label">滑动窗口摘要</span>
+                        <span class="radio-desc">自动压缩早期对话，保留最近 20 条原文，节省 token</span>
+                    </label>
+                    <label class="settings-radio-option">
+                        <input type="radio" name="memoryStrategy" value="full" ${memoryStrategy === 'full' ? 'checked' : ''}>
+                        <span class="radio-label">全量发送</span>
+                        <span class="radio-desc">发送全部历史消息，不做摘要，token 消耗可能很高</span>
+                    </label>
+                </div>
+            </div>
         `;
-        document.getElementById('modelSelect').value = currentModel;
-        document.getElementById('modelSelect').onchange = (e) => { currentModel = e.target.value; localStorage.setItem('selected_model', currentModel); };
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
-        document.getElementById('themeToggleBtn').onclick = toggleTheme;
-        function toggleTheme() {
-            const html = document.documentElement;
-            if (html.getAttribute('data-theme') === 'light') {
-                html.removeAttribute('data-theme'); localStorage.setItem('theme', 'dark');
-                document.getElementById('themeToggleBtn').textContent = '日间模式';
+        container.innerHTML = html;
+
+        // ===== 绑定事件 =====
+
+        // 复制API Key
+        document.getElementById('settingsCopyKeyBtn').addEventListener('click', () => {
+            const realKey = DEEPSEEK_API_KEY || '';
+            navigator.clipboard.writeText(realKey).then(() => alert('API Key 已复制')).catch(() => alert('复制失败'));
+        });
+
+        // 保存API Key
+        document.getElementById('settingsSaveKeyBtn').addEventListener('click', () => {
+            const key = document.getElementById('settingsApiKey').value.trim();
+            if (key) {
+                localStorage.setItem('deepseek_api_key', key);
+                DEEPSEEK_API_KEY = key;
+                alert('API Key 已保存');
             } else {
-                html.setAttribute('data-theme', 'light'); localStorage.setItem('theme', 'light');
-                document.getElementById('themeToggleBtn').textContent = '夜间模式';
+                alert('请输入 API Key');
+            }
+        });
+
+        // 日间模式切换
+        document.getElementById('settingsDayModeToggle').addEventListener('change', function() {
+            const html = document.documentElement;
+            if (this.checked) {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // 字号选择
+        document.querySelectorAll('.font-size-option').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.font-size-option').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const size = this.getAttribute('data-size');
+                document.querySelectorAll('.bubble, .chat-messages').forEach(el => el.style.fontSize = size);
+                localStorage.setItem('font_size', size);
+            });
+        });
+
+        // 【修改点1】Token预估开关 - 真实生效
+        document.getElementById('settingsTokenEstimateToggle').addEventListener('change', function() {
+            showTokenEstimate = this.checked;
+            localStorage.setItem('show_token_estimate', this.checked ? 'true' : 'false');
+            // 刷新当前对话的Token显示
+            refreshTokenDisplay();
+        });
+
+        // 模型选择 - 真实生效
+        document.querySelectorAll('input[name="modelChoice"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    currentModel = this.value;
+                    localStorage.setItem('selected_model', currentModel);
+                    console.log('模型已切换为:', currentModel);
+                }
+            });
+        });
+
+        // 记忆策略 - 真实生效
+        document.querySelectorAll('input[name="memoryStrategy"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    memoryStrategy = this.value;
+                    localStorage.setItem('memory_strategy', memoryStrategy);
+                    console.log('记忆策略已切换为:', memoryStrategy);
+                }
+            });
+        });
+    }
+
+    // 【修改点1】刷新Token显示
+    function refreshTokenDisplay() {
+        const allTokenInfos = document.querySelectorAll('.token-info');
+        if (showTokenEstimate) {
+            allTokenInfos.forEach(el => el.classList.remove('hidden-token'));
+        } else {
+            allTokenInfos.forEach(el => el.classList.add('hidden-token'));
+        }
+    }
+
+    function openSettingsModal() {
+        document.getElementById('settingsModal').classList.add('active');
+        const input = document.getElementById('settingsApiKey');
+        if (input) input.value = DEEPSEEK_API_KEY;
+        // 同步开关状态
+        const toggle = document.getElementById('settingsTokenEstimateToggle');
+        if (toggle) {
+            toggle.checked = localStorage.getItem('show_token_estimate') !== 'false';
+        }
+    }
+    function closeSettingsModal() {
+        document.getElementById('settingsModal').classList.remove('active');
+    }
+    function saveAllSettings() {
+        closeSettingsModal();
+        const keyInput = document.getElementById('settingsApiKey');
+        if (keyInput) {
+            const key = keyInput.value.trim();
+            if (key && key !== DEEPSEEK_API_KEY) {
+                localStorage.setItem('deepseek_api_key', key);
+                DEEPSEEK_API_KEY = key;
             }
         }
-        const savedFontSize = localStorage.getItem('font_size') || '16px';
-        const fontSizes = ['12px','14px','16px','18px','20px'];
-        const labels = ['小','较小','默认','较大','大'];
-        const fontContainer = document.getElementById('fontOptions');
-        fontContainer.innerHTML = fontSizes.map((sz,i) => `<span class="font-option ${savedFontSize===sz?'active':''}" data-font="${sz}" onclick="setFontSize(this)">${labels[i]}</span>`).join('');
-        window.setFontSize = function(el) {
-            document.querySelectorAll('.font-option').forEach(o=>o.classList.remove('active'));
-            el.classList.add('active');
-            const sz = el.getAttribute('data-font');
-            document.querySelectorAll('.bubble, .chat-messages').forEach(e=>e.style.fontSize=sz);
-            localStorage.setItem('font_size', sz);
-        };
-        document.getElementById('showTokenCheckbox').onchange = (e) => alert('Token预估开发中');
-    }
-    function openSettingsModal() { document.getElementById('settingsModal').classList.add('active'); document.getElementById('settingsApiKey').value = DEEPSEEK_API_KEY; }
-    function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('active'); }
-    function saveAllSettings() {
-        const key = document.getElementById('settingsApiKey').value.trim();
-        if (key) { localStorage.setItem('deepseek_api_key', key); DEEPSEEK_API_KEY = key; }
-        closeSettingsModal();
+        alert('设置已保存');
     }
     function saveFirstApiKey() {
         const key = document.getElementById('firstApiKey').value.trim();
@@ -1338,6 +1737,7 @@
         renderFavoriteList('');
     }
     function closeFavoriteModal() { document.getElementById('favoriteModal').classList.remove('active'); }
+
     function renderFavoriteList(keyword) {
         const container = document.getElementById('favoriteListContainer');
         if (!container) return;
@@ -1349,25 +1749,38 @@
             container.innerHTML = '<div class="empty-placeholder">还没有收藏内容，去对话里点⭐试试吧。</div>';
             return;
         }
-        container.innerHTML = filtered.map(fav => `
+        container.innerHTML = filtered.map(fav => {
+            const roleLabel = fav.role === 'user' ? '👤 用户' : '🤖 AI';
+            return `
             <div class="favorite-item" style="background:var(--bg-input); border-radius:10px; padding:10px; margin-bottom:8px; border:1px solid var(--border-color);">
-                <div class="fav-meta" style="color:var(--text-muted); font-size:0.75rem;">来自：${escapeHtml(fav.convTitle)} · ${new Date(fav.timestamp).toLocaleString()}</div>
+                <div class="fav-meta" style="color:var(--text-muted); font-size:0.75rem; display:flex; justify-content:space-between; flex-wrap:wrap;">
+                    <span>📁 ${escapeHtml(fav.convTitle)}</span>
+                    <span>${roleLabel}</span>
+                </div>
                 <div class="fav-content" style="color:var(--text-secondary); font-size:0.85rem; margin:4px 0;">${escapeHtml(fav.content.substring(0,200))}${fav.content.length>200?'...':''}</div>
                 <div class="fav-actions" style="display:flex; gap:6px; justify-content:flex-end;">
                     <button class="card-btn" onclick="jumpToMessage('${fav.convId}','${fav.id}')">跳转</button>
                     <button class="card-btn" onclick="removeFavorite('${fav.id}')">取消收藏</button>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
     }
+
     function jumpToMessage(convId, msgId) {
         switchConversation(convId);
         closeFavoriteModal();
         setTimeout(() => {
             const msgElement = document.querySelector(`.message-wrapper[data-msgid="${msgId}"]`);
-            if (msgElement) msgElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (msgElement) {
+                msgElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                msgElement.classList.add('highlight');
+                setTimeout(() => msgElement.classList.remove('highlight'), 3000);
+            } else {
+                alert('消息未找到，可能已被删除');
+            }
         }, 200);
     }
+
     function removeFavorite(id) {
         favorites = favorites.filter(f => f.id != id);
         saveFavorites();
@@ -1491,7 +1904,6 @@
         const stored = localStorage.getItem('my_roles');
         if (stored) roles = JSON.parse(stored);
         else roles = [];
-        // 补全字段
         roles = roles.map(r => ({
             id: r.id || Date.now() + Math.random(),
             name: r.name || '未命名',
@@ -1528,15 +1940,12 @@
         document.getElementById('modalFooter').innerHTML = '<button class="btn-secondary" onclick="closeModal()">关闭</button>';
         modal.classList.add('active');
 
-        // 填充一条随机指令
         refreshMarketInstruction();
-
         document.getElementById('refreshMarketBtn').addEventListener('click', refreshMarketInstruction);
         document.getElementById('saveMarketBtn').addEventListener('click', saveMarketToManage);
         document.getElementById('newChatMarketBtn').addEventListener('click', newChatWithMarket);
     }
 
-    // 内置指令库（用于市场）
     const marketLibrary = [
         { title: '角色扮演 | 咖啡店偶遇', content: '【角色扮演】你在一家咖啡店偶遇一个陌生人，你们目光交汇，似乎有故事要发生。' },
         { title: '角色扮演 | 古代将军与谋士', content: '你是征战沙场的将军，我是你的谋士。今天敌军压境，你找我商议对策。' },
@@ -2014,6 +2423,8 @@
         if (!conv.messages.length) container.innerHTML = '<div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>';
         else conv.messages.forEach((msg, idx) => renderMessage(msg, idx));
         scrollToBottom();
+        // 刷新Token显示状态
+        refreshTokenDisplay();
     }
     function renderMessage(msg, idx) {
         const container = document.getElementById('chatMessages');
@@ -2049,8 +2460,19 @@
             `;
         }
         wrapper.appendChild(actionsDiv);
+
+        // 【修改点2】Token信息 - 横排显示，插入到actions后面
+        if (msg.tokenInfo) {
+            const tokenDiv = document.createElement('div');
+            tokenDiv.className = 'token-info' + (showTokenEstimate ? '' : ' hidden-token');
+            tokenDiv.textContent = msg.tokenInfo;
+            wrapper.appendChild(tokenDiv);
+        }
+
         container.appendChild(wrapper);
     }
+
+    // ==================== 核心对话功能 ====================
     window.toggleFavoriteWrapper = (id, convId, content, role, convTitle) => {
         if (favorites.some(f => f.id == id)) removeFavorite(id);
         else addFavorite(convId, id, content, role, convTitle);
@@ -2072,52 +2494,156 @@
         if (msgIndex <= 0) return;
         const userMsg = conv.messages[msgIndex - 1];
         if (!userMsg || userMsg.role !== 'user') return;
+        // 删除该AI消息及之后的所有消息
         conv.messages = conv.messages.slice(0, msgIndex);
+        // 重新计算累计token
+        recalcConvTokens(conv);
         saveConversations();
         loadCurrentConversation();
         await sendMessageWithContext(userMsg.content);
     };
+
+    // 重新计算对话累计token
+    function recalcConvTokens(conv) {
+        let totalTokens = 0;
+        for (let msg of conv.messages) {
+            if (msg.tokens) {
+                totalTokens += msg.tokens;
+            }
+        }
+        conv.totalTokens = totalTokens;
+    }
+
     async function sendMessageWithContext(content) {
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
         if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
-        addMessageToDOM(content, 'user');
-        saveMessageToCurrentConv('user', content);
+
+        const conv = conversations.find(c => c.id == currentConvId);
+        if (!conv) return;
+
+        // 计算用户消息的Token统计
+        const userCharCount = countChars(content);
+        const userTokens = estimateTokens(content);
+        // 历史记忆token = 当前对话已累计的token
+        const historyTokens = conv.totalTokens || 0;
+        const totalInputTokens = userTokens + historyTokens;
+
+        // 构建用户消息的Token信息（横排）
+        const userTokenInfo = `本次正文 ${userCharCount} 字，约 ${userTokens} tokens；历史记忆约 ${historyTokens} tokens；本轮输入共约 ${totalInputTokens} tokens`;
+
+        // 添加用户消息到DOM和存储
+        addMessageToDOM(content, 'user', null, userTokenInfo);
+        const userMsgId = saveMessageToCurrentConv('user', content);
+        // 存储Token信息到消息中
+        const userMsg = conv.messages.find(m => m.id == userMsgId);
+        if (userMsg) {
+            userMsg.tokenInfo = userTokenInfo;
+            userMsg.tokens = userTokens;
+            userMsg.charCount = userCharCount;
+            // 更新对话累计token
+            conv.totalTokens = (conv.totalTokens || 0) + userTokens;
+        }
+        saveConversations();
+
         const thinkId = addThinkingMessage();
         try {
-            const conv = conversations.find(c => c.id == currentConvId);
             const historyMessages = conv.messages.map(msg => ({
                 role: msg.role,
                 content: msg.content
             }));
+            let messagesToSend = historyMessages;
+            if (memoryStrategy === 'window' && messagesToSend.length > 20) {
+                messagesToSend = messagesToSend.slice(-20);
+            }
             const requestBody = {
                 model: currentModel,
-                messages: historyMessages,
+                messages: messagesToSend,
                 stream: false
             };
             if (deepThinkEnabled) requestBody.reasoning_effort = "medium";
+
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
                 body: JSON.stringify(requestBody)
             });
             if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+
             const data = await response.json();
             const aiContent = data.choices[0].message.content;
             const reasoningContent = data.choices[0].message.reasoning_content || null;
+
+            // 计算AI消息的Token统计
+            const aiCharCount = countChars(aiContent);
+            const aiTokens = estimateTokens(aiContent);
+            const reasoningCharCount = reasoningContent ? countChars(reasoningContent) : 0;
+            const reasoningTokens = reasoningContent ? estimateTokens(reasoningContent) : 0;
+            const totalAITokens = aiTokens + reasoningTokens;
+
+            // 构建AI消息的Token信息（横排）
+            let aiTokenInfo = '';
+            if (reasoningContent) {
+                aiTokenInfo = `思考 ${reasoningCharCount} 字，正文 ${aiCharCount} 字，约 ${totalAITokens} tokens`;
+            } else {
+                aiTokenInfo = `正文 ${aiCharCount} 字，约 ${aiTokens} tokens`;
+            }
+
             removeThinkingMessage(thinkId);
-            addMessageToDOM(aiContent, 'ai');
-            saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
+            addMessageToDOM(aiContent, 'ai', reasoningContent, aiTokenInfo);
+
+            // 保存AI消息到存储
+            const aiMsgId = saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
+            const aiMsg = conv.messages.find(m => m.id == aiMsgId);
+            if (aiMsg) {
+                aiMsg.tokenInfo = aiTokenInfo;
+                aiMsg.tokens = totalAITokens;
+                aiMsg.charCount = aiCharCount;
+                aiMsg.reasoningCharCount = reasoningCharCount;
+                // 更新对话累计token
+                conv.totalTokens = (conv.totalTokens || 0) + totalAITokens;
+            }
+            saveConversations();
+            // 刷新Token显示状态
+            refreshTokenDisplay();
+
         } catch (e) {
             removeThinkingMessage(thinkId);
             addMessageToDOM(`出错：${e.message}`, 'ai');
         }
     }
+
     function renameConv(id) { let newName = prompt('新名称'); if (newName) { let c = conversations.find(c => c.id == id); if (c) c.title = newName; saveConversations(); } }
     function deleteConv(id) { if (confirm('删除对话？')) { conversations = conversations.filter(c => c.id != id); if (conversations.length === 0) { let newId = Date.now().toString(); conversations = [{ id: newId, title: '新对话', messages: [] }]; currentConvId = newId; } else if (currentConvId === id) currentConvId = conversations[0].id; saveConversations(); loadCurrentConversation(); } }
-    function createNewDialog() { let newId = Date.now().toString(); conversations.unshift({ id: newId, title: '新对话', messages: [] }); currentConvId = newId; saveConversations(); loadCurrentConversation(); }
-    function saveMessageToCurrentConv(role, content, thought = null) { let conv = conversations.find(c => c.id == currentConvId); if (!conv) return; const msgId = Date.now() + '-' + Math.random(); conv.messages.push({ id: msgId, role, content, thought, timestamp: Date.now() }); saveConversations(); if (conv.messages.length === 1 && role === 'user') { conv.title = content.substring(0, 20) + (content.length > 20 ? '...' : ''); renderHistoryList(); } return msgId; }
-    async function sendMessage() { const inp = document.getElementById('userInput'); const msg = inp.value.trim(); if (!msg) return; await sendMessageWithContext(msg); inp.value = ''; }
-    function addMessageToDOM(content, role) {
+    function createNewDialog() {
+        let newId = Date.now().toString();
+        conversations.unshift({ id: newId, title: '新对话', messages: [], totalTokens: 0 });
+        currentConvId = newId;
+        saveConversations();
+        loadCurrentConversation();
+    }
+    function saveMessageToCurrentConv(role, content, thought = null) {
+        let conv = conversations.find(c => c.id == currentConvId);
+        if (!conv) return;
+        const msgId = Date.now() + '-' + Math.random();
+        const msg = { id: msgId, role, content, thought, timestamp: Date.now() };
+        conv.messages.push(msg);
+        saveConversations();
+        if (conv.messages.length === 1 && role === 'user') {
+            conv.title = content.substring(0, 20) + (content.length > 20 ? '...' : '');
+            renderHistoryList();
+        }
+        return msgId;
+    }
+    async function sendMessage() {
+        const inp = document.getElementById('userInput');
+        const msg = inp.value.trim();
+        if (!msg) return;
+        await sendMessageWithContext(msg);
+        inp.value = '';
+    }
+
+    // addMessageToDOM 支持Token信息
+    function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         const container = document.getElementById('chatMessages');
         if (container.children.length === 1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML = '';
         const wrapper = document.createElement('div');
@@ -2127,7 +2653,11 @@
 
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'bubble';
-        bubbleDiv.innerHTML = escapeHtml(content).replace(/\n/g, '<br>');
+        let displayContent = content;
+        if (role === 'ai' && thought && deepThinkEnabled) {
+            displayContent = `💭 思考过程：\n${thought}\n\n---\n${content}`;
+        }
+        bubbleDiv.innerHTML = escapeHtml(displayContent).replace(/\n/g, '<br>');
         wrapper.appendChild(bubbleDiv);
 
         const actionsDiv = document.createElement('div');
@@ -2148,15 +2678,37 @@
             `;
         }
         wrapper.appendChild(actionsDiv);
+
+        // 添加Token信息（横排）
+        if (tokenInfo) {
+            const tokenDiv = document.createElement('div');
+            tokenDiv.className = 'token-info' + (showTokenEstimate ? '' : ' hidden-token');
+            tokenDiv.textContent = tokenInfo;
+            wrapper.appendChild(tokenDiv);
+        }
+
         container.appendChild(wrapper);
         scrollToBottom();
     }
+
     function addThinkingMessage() { const c = document.getElementById('chatMessages'); const id = 'think-' + Date.now(); const div = document.createElement('div'); div.id = id; div.className = 'message ai thinking'; div.innerHTML = `<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`; c.appendChild(div); scrollToBottom(); return id; }
     function removeThinkingMessage(id) { const el = document.getElementById(id); if (el) el.remove(); }
     function scrollToBottom() { const c = document.getElementById('chatMessages'); if (c) c.scrollTop = c.scrollHeight; }
     function toggleDeepThink() { deepThinkEnabled = !deepThinkEnabled; document.getElementById('deepThinkBtn').classList.toggle('active'); }
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]); }
-    function updateStorageInfo() { let total = 0; for (let i = 0; i < localStorage.length; i++) total += (localStorage.key(i).length + (localStorage.getItem(localStorage.key(i)) || '').length) * 2; const used = (total / 1024).toFixed(1); const percent = ((total / (5 * 1024 * 1024)) * 100).toFixed(1); const info = document.getElementById('storageInfo'); if (info) info.innerHTML = `本地存储容量 ${used}KB / 5MB (${percent}%)`; }
+    function updateStorageInfo() {
+        let total = 0;
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            const val = localStorage.getItem(key) || '';
+            total += (key.length + val.length) * 2;
+        }
+        const used = (total / 1024).toFixed(1);
+        const percent = ((total / (5 * 1024 * 1024)) * 100).toFixed(1);
+        const info = document.getElementById('storageInfo');
+        if (info) info.innerHTML = `本地存储容量 ${used}KB / 5MB (${percent}%)`;
+    }
+
     document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
     document.getElementById('userInput').addEventListener('input', function () { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 100) + 'px'; });
 </script>
