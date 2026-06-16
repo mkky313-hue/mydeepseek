@@ -26,6 +26,7 @@
             --highlight-color: #ffd700;
             --token-info-color: #7a8aa0;
             --msg-icon-color: #c0d0e0;
+            --group-chat-bg: #0a0a0a; /* 夜间群聊背景 */
         }
         [data-theme="light"] {
             --bg-primary: linear-gradient(145deg, #f0f2f5 0%, #e0e4e9 100%);
@@ -46,6 +47,7 @@
             --highlight-color: #fbbf24;
             --token-info-color: #5a6e8a;
             --msg-icon-color: #4a5a6a;
+            --group-chat-bg: #e5e7eb; /* 日间群聊背景（浅灰） */
         }
 
         * {
@@ -357,6 +359,30 @@
             gap: 1rem;
             min-height: 0;
             overflow-x: hidden;
+            transition: background-color 0.3s;
+            border-radius: 12px;
+        }
+        /* ===== 群聊背景加深 ===== */
+        .chat-container.group-chat .chat-messages {
+            background-color: var(--group-chat-bg);
+        }
+
+        /* ===== 群聊顶部横幅 ===== */
+        .group-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-bottom: 8px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            width: 100%;
+            flex-shrink: 0;
+            backdrop-filter: blur(6px);
+        }
+        .group-banner strong {
+            color: var(--text-primary);
         }
 
         /* ===== 消息气泡 ===== */
@@ -1164,6 +1190,44 @@
             font-size: 0.75rem;
             margin-top: 6px;
         }
+
+        /* ===== 群聊创建面板中的复选框列表 ===== */
+        .group-role-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .group-role-checkbox-item:hover {
+            background: var(--btn-icon-hover);
+        }
+        .group-role-checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-color);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .group-role-checkbox-item .role-check-label {
+            flex: 1;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        .group-role-checkbox-item .role-check-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .group-create-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -1236,6 +1300,7 @@
 
         <div id="chatPanel" class="chat-container">
             <div class="chat-messages" id="chatMessages">
+                <div id="groupBanner" class="group-banner" style="display:none;"></div>
                 <div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>
             </div>
             <div class="input-section">
@@ -1567,11 +1632,95 @@
         sendMessage();
     }
 
+    // ==================== 【新增】群聊创建面板 ====================
     function openCreateGroupPanel() {
-        alert('群聊功能开发中，请先使用“新建角色对话”选择单个角色。');
-        openCharacterSelectForNewChat();
+        const modal = document.getElementById('genericModal');
+        document.getElementById('modalTitle').innerHTML = '👥 新建群聊（功能测试中）';
+
+        let roleListHtml = '';
+        if (roles.length === 0) {
+            roleListHtml = '<div class="empty-placeholder">还没有角色卡，请先去“角色卡管理”创建。</div>';
+        } else {
+            roles.forEach(r => {
+                roleListHtml += `
+                    <div class="group-role-checkbox-item">
+                        <input type="checkbox" id="groupRole_${r.id}" value="${r.id}">
+                        <label class="role-check-label" for="groupRole_${r.id}">
+                            <strong>${escapeHtml(r.name)}</strong>
+                            <span class="role-check-desc">${escapeHtml(r.desc || r.summary || '')}</span>
+                        </label>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('modalBody').innerHTML = `
+            <div style="margin-bottom:1rem;">
+                <label style="color:var(--text-secondary);font-size:0.85rem;display:block;margin-bottom:4px;">群聊名称（可不填）</label>
+                <input id="groupNameInput" class="prompt-input" type="text" placeholder="例如：日常闲聊群">
+            </div>
+            <div>
+                <label style="color:var(--text-secondary);font-size:0.85rem;display:block;margin-bottom:6px;">选择角色（至少 2 个）</label>
+                <div id="groupRoleCheckboxList">${roleListHtml}</div>
+                <div class="group-create-hint">💡 勾选你想拉入群聊的角色，AI 会按照各自的设定独立发言。</div>
+            </div>
+        `;
+        document.getElementById('modalFooter').innerHTML = `
+            <button class="btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn-primary" id="confirmCreateGroupBtn">创建群聊</button>
+        `;
+        modal.classList.add('active');
+
+        document.getElementById('confirmCreateGroupBtn').addEventListener('click', confirmCreateGroup);
     }
 
+    function confirmCreateGroup() {
+        // 获取群聊名称
+        const groupName = document.getElementById('groupNameInput').value.trim() || '群聊';
+
+        // 获取勾选的角色 ID
+        const checkedBoxes = document.querySelectorAll('#groupRoleCheckboxList input[type="checkbox"]:checked');
+        const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+        if (selectedIds.length < 2) {
+            alert('请至少选择 2 个角色');
+            return;
+        }
+
+        // 验证所选角色是否还存在（防止角色被删除后 ID 残留）
+        const validRoles = roles.filter(r => selectedIds.includes(r.id));
+        if (validRoles.length < 2) {
+            alert('所选角色中有些已被删除，请重新选择');
+            return;
+        }
+
+        // 创建群聊对话
+        const newId = Date.now().toString();
+        const newConv = {
+            id: newId,
+            title: groupName,
+            messages: [],
+            totalTokens: 0,
+            isGroup: true,
+            groupMemberIds: validRoles.map(r => r.id)
+        };
+        conversations.unshift(newConv);
+        currentConvId = newId;
+        saveConversations();
+        renderHistoryList();
+        loadCurrentConversation();
+        closeModal();
+
+        // 自动发送一条群聊启动指令
+        const memberNames = validRoles.map(r => r.name).join('、');
+        const initMsg = `【群聊启动】我是用户，现在我和 ${memberNames} 开始群聊。请各位按照自己的设定依次发言，无需等待用户提问，先各自做个简单的自我介绍或开场白。`;
+        setTimeout(() => {
+            document.getElementById('userInput').value = initMsg;
+            document.getElementById('userInput').dispatchEvent(new Event('input'));
+            sendMessage();
+        }, 300);
+    }
+
+    // ===== 原有的角色选择（新建角色对话） =====
     function openCharacterSelectForNewChat() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
@@ -2508,7 +2657,7 @@
     function loadConversations() {
         const saved = localStorage.getItem('my_conversations');
         if (saved) conversations = JSON.parse(saved);
-        else { const id = Date.now().toString(); conversations = [{ id, title: '新对话', messages: [] }]; currentConvId = id; saveConversations(); }
+        else { const id = Date.now().toString(); conversations = [{ id, title: '新对话', messages: [], totalTokens: 0 }]; currentConvId = id; saveConversations(); }
         if (!currentConvId && conversations.length) currentConvId = conversations[0].id;
         renderHistoryList();
         loadCurrentConversation();
@@ -2604,13 +2753,49 @@
         }
     }
     window.switchConversation = (id) => { currentConvId = id; renderHistoryList(); loadCurrentConversation(); };
+
+    // ==================== 【修改】加载对话时处理群聊横幅与背景 ====================
     function loadCurrentConversation() {
         const conv = conversations.find(c => c.id == currentConvId);
         const container = document.getElementById('chatMessages');
+        const chatPanel = document.getElementById('chatPanel');
+        const banner = document.getElementById('groupBanner');
+
         if (!conv) return;
+
+        // 清除所有消息，保留横幅和欢迎语
         container.innerHTML = '';
-        if (!conv.messages.length) container.innerHTML = '<div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>';
-        else conv.messages.forEach((msg, idx) => renderMessage(msg, idx));
+        // 重新插入横幅（始终存在，但通过 display 控制显隐）
+        const newBanner = document.createElement('div');
+        newBanner.id = 'groupBanner';
+        newBanner.className = 'group-banner';
+        newBanner.style.display = 'none';
+        container.appendChild(newBanner);
+
+        // 处理群聊背景加深
+        if (conv.isGroup) {
+            chatPanel.classList.add('group-chat');
+            // 显示横幅，只显示角色成员（不包含用户）
+            const memberIds = conv.groupMemberIds || [];
+            const memberRoles = roles.filter(r => memberIds.includes(r.id));
+            const memberNames = memberRoles.map(r => r.name).join('、');
+            if (memberNames) {
+                newBanner.innerHTML = `👥 群聊成员：<strong>${escapeHtml(memberNames)}</strong>`;
+                newBanner.style.display = 'block';
+            }
+        } else {
+            chatPanel.classList.remove('group-chat');
+        }
+
+        // 渲染消息
+        if (!conv.messages.length) {
+            const welcome = document.createElement('div');
+            welcome.className = 'welcome-message';
+            welcome.textContent = '✨ 欢迎！输入你的问题，我会用心回答你 ✨';
+            container.appendChild(welcome);
+        } else {
+            conv.messages.forEach((msg, idx) => renderMessage(msg, idx));
+        }
         scrollToBottom();
         refreshTokenDisplay();
     }
@@ -2682,7 +2867,13 @@
             wrapper.appendChild(tokenDiv);
         }
 
-        container.appendChild(wrapper);
+        // 插入到横幅之后
+        const banner = document.getElementById('groupBanner');
+        if (banner && banner.nextSibling) {
+            container.insertBefore(wrapper, banner.nextSibling);
+        } else {
+            container.appendChild(wrapper);
+        }
     }
 
     // ==================== 工具栏函数 ====================
@@ -2724,6 +2915,7 @@
         conv.totalTokens = totalTokens;
     }
 
+    // ==================== 【核心修改】发送消息 - 支持群聊系统指令 ====================
     async function sendMessageWithContext(content) {
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
         if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
@@ -2750,19 +2942,47 @@
 
         const thinkId = addThinkingMessage();
         try {
+            // 构建历史消息
             const historyMessages = conv.messages.map(msg => ({
                 role: msg.role,
                 content: msg.content
             }));
+
             let messagesToSend = historyMessages;
             if (memoryStrategy === 'window' && messagesToSend.length > 20) {
                 messagesToSend = messagesToSend.slice(-20);
             }
+
+            // ===== 群聊系统指令注入 =====
+            if (conv.isGroup && conv.groupMemberIds && conv.groupMemberIds.length > 0) {
+                const selectedRoles = roles.filter(r => conv.groupMemberIds.includes(r.id));
+                if (selectedRoles.length > 0) {
+                    let systemPrompt = "你是一个多角色群聊模拟器。用户是'用户'。以下是本次群聊中除用户外的所有角色及其设定：\n\n";
+                    selectedRoles.forEach((r, index) => {
+                        systemPrompt += `${index+1}. 角色名：${r.name}\n`;
+                        if (r.personality) systemPrompt += `   性格：${r.personality}\n`;
+                        if (r.background) systemPrompt += `   背景：${r.background}\n`;
+                        if (r.speakingStyle) systemPrompt += `   说话风格：${r.speakingStyle}\n`;
+                        if (r.catchphrases) systemPrompt += `   口头禅：${r.catchphrases}\n`;
+                        systemPrompt += `\n`;
+                    });
+
+                    if (deepThinkEnabled) {
+                        systemPrompt += `\n【深度思考模式已开启】\n对于每一轮对话，你必须先分别输出每个角色的内心思考（格式：【角色名 的内心思考】：...），然后再输出该角色的正式发言（格式：【角色名】：...）。每个角色都必须独立思考和发言，严格按照其设定。`;
+                    } else {
+                        systemPrompt += `\n回复时，请直接以【角色名】：... 的格式输出每个角色的发言，不需要思考过程。每个角色都必须根据其设定独立发言。`;
+                    }
+                    // 将系统指令插入到消息数组最前面
+                    messagesToSend.unshift({ role: 'system', content: systemPrompt });
+                }
+            }
+
             const requestBody = {
                 model: currentModel,
                 messages: messagesToSend,
                 stream: false
             };
+            // 深度思考开关：对于群聊，我们通过提示词实现了"每个角色独立思考"，同时如果API支持，保留全局reasoning_effort
             if (deepThinkEnabled) requestBody.reasoning_effort = "medium";
 
             const response = await fetch(API_URL, {
@@ -2815,7 +3035,7 @@
         showRenameDialog(id);
     }
 
-    function deleteConv(id) { if (confirm('删除对话？')) { conversations = conversations.filter(c => c.id != id); if (conversations.length === 0) { let newId = Date.now().toString(); conversations = [{ id: newId, title: '新对话', messages: [] }]; currentConvId = newId; } else if (currentConvId === id) currentConvId = conversations[0].id; saveConversations(); loadCurrentConversation(); } }
+    function deleteConv(id) { if (confirm('删除对话？')) { conversations = conversations.filter(c => c.id != id); if (conversations.length === 0) { let newId = Date.now().toString(); conversations = [{ id: newId, title: '新对话', messages: [], totalTokens: 0 }]; currentConvId = newId; } else if (currentConvId === id) currentConvId = conversations[0].id; saveConversations(); loadCurrentConversation(); } }
     function createNewDialog() {
         let newId = Date.now().toString();
         conversations.unshift({ id: newId, title: '新对话', messages: [], totalTokens: 0 });
@@ -2847,7 +3067,10 @@
     // ==================== addMessageToDOM 消息添加到DOM ====================
     function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         const container = document.getElementById('chatMessages');
-        if (container.children.length === 1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML = '';
+        // 移除欢迎语（如果存在）
+        const welcome = container.querySelector('.welcome-message');
+        if (welcome) welcome.remove();
+
         const wrapper = document.createElement('div');
         wrapper.className = `message-wrapper message ${role}`;
         const id = 'tmp-' + Date.now() + '-' + Math.random();
@@ -2912,11 +3135,33 @@
             wrapper.appendChild(tokenDiv);
         }
 
-        container.appendChild(wrapper);
+        // 插入到横幅之后
+        const banner = document.getElementById('groupBanner');
+        if (banner && banner.nextSibling) {
+            container.insertBefore(wrapper, banner.nextSibling);
+        } else {
+            container.appendChild(wrapper);
+        }
         scrollToBottom();
     }
 
-    function addThinkingMessage() { const c = document.getElementById('chatMessages'); const id = 'think-' + Date.now(); const div = document.createElement('div'); div.id = id; div.className = 'message ai thinking'; div.innerHTML = `<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`; c.appendChild(div); scrollToBottom(); return id; }
+    function addThinkingMessage() { 
+        const container = document.getElementById('chatMessages');
+        const id = 'think-' + Date.now(); 
+        const div = document.createElement('div'); 
+        div.id = id; 
+        div.className = 'message ai thinking'; 
+        div.innerHTML = `<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`; 
+        // 插入到横幅之后
+        const banner = document.getElementById('groupBanner');
+        if (banner && banner.nextSibling) {
+            container.insertBefore(div, banner.nextSibling);
+        } else {
+            container.appendChild(div);
+        }
+        scrollToBottom(); 
+        return id; 
+    }
     function removeThinkingMessage(id) { const el = document.getElementById(id); if (el) el.remove(); }
     function scrollToBottom() { const c = document.getElementById('chatMessages'); if (c) c.scrollTop = c.scrollHeight; }
     function toggleDeepThink() { deepThinkEnabled = !deepThinkEnabled; document.getElementById('deepThinkBtn').classList.toggle('active'); }
