@@ -89,7 +89,7 @@
             top: 0;
             left: 0;
             bottom: 0;
-            z-index: 300;  /* 关键修改：提高到300，覆盖所有 */
+            z-index: 300;
             overflow-y: auto;
             flex-shrink: 0;
         }
@@ -504,7 +504,7 @@
         .dot-floating span { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; animation: float 1.4s infinite; }
         @keyframes float { 0%,100%{transform:scale(0.6);opacity:0.4;} 50%{transform:scale(1);opacity:1;} }
 
-        /* 输入区域 - 固定在底部，z-index低于侧边栏 */
+        /* 输入区域 - 固定在底部 */
         .input-section {
             flex-shrink: 0;
             background: var(--bg-card);
@@ -513,7 +513,7 @@
             margin-top: 0.5rem;
             position: sticky;
             bottom: 0;
-            z-index: 100;  /* 低于侧边栏的300 */
+            z-index: 100;
         }
         .input-row { display: flex; gap: 10px; align-items: flex-end; }
         .input-wrapper { flex: 1; background: var(--bg-input); border-radius: 24px; padding: 6px 12px; border: 1px solid var(--border-color); }
@@ -543,7 +543,7 @@
         .modal-container {
             background: var(--bg-card);
             width: 100%;
-            max-width: 700px;
+            max-width: 500px;
             max-height: 85vh;
             border-radius: 1.5rem;
             overflow-y: auto;
@@ -583,6 +583,11 @@
         .btn-secondary { background: var(--btn-icon-bg); border: none; color: var(--text-primary); padding: 6px 16px; border-radius: 20px; cursor: pointer; }
         .btn-gray { background: var(--btn-icon-bg); border: none; color: var(--text-primary); padding: 6px 16px; border-radius: 20px; cursor: pointer; }
         .btn-blue { background: var(--accent-color); border: none; color: white; padding: 6px 16px; border-radius: 20px; cursor: pointer; }
+
+        /* 【修改点2】导出弹窗 - 提高层级到最上层 */
+        #exportModal.modal-overlay {
+            z-index: 500 !important;
+        }
 
         /* 指令/角色卡片样式 (保持原有风格) */
         .instruction-card, .role-card {
@@ -1131,6 +1136,29 @@
         #favoriteModal.modal-overlay {
             z-index: 350;
         }
+
+        /* 【修改点1】修改名称弹窗输入框样式 */
+        .rename-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .rename-input:focus {
+            border-color: var(--accent-color);
+        }
+        .rename-hint {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 6px;
+        }
     </style>
 </head>
 <body>
@@ -1347,6 +1375,8 @@
     let editingMessageId = null;
     let editingRoleId = null;
     let editingInstructionId = null;
+    // 用于修改名称弹窗
+    let renameConvId = null;
     const API_URL = "https://api.deepseek.com/v1/chat/completions";
 
     // ===== Token估算工具函数 =====
@@ -1506,6 +1536,7 @@
     function closeModal() {
         const modal = document.getElementById('genericModal');
         if (modal) modal.classList.remove('active');
+        renameConvId = null;
     }
 
     function updateExampleDisplay() {
@@ -2482,8 +2513,73 @@
         const container = document.getElementById('historyList');
         if (!container) return;
         if (!conversations.length) { container.innerHTML = '<div style="padding:8px 16px;color:var(--text-muted)">暂无对话</div>'; return; }
-        container.innerHTML = conversations.map(conv => `<div class="history-item ${currentConvId === conv.id ? 'active' : ''}" onclick="switchConversation('${conv.id}')"><span class="history-title">${escapeHtml(conv.title)}</span><div class="history-actions"><button class="history-action-btn" title="修改名称" onclick="event.stopPropagation(); renameConv('${conv.id}')">✏️</button><button class="history-action-btn" title="释放空间 (删除AI思考过程)" onclick="event.stopPropagation(); releaseThoughtSpace('${conv.id}')">🗑️</button><button class="history-action-btn" title="导出对话" onclick="event.stopPropagation(); openExportModal('${conv.id}')">📤</button><button class="history-action-btn" title="删除对话" onclick="event.stopPropagation(); deleteConv('${conv.id}')">❌</button></div></div>`).join('');
+        container.innerHTML = conversations.map(conv => `<div class="history-item ${currentConvId === conv.id ? 'active' : ''}" onclick="switchConversation('${conv.id}')"><span class="history-title">${escapeHtml(conv.title)}</span><div class="history-actions"><button class="history-action-btn" title="修改名称" onclick="event.stopPropagation(); showRenameDialog('${conv.id}')">✏️</button><button class="history-action-btn" title="释放空间 (删除AI思考过程)" onclick="event.stopPropagation(); releaseThoughtSpace('${conv.id}')">🗑️</button><button class="history-action-btn" title="导出对话" onclick="event.stopPropagation(); openExportModal('${conv.id}')">📤</button><button class="history-action-btn" title="删除对话" onclick="event.stopPropagation(); deleteConv('${conv.id}')">❌</button></div></div>`).join('');
     }
+
+    // 【修改点1】显示自定义修改名称弹窗
+    function showRenameDialog(convId) {
+        const conv = conversations.find(c => c.id == convId);
+        if (!conv) return;
+        renameConvId = convId;
+        const modal = document.getElementById('genericModal');
+        document.getElementById('modalTitle').innerHTML = '✏️ 修改会话名称';
+        document.getElementById('modalBody').innerHTML = `
+            <input type="text" id="renameInput" class="rename-input" value="${escapeHtml(conv.title)}" placeholder="请输入会话名称" autofocus>
+            <div class="rename-hint">修改后点击保存即可更新</div>
+        `;
+        document.getElementById('modalFooter').innerHTML = `
+            <button class="btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn-save" id="renameSaveBtn">保存</button>
+        `;
+        modal.classList.add('active');
+        // 聚焦输入框并全选文字
+        setTimeout(() => {
+            const input = document.getElementById('renameInput');
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }, 100);
+        // 绑定保存事件（只绑定一次）
+        const saveBtn = document.getElementById('renameSaveBtn');
+        if (saveBtn) {
+            // 移除旧监听器避免重复绑定
+            const newBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newBtn, saveBtn);
+            newBtn.addEventListener('click', saveRename);
+        }
+        // 回车键保存
+        const inputField = document.getElementById('renameInput');
+        if (inputField) {
+            inputField.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveRename();
+                }
+            });
+        }
+    }
+
+    function saveRename() {
+        const input = document.getElementById('renameInput');
+        if (!input) return;
+        const newName = input.value.trim();
+        if (!newName) {
+            alert('名称不能为空');
+            return;
+        }
+        if (renameConvId) {
+            const conv = conversations.find(c => c.id == renameConvId);
+            if (conv) {
+                conv.title = newName;
+                saveConversations();
+                renderHistoryList();
+            }
+        }
+        closeModal();
+        renameConvId = null;
+    }
+
     function releaseThoughtSpace(convId) {
         const conv = conversations.find(c => c.id == convId);
         if (!conv) return;
@@ -2709,7 +2805,11 @@
         }
     }
 
-    function renameConv(id) { let newName = prompt('新名称'); if (newName) { let c = conversations.find(c => c.id == id); if (c) c.title = newName; saveConversations(); } }
+    // 【修改点1】原来的 renameConv 已被 showRenameDialog 替代，保留空函数以防报错
+    function renameConv(id) {
+        showRenameDialog(id);
+    }
+
     function deleteConv(id) { if (confirm('删除对话？')) { conversations = conversations.filter(c => c.id != id); if (conversations.length === 0) { let newId = Date.now().toString(); conversations = [{ id: newId, title: '新对话', messages: [] }]; currentConvId = newId; } else if (currentConvId === id) currentConvId = conversations[0].id; saveConversations(); loadCurrentConversation(); } }
     function createNewDialog() {
         let newId = Date.now().toString();
