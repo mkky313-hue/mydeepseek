@@ -138,7 +138,7 @@
             border-top: 1px solid var(--border-color);
             border-bottom: 1px solid var(--border-color);
         }
-        /* 【修改点3】侧边栏官网超链接 */
+        /* 侧边栏官网超链接 & Token充值 */
         .storage-link {
             padding: 10px 1rem;
             font-size: 0.7rem;
@@ -446,7 +446,7 @@
             opacity: 1;
         }
 
-        /* 【修改点2】Token统计信息 - 横排显示 */
+        /* Token统计信息 - 横排显示 */
         .token-info {
             font-size: 0.65rem;
             color: var(--token-info-color);
@@ -1030,6 +1030,60 @@
             .settings-font-grid { grid-template-columns: repeat(3, 1fr); }
             .token-info { font-size: 0.55rem; white-space: normal; }
         }
+
+        /* ===== 收藏栏专用样式 ===== */
+        .favorite-item {
+            background: var(--bg-input);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .fav-meta {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .fav-content {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin: 4px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        .fav-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .fav-actions .card-btn {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+        }
+
+        /* 显示原文模态框内样式 */
+        .full-text-content {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.92rem;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -1046,10 +1100,15 @@
         <div class="history-header"><span>📋 历史对话</span></div>
         <div class="history-list" id="historyList"></div>
         <div class="storage-info" id="storageInfo">本地存储容量 0KB / 5MB (0%)</div>
-        <!-- 【修改点3】侧边栏官网超链接 -->
+        <!-- 侧边栏官网超链接 & Token充值 -->
         <div class="storage-link">
             <a href="https://platform.deepseek.com/usage" target="_blank" rel="noopener noreferrer">
                 🔗 查看DeepSeek官网用量
+            </a>
+        </div>
+        <div class="storage-link">
+            <a href="https://platform.deepseek.com/top_up" target="_blank" rel="noopener noreferrer">
+                💳 Token充值
             </a>
         </div>
         <div class="sidebar-footer">
@@ -1229,11 +1288,9 @@
     let DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key') || '';
     let deepThinkEnabled = false;
     let previewModeEnabled = false;
-    // 【修改3】模型默认值改为 deepseek-v4-flash（与优秀网页一致）
     let currentModel = localStorage.getItem('selected_model') || 'deepseek-v4-flash';
     let memoryStrategy = localStorage.getItem('memory_strategy') || 'window';
-    // 【修改点1】Token预估开关
-    let showTokenEstimate = localStorage.getItem('show_token_estimate') !== 'false'; // 默认开启
+    let showTokenEstimate = localStorage.getItem('show_token_estimate') !== 'false';
     let conversations = [];
     let currentConvId = null;
     let instructions = [];
@@ -1248,12 +1305,9 @@
     // ===== Token估算工具函数 =====
     function estimateTokens(text) {
         if (!text) return 0;
-        // 粗略估算：中文约1.5字符≈1 token，英文约0.75词≈1 token
-        // 混合场景用 字符数/1.8 作为折中
         const charCount = text.length;
         const chineseCount = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
         const englishCount = charCount - chineseCount;
-        // 中文：1.5字/token，英文：4字符/token（约0.75词/token）
         const tokens = Math.round(chineseCount / 1.5 + englishCount / 4);
         return Math.max(tokens, 1);
     }
@@ -1277,7 +1331,6 @@
 
     // ==================== 初始化 ====================
     document.addEventListener('DOMContentLoaded', () => {
-        // 默认主题为日间模式
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.documentElement.removeAttribute('data-theme');
@@ -1294,7 +1347,6 @@
         setupSettingsUI();
         if (!DEEPSEEK_API_KEY) document.getElementById('apiKeyModal').classList.add('active');
 
-        // 侧边栏切换
         const toggleBtn = document.getElementById('toggleSidebarBtn');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', (e) => {
@@ -1306,7 +1358,6 @@
             });
         }
 
-        // 点击主内容区收起侧边栏
         const mainContent = document.getElementById('mainContent');
         if (mainContent) {
             mainContent.addEventListener('click', () => {
@@ -1318,7 +1369,6 @@
             });
         }
 
-        // 侧边栏菜单
         document.querySelectorAll('.nav-item').forEach(el => {
             el.addEventListener('click', () => {
                 const type = el.getAttribute('data-type');
@@ -1330,7 +1380,6 @@
         document.getElementById('favoriteStarBtn').addEventListener('click', openFavoriteModal);
         document.getElementById('settingsFooterBtn').addEventListener('click', openSettingsModal);
 
-        // 搜索相关
         const searchIcon = document.getElementById('searchIconBtn');
         const searchWrapper = document.getElementById('searchWrapper');
         const mainTitle = document.getElementById('mainTitle');
@@ -1350,7 +1399,6 @@
         document.getElementById('saveSettingsBtn').addEventListener('click', saveAllSettings);
         document.getElementById('saveFirstApiKeyBtn').addEventListener('click', saveFirstApiKey);
 
-        // 收藏搜索
         const favSearch = document.getElementById('favoriteSearchInput');
         if (favSearch) {
             favSearch.addEventListener('input', () => {
@@ -1358,13 +1406,9 @@
             });
         }
 
-        // 导出确认
         document.getElementById('confirmExportBtn').addEventListener('click', confirmExport);
-
-        // 编辑消息保存
         document.getElementById('saveEditMessageBtn').addEventListener('click', saveEditedMessage);
 
-        // ===== 加号下拉菜单 =====
         const addMenuBtn = document.getElementById('addMenuBtn');
         const addDropdown = document.getElementById('addDropdown');
         addMenuBtn.addEventListener('click', (e) => {
@@ -1389,7 +1433,6 @@
             });
         });
 
-        // ===== 预览网页弹窗 =====
         updateExampleDisplay();
         document.getElementById('refreshExampleBtn').addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1413,13 +1456,11 @@
         document.getElementById('startCreationBtn').addEventListener('click', startCreation);
     });
 
-    // ===== 通用关闭函数 =====
     function closeModal() {
         const modal = document.getElementById('genericModal');
         if (modal) modal.classList.remove('active');
     }
 
-    // ===== 预览网页辅助函数 =====
     function updateExampleDisplay() {
         const container = document.getElementById('previewExampleText');
         if (container) {
@@ -1443,7 +1484,6 @@
         sendMessage();
     }
 
-    // ===== 加号下拉菜单功能 =====
     function openCreateGroupPanel() {
         alert('群聊功能开发中，请先使用“新建角色对话”选择单个角色。');
         openCharacterSelectForNewChat();
@@ -1494,7 +1534,6 @@
         closeModal();
     }
 
-    // ==================== 搜索 ====================
     function performSearch() {
         const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
         if (!keyword) return;
@@ -1522,7 +1561,6 @@
         alert(`找到 ${results.length} 条结果，已跳转到第一条`);
     }
 
-    // ==================== 设置 ====================
     function setupSettingsUI() {
         const container = document.getElementById('settingsBody');
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -1530,11 +1568,9 @@
         const fontSizes = ['12px', '14px', '16px', '18px', '20px'];
         const fontLabels = ['小', '较小', '默认', '较大', '大'];
         const model = currentModel;
-        // 【修改点1】读取Token预估开关状态
         const tokenEstimateChecked = localStorage.getItem('show_token_estimate') !== 'false';
 
         let html = `
-            <!-- API Key -->
             <div class="settings-section">
                 <h4>API Key</h4>
                 <div class="settings-api-row">
@@ -1546,7 +1582,6 @@
                 </div>
             </div>
 
-            <!-- 外观 -->
             <div class="settings-section">
                 <h4>外观</h4>
                 <div class="settings-toggle-row">
@@ -1558,7 +1593,6 @@
                 </div>
             </div>
 
-            <!-- 对话框字号 -->
             <div class="settings-section">
                 <h4>对话框字号</h4>
                 <div class="settings-font-grid" id="fontOptionsGrid">
@@ -1568,7 +1602,6 @@
                 </div>
             </div>
 
-            <!-- 【修改点1】显示设置 - Token预估 -->
             <div class="settings-section">
                 <h4>显示设置</h4>
                 <div class="settings-toggle-row">
@@ -1580,7 +1613,6 @@
                 </div>
             </div>
 
-            <!-- 模型选择 -->
             <div class="settings-section">
                 <h4>模型选择</h4>
                 <div class="settings-radio-group">
@@ -1595,7 +1627,6 @@
                 </div>
             </div>
 
-            <!-- 记忆策略 -->
             <div class="settings-section" style="border-bottom: none;">
                 <h4>记忆策略</h4>
                 <div class="settings-radio-group">
@@ -1614,15 +1645,11 @@
         `;
         container.innerHTML = html;
 
-        // ===== 绑定事件 =====
-
-        // 复制API Key
         document.getElementById('settingsCopyKeyBtn').addEventListener('click', () => {
             const realKey = DEEPSEEK_API_KEY || '';
             navigator.clipboard.writeText(realKey).then(() => alert('API Key 已复制')).catch(() => alert('复制失败'));
         });
 
-        // 保存API Key
         document.getElementById('settingsSaveKeyBtn').addEventListener('click', () => {
             const key = document.getElementById('settingsApiKey').value.trim();
             if (key) {
@@ -1634,7 +1661,6 @@
             }
         });
 
-        // 日间模式切换
         document.getElementById('settingsDayModeToggle').addEventListener('change', function() {
             const html = document.documentElement;
             if (this.checked) {
@@ -1646,7 +1672,6 @@
             }
         });
 
-        // 字号选择
         document.querySelectorAll('.font-size-option').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.font-size-option').forEach(b => b.classList.remove('active'));
@@ -1657,38 +1682,31 @@
             });
         });
 
-        // 【修改点1】Token预估开关 - 真实生效
         document.getElementById('settingsTokenEstimateToggle').addEventListener('change', function() {
             showTokenEstimate = this.checked;
             localStorage.setItem('show_token_estimate', this.checked ? 'true' : 'false');
-            // 刷新当前对话的Token显示
             refreshTokenDisplay();
         });
 
-        // 模型选择 - 真实生效
         document.querySelectorAll('input[name="modelChoice"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.checked) {
                     currentModel = this.value;
                     localStorage.setItem('selected_model', currentModel);
-                    console.log('模型已切换为:', currentModel);
                 }
             });
         });
 
-        // 记忆策略 - 真实生效
         document.querySelectorAll('input[name="memoryStrategy"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.checked) {
                     memoryStrategy = this.value;
                     localStorage.setItem('memory_strategy', memoryStrategy);
-                    console.log('记忆策略已切换为:', memoryStrategy);
                 }
             });
         });
     }
 
-    // 【修改点1】刷新Token显示
     function refreshTokenDisplay() {
         const allTokenInfos = document.querySelectorAll('.token-info');
         if (showTokenEstimate) {
@@ -1702,7 +1720,6 @@
         document.getElementById('settingsModal').classList.add('active');
         const input = document.getElementById('settingsApiKey');
         if (input) input.value = DEEPSEEK_API_KEY;
-        // 同步开关状态
         const toggle = document.getElementById('settingsTokenEstimateToggle');
         if (toggle) {
             toggle.checked = localStorage.getItem('show_token_estimate') !== 'false';
@@ -1738,6 +1755,7 @@
     }
     function closeFavoriteModal() { document.getElementById('favoriteModal').classList.remove('active'); }
 
+    // 【修改】收藏列表渲染 - 两行截断 + 三个按钮
     function renderFavoriteList(keyword) {
         const container = document.getElementById('favoriteListContainer');
         if (!container) return;
@@ -1751,19 +1769,43 @@
         }
         container.innerHTML = filtered.map(fav => {
             const roleLabel = fav.role === 'user' ? '👤 用户' : '🤖 AI';
+            const escapedContent = escapeHtml(fav.content);
             return `
-            <div class="favorite-item" style="background:var(--bg-input); border-radius:10px; padding:10px; margin-bottom:8px; border:1px solid var(--border-color);">
-                <div class="fav-meta" style="color:var(--text-muted); font-size:0.75rem; display:flex; justify-content:space-between; flex-wrap:wrap;">
+            <div class="favorite-item">
+                <div class="fav-meta">
                     <span>📁 ${escapeHtml(fav.convTitle)}</span>
                     <span>${roleLabel}</span>
                 </div>
-                <div class="fav-content" style="color:var(--text-secondary); font-size:0.85rem; margin:4px 0;">${escapeHtml(fav.content.substring(0,200))}${fav.content.length>200?'...':''}</div>
-                <div class="fav-actions" style="display:flex; gap:6px; justify-content:flex-end;">
+                <div class="fav-content">${escapedContent}</div>
+                <div class="fav-actions">
+                    <button class="card-btn primary" onclick="showFullFavorite('${escapeHtml(fav.content)}', '${escapeHtml(fav.convTitle)}')">📖 显示原文</button>
                     <button class="card-btn" onclick="jumpToMessage('${fav.convId}','${fav.id}')">跳转</button>
                     <button class="card-btn" onclick="removeFavorite('${fav.id}')">取消收藏</button>
                 </div>
             </div>
         `}).join('');
+    }
+
+    // 【新增】显示完整收藏原文
+    function showFullFavorite(content, convTitle) {
+        const modal = document.getElementById('genericModal');
+        document.getElementById('modalTitle').innerHTML = `📖 原文 - ${convTitle || '收藏'}`;
+        document.getElementById('modalBody').innerHTML = `
+            <div class="full-text-content">${escapeHtml(content)}</div>
+        `;
+        document.getElementById('modalFooter').innerHTML = `
+            <button class="btn-secondary" onclick="closeModal()">关闭</button>
+            <button class="btn-save" onclick="copyFullText('${escapeHtml(content)}')">📋 复制原文</button>
+        `;
+        modal.classList.add('active');
+    }
+
+    function copyFullText(content) {
+        navigator.clipboard.writeText(content).then(() => {
+            alert('✅ 已复制原文到剪贴板');
+        }).catch(() => {
+            alert('复制失败，请手动选择复制');
+        });
     }
 
     function jumpToMessage(convId, msgId) {
@@ -2423,7 +2465,6 @@
         if (!conv.messages.length) container.innerHTML = '<div class="welcome-message">✨ 欢迎！输入你的问题，我会用心回答你 ✨</div>';
         else conv.messages.forEach((msg, idx) => renderMessage(msg, idx));
         scrollToBottom();
-        // 刷新Token显示状态
         refreshTokenDisplay();
     }
     function renderMessage(msg, idx) {
@@ -2461,7 +2502,6 @@
         }
         wrapper.appendChild(actionsDiv);
 
-        // 【修改点2】Token信息 - 横排显示，插入到actions后面
         if (msg.tokenInfo) {
             const tokenDiv = document.createElement('div');
             tokenDiv.className = 'token-info' + (showTokenEstimate ? '' : ' hidden-token');
@@ -2472,7 +2512,6 @@
         container.appendChild(wrapper);
     }
 
-    // ==================== 核心对话功能 ====================
     window.toggleFavoriteWrapper = (id, convId, content, role, convTitle) => {
         if (favorites.some(f => f.id == id)) removeFavorite(id);
         else addFavorite(convId, id, content, role, convTitle);
@@ -2494,16 +2533,13 @@
         if (msgIndex <= 0) return;
         const userMsg = conv.messages[msgIndex - 1];
         if (!userMsg || userMsg.role !== 'user') return;
-        // 删除该AI消息及之后的所有消息
         conv.messages = conv.messages.slice(0, msgIndex);
-        // 重新计算累计token
         recalcConvTokens(conv);
         saveConversations();
         loadCurrentConversation();
         await sendMessageWithContext(userMsg.content);
     };
 
-    // 重新计算对话累计token
     function recalcConvTokens(conv) {
         let totalTokens = 0;
         for (let msg of conv.messages) {
@@ -2521,26 +2557,19 @@
         const conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
 
-        // 计算用户消息的Token统计
         const userCharCount = countChars(content);
         const userTokens = estimateTokens(content);
-        // 历史记忆token = 当前对话已累计的token
         const historyTokens = conv.totalTokens || 0;
         const totalInputTokens = userTokens + historyTokens;
-
-        // 构建用户消息的Token信息（横排）
         const userTokenInfo = `本次正文 ${userCharCount} 字，约 ${userTokens} tokens；历史记忆约 ${historyTokens} tokens；本轮输入共约 ${totalInputTokens} tokens`;
 
-        // 添加用户消息到DOM和存储
         addMessageToDOM(content, 'user', null, userTokenInfo);
         const userMsgId = saveMessageToCurrentConv('user', content);
-        // 存储Token信息到消息中
         const userMsg = conv.messages.find(m => m.id == userMsgId);
         if (userMsg) {
             userMsg.tokenInfo = userTokenInfo;
             userMsg.tokens = userTokens;
             userMsg.charCount = userCharCount;
-            // 更新对话累计token
             conv.totalTokens = (conv.totalTokens || 0) + userTokens;
         }
         saveConversations();
@@ -2573,14 +2602,12 @@
             const aiContent = data.choices[0].message.content;
             const reasoningContent = data.choices[0].message.reasoning_content || null;
 
-            // 计算AI消息的Token统计
             const aiCharCount = countChars(aiContent);
             const aiTokens = estimateTokens(aiContent);
             const reasoningCharCount = reasoningContent ? countChars(reasoningContent) : 0;
             const reasoningTokens = reasoningContent ? estimateTokens(reasoningContent) : 0;
             const totalAITokens = aiTokens + reasoningTokens;
 
-            // 构建AI消息的Token信息（横排）
             let aiTokenInfo = '';
             if (reasoningContent) {
                 aiTokenInfo = `思考 ${reasoningCharCount} 字，正文 ${aiCharCount} 字，约 ${totalAITokens} tokens`;
@@ -2591,7 +2618,6 @@
             removeThinkingMessage(thinkId);
             addMessageToDOM(aiContent, 'ai', reasoningContent, aiTokenInfo);
 
-            // 保存AI消息到存储
             const aiMsgId = saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
             const aiMsg = conv.messages.find(m => m.id == aiMsgId);
             if (aiMsg) {
@@ -2599,11 +2625,9 @@
                 aiMsg.tokens = totalAITokens;
                 aiMsg.charCount = aiCharCount;
                 aiMsg.reasoningCharCount = reasoningCharCount;
-                // 更新对话累计token
                 conv.totalTokens = (conv.totalTokens || 0) + totalAITokens;
             }
             saveConversations();
-            // 刷新Token显示状态
             refreshTokenDisplay();
 
         } catch (e) {
@@ -2642,7 +2666,6 @@
         inp.value = '';
     }
 
-    // addMessageToDOM 支持Token信息
     function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         const container = document.getElementById('chatMessages');
         if (container.children.length === 1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML = '';
@@ -2679,7 +2702,6 @@
         }
         wrapper.appendChild(actionsDiv);
 
-        // 添加Token信息（横排）
         if (tokenInfo) {
             const tokenDiv = document.createElement('div');
             tokenDiv.className = 'token-info' + (showTokenEstimate ? '' : ' hidden-token');
