@@ -25,6 +25,7 @@
             --icon-color: #eef2ff;
             --highlight-color: #ffd700;
             --token-info-color: #7a8aa0;
+            --msg-icon-color: #c0d0e0;
         }
         [data-theme="light"] {
             --bg-primary: linear-gradient(145deg, #f0f2f5 0%, #e0e4e9 100%);
@@ -44,6 +45,7 @@
             --icon-color: #1a1e2c;
             --highlight-color: #fbbf24;
             --token-info-color: #5a6e8a;
+            --msg-icon-color: #4a5a6a;
         }
 
         * {
@@ -405,14 +407,23 @@
             background: var(--btn-icon-bg);
             border: none;
             border-radius: 12px;
-            padding: 2px 6px;
-            font-size: 0.7rem;
+            padding: 2px 8px;
+            font-size: 0.75rem;
             cursor: pointer;
-            color: var(--text-primary);
+            color: var(--msg-icon-color);
             position: relative;
-            transition: background 0.2s;
+            transition: background 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            font-family: 'Segoe UI', 'PingFang SC', sans-serif;
         }
-        .msg-action:hover { background: var(--accent-color); color: white; }
+        .msg-action:hover {
+            background: var(--accent-color);
+            color: white;
+        }
         .msg-action .tooltip {
             visibility: hidden;
             opacity: 0;
@@ -444,6 +455,13 @@
         .msg-action:hover .tooltip {
             visibility: visible;
             opacity: 1;
+        }
+
+        /* 编辑图标 - 笔尖朝左下方 */
+        .icon-edit {
+            display: inline-block;
+            transform: scaleX(-1);
+            line-height: 1;
         }
 
         /* Token统计信息 - 横排显示 */
@@ -1083,6 +1101,15 @@
             word-break: break-word;
             max-height: 400px;
             overflow-y: auto;
+        }
+
+        /* 显示原文弹窗放在最上层 */
+        #genericModal.modal-overlay {
+            z-index: 300;
+        }
+        /* 收藏栏弹窗保持在普通层级 */
+        #favoriteModal.modal-overlay {
+            z-index: 200;
         }
     </style>
 </head>
@@ -1755,7 +1782,6 @@
     }
     function closeFavoriteModal() { document.getElementById('favoriteModal').classList.remove('active'); }
 
-    // 【修改】收藏列表渲染 - 两行截断 + 三个按钮
     function renderFavoriteList(keyword) {
         const container = document.getElementById('favoriteListContainer');
         if (!container) return;
@@ -1786,8 +1812,10 @@
         `}).join('');
     }
 
-    // 【新增】显示完整收藏原文
     function showFullFavorite(content, convTitle) {
+        // 先关闭收藏栏
+        closeFavoriteModal();
+        // 再打开原文弹窗
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = `📖 原文 - ${convTitle || '收藏'}`;
         document.getElementById('modalBody').innerHTML = `
@@ -2487,17 +2515,33 @@
         actionsDiv.className = 'message-actions';
         if (msg.role === 'ai') {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="regenerateAI('${msgId}')">🔄<span class="tooltip">重新生成</span></button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">⭐<span class="tooltip">收藏</span></button>
-                <button class="msg-action" onclick="deleteMessage('${msgId}')">🗑️<span class="tooltip">删除</span></button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">📋<span class="tooltip">复制</span></button>
+                <button class="msg-action" onclick="regenerateAI('${msgId}')">
+                    <span style="font-size:1rem;">↻</span><span class="tooltip">重新生成</span>
+                </button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
+                    <span style="font-size:1rem;">☆</span><span class="tooltip">收藏</span>
+                </button>
+                <button class="msg-action" onclick="deleteMessage('${msgId}')">
+                    <span style="font-size:1rem;">🗑</span><span class="tooltip">删除</span>
+                </button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">
+                    <span style="font-size:1rem;">□□</span><span class="tooltip">复制</span>
+                </button>
             `;
         } else {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">✏️<span class="tooltip">编辑</span></button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">⭐<span class="tooltip">收藏</span></button>
-                <button class="msg-action" onclick="deleteMessage('${msgId}')">🗑️<span class="tooltip">删除</span></button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">📋<span class="tooltip">复制</span></button>
+                <button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">
+                    <span class="icon-edit" style="font-size:1rem;">✎</span><span class="tooltip">编辑</span>
+                </button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
+                    <span style="font-size:1rem;">☆</span><span class="tooltip">收藏</span>
+                </button>
+                <button class="msg-action" onclick="deleteMessage('${msgId}')">
+                    <span style="font-size:1rem;">🗑</span><span class="tooltip">删除</span>
+                </button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">
+                    <span style="font-size:1rem;">□□</span><span class="tooltip">复制</span>
+                </button>
             `;
         }
         wrapper.appendChild(actionsDiv);
@@ -2687,17 +2731,33 @@
         actionsDiv.className = 'message-actions';
         if (role === 'ai') {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="regenerateAI('${id}')">🔄<span class="tooltip">重新生成</span></button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐<span class="tooltip">收藏</span></button>
-                <button class="msg-action" onclick="deleteMessage('${id}')">🗑️<span class="tooltip">删除</span></button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋<span class="tooltip">复制</span></button>
+                <button class="msg-action" onclick="regenerateAI('${id}')">
+                    <span style="font-size:1rem;">↻</span><span class="tooltip">重新生成</span>
+                </button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
+                    <span style="font-size:1rem;">☆</span><span class="tooltip">收藏</span>
+                </button>
+                <button class="msg-action" onclick="deleteMessage('${id}')">
+                    <span style="font-size:1rem;">🗑</span><span class="tooltip">删除</span>
+                </button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
+                    <span style="font-size:1rem;">□□</span><span class="tooltip">复制</span>
+                </button>
             `;
         } else {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="editMessage('${id}','${role}')">✏️<span class="tooltip">编辑</span></button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">⭐<span class="tooltip">收藏</span></button>
-                <button class="msg-action" onclick="deleteMessage('${id}')">🗑️<span class="tooltip">删除</span></button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">📋<span class="tooltip">复制</span></button>
+                <button class="msg-action" onclick="editMessage('${id}','${role}')">
+                    <span class="icon-edit" style="font-size:1rem;">✎</span><span class="tooltip">编辑</span>
+                </button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
+                    <span style="font-size:1rem;">☆</span><span class="tooltip">收藏</span>
+                </button>
+                <button class="msg-action" onclick="deleteMessage('${id}')">
+                    <span style="font-size:1rem;">🗑</span><span class="tooltip">删除</span>
+                </button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
+                    <span style="font-size:1rem;">□□</span><span class="tooltip">复制</span>
+                </button>
             `;
         }
         wrapper.appendChild(actionsDiv);
