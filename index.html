@@ -394,11 +394,12 @@
 
         .message-actions {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             justify-content: flex-end;
             margin-top: 4px;
             opacity: 1;
             flex-wrap: wrap;
+            align-items: center;
         }
         .message.user .message-actions { justify-content: flex-end; }
         .message.ai .message-actions { justify-content: flex-start; }
@@ -406,9 +407,8 @@
         .msg-action {
             background: var(--btn-icon-bg);
             border: none;
-            border-radius: 12px;
-            padding: 2px 8px;
-            font-size: 0.75rem;
+            border-radius: 8px;
+            padding: 4px 6px;
             cursor: pointer;
             color: var(--msg-icon-color);
             position: relative;
@@ -416,13 +416,17 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 22px;
-            height: 22px;
+            min-width: 28px;
+            height: 28px;
             font-family: 'Segoe UI', 'PingFang SC', sans-serif;
         }
         .msg-action:hover {
             background: var(--accent-color);
             color: white;
+        }
+        .msg-action svg {
+            display: block;
+            stroke: currentColor;
         }
         .msg-action .tooltip {
             visibility: hidden;
@@ -455,13 +459,6 @@
         .msg-action:hover .tooltip {
             visibility: visible;
             opacity: 1;
-        }
-
-        /* 编辑图标 - 笔尖朝左下方 */
-        .icon-edit {
-            display: inline-block;
-            transform: scaleX(-1);
-            line-height: 1;
         }
 
         /* Token统计信息 - 横排显示 */
@@ -1047,6 +1044,8 @@
             .preview-example-btn { font-size: 0.7rem; padding: 3px 6px; }
             .settings-font-grid { grid-template-columns: repeat(3, 1fr); }
             .token-info { font-size: 0.55rem; white-space: normal; }
+            .msg-action { padding: 3px 4px; min-width: 24px; height: 24px; }
+            .msg-action svg { width: 14px; height: 14px; }
         }
 
         /* ===== 收藏栏专用样式 ===== */
@@ -2495,6 +2494,8 @@
         scrollToBottom();
         refreshTokenDisplay();
     }
+
+    // ==================== renderMessage 消息渲染 ====================
     function renderMessage(msg, idx) {
         const container = document.getElementById('chatMessages');
         const wrapper = document.createElement('div');
@@ -2516,31 +2517,39 @@
         if (msg.role === 'ai') {
             actionsDiv.innerHTML = `
                 <button class="msg-action" onclick="regenerateAI('${msgId}')">
-                    <span style="font-size:1rem;">↻</span><span class="tooltip">重新生成</span>
+                    <span style="font-size:1rem; line-height:1;">↻</span>
+                    <span class="tooltip">重新生成</span>
                 </button>
                 <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
-                    <span style="font-size:1rem;">☆</span><span class="tooltip">收藏</span>
+                    <span style="font-size:1rem; line-height:1;">☆</span>
+                    <span class="tooltip">收藏</span>
                 </button>
                 <button class="msg-action" onclick="deleteMessage('${msgId}')">
-                    <span style="font-size:1rem;">🗑</span><span class="tooltip">删除</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <span class="tooltip">删除</span>
                 </button>
                 <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">
-                    <span style="font-size:1rem;">□□</span><span class="tooltip">复制</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span class="tooltip">复制</span>
                 </button>
             `;
         } else {
             actionsDiv.innerHTML = `
                 <button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">
-                    <span class="icon-edit" style="font-size:1rem;">✎</span><span class="tooltip">编辑</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    <span class="tooltip">编辑</span>
                 </button>
                 <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
-                    <span style="font-size:1rem;">☆</span><span class="tooltip">收藏</span>
+                    <span style="font-size:1rem; line-height:1;">☆</span>
+                    <span class="tooltip">收藏</span>
                 </button>
                 <button class="msg-action" onclick="deleteMessage('${msgId}')">
-                    <span style="font-size:1rem;">🗑</span><span class="tooltip">删除</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <span class="tooltip">删除</span>
                 </button>
                 <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">
-                    <span style="font-size:1rem;">□□</span><span class="tooltip">复制</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span class="tooltip">复制</span>
                 </button>
             `;
         }
@@ -2556,6 +2565,7 @@
         container.appendChild(wrapper);
     }
 
+    // ==================== 工具栏函数 ====================
     window.toggleFavoriteWrapper = (id, convId, content, role, convTitle) => {
         if (favorites.some(f => f.id == id)) removeFavorite(id);
         else addFavorite(convId, id, content, role, convTitle);
@@ -2710,6 +2720,7 @@
         inp.value = '';
     }
 
+    // ==================== addMessageToDOM 消息添加到DOM ====================
     function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         const container = document.getElementById('chatMessages');
         if (container.children.length === 1 && container.children[0].classList?.contains('welcome-message')) container.innerHTML = '';
@@ -2732,31 +2743,39 @@
         if (role === 'ai') {
             actionsDiv.innerHTML = `
                 <button class="msg-action" onclick="regenerateAI('${id}')">
-                    <span style="font-size:1rem;">↻</span><span class="tooltip">重新生成</span>
+                    <span style="font-size:1rem; line-height:1;">↻</span>
+                    <span class="tooltip">重新生成</span>
                 </button>
                 <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
-                    <span style="font-size:1rem;">☆</span><span class="tooltip">收藏</span>
+                    <span style="font-size:1rem; line-height:1;">☆</span>
+                    <span class="tooltip">收藏</span>
                 </button>
                 <button class="msg-action" onclick="deleteMessage('${id}')">
-                    <span style="font-size:1rem;">🗑</span><span class="tooltip">删除</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <span class="tooltip">删除</span>
                 </button>
                 <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
-                    <span style="font-size:1rem;">□□</span><span class="tooltip">复制</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span class="tooltip">复制</span>
                 </button>
             `;
         } else {
             actionsDiv.innerHTML = `
                 <button class="msg-action" onclick="editMessage('${id}','${role}')">
-                    <span class="icon-edit" style="font-size:1rem;">✎</span><span class="tooltip">编辑</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    <span class="tooltip">编辑</span>
                 </button>
                 <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
-                    <span style="font-size:1rem;">☆</span><span class="tooltip">收藏</span>
+                    <span style="font-size:1rem; line-height:1;">☆</span>
+                    <span class="tooltip">收藏</span>
                 </button>
                 <button class="msg-action" onclick="deleteMessage('${id}')">
-                    <span style="font-size:1rem;">🗑</span><span class="tooltip">删除</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <span class="tooltip">删除</span>
                 </button>
                 <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
-                    <span style="font-size:1rem;">□□</span><span class="tooltip">复制</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span class="tooltip">复制</span>
                 </button>
             `;
         }
