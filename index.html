@@ -913,8 +913,17 @@
     </div>
 </div>
 
-<!-- 通用模态框 -->
-<div id="genericModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="modalTitle">标题</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body" id="modalBody"></div><div class="modal-footer" id="modalFooter"></div></div></div>
+<!-- 通用模态框（所有弹窗共用） -->
+<div id="genericModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 id="modalTitle">标题</h3>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
 
 <!-- 设置弹窗 -->
 <div id="settingsModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>⚙️ 设置</h3><button class="modal-close" onclick="closeSettingsModal()">✕</button></div><div class="modal-body" id="settingsBody"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeSettingsModal()">取消</button><button class="btn-save" id="saveSettingsBtn">保存并关闭</button></div></div></div>
@@ -1014,8 +1023,8 @@
     let favorites = [];
     let currentModalType = null;
     let editingMessageId = null;
-    let editingRoleId = null; // 用于角色卡编辑
-    let editingInstructionId = null; // 用于指令编辑
+    let editingRoleId = null;
+    let editingInstructionId = null;
     const API_URL = "https://api.deepseek.com/v1/chat/completions";
 
     // ===== 预览网页示例列表 =====
@@ -1159,6 +1168,12 @@
         document.getElementById('startCreationBtn').addEventListener('click', startCreation);
     });
 
+    // ===== 通用关闭函数（确保所有模态框可关闭） =====
+    function closeModal() {
+        const modal = document.getElementById('genericModal');
+        if (modal) modal.classList.remove('active');
+    }
+
     // ===== 预览网页辅助函数 =====
     function updateExampleDisplay() {
         const container = document.getElementById('previewExampleText');
@@ -1184,42 +1199,32 @@
     }
 
     // ===== 加号下拉菜单功能 =====
-    // 新建对话（已有）
-    // 新建群聊：打开群聊面板（简化：弹出角色选择，多选？我们简化为新建对话并设定角色为多个？但优秀网页有群聊面板，我们做一个简单版本）
+    // 新建群聊（暂时简化，提示并打开角色选择）
     function openCreateGroupPanel() {
-        // 简单实现：打开角色选择面板，允许多选，然后新建对话并设置角色列表
-        // 但我们先简单实现为打开角色卡管理，让用户选择多个角色，然后新建对话时设置角色
-        // 为了模仿，我们直接打开角色卡管理，并提示选择角色后新建
-        // 或者我们可以直接复用角色选择面板（但尚未实现多选）
-        // 这里简化：弹窗提示选择角色，然后打开角色卡管理，关闭后新建对话并插入选择的角色信息
-        // 由于时间，我们提供一个简化版：新建对话，并在输入框中提示“请选择角色”
-        // 更完整的实现可以参考优秀网页的群聊，但这里我们保持简单
-        alert('群聊功能开发中，请先用角色对话。');
-        // 或者直接打开角色卡管理，让用户选择单个角色，然后新建角色对话
-        // 我们可以调用 openCharacterSelectForNewChat 来实现
+        alert('群聊功能开发中，请先使用“新建角色对话”选择单个角色。');
+        // 也可以直接打开角色选择
         openCharacterSelectForNewChat();
     }
 
-    // 新建角色对话：打开角色选择面板，选择角色后新建对话并插入角色设定
+    // 新建角色对话：打开角色选择面板
     function openCharacterSelectForNewChat() {
-        // 显示角色列表让用户选择
-        const rolesList = roles.length ? roles : [{id:'default', name:'无角色', desc:'普通对话'}];
-        // 使用一个简单的模态框选择
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
         let html = '<div style="max-height:300px; overflow-y:auto;">';
-        rolesList.forEach(r => {
-            html += `<div class="role-card" style="cursor:pointer;" onclick="selectCharacterAndNewChat('${r.id}')">
-                <div class="role-name">🎭 ${escapeHtml(r.name)}</div>
-                <div class="role-desc">${escapeHtml(r.desc || '')}</div>
-            </div>`;
-        });
+        if (roles.length === 0) {
+            html += '<div class="empty-placeholder">还没有角色卡，请先去“角色卡管理”创建。</div>';
+        } else {
+            roles.forEach(r => {
+                html += `<div class="role-card" style="cursor:pointer;" onclick="selectCharacterAndNewChat('${r.id}')">
+                    <div class="role-name">🎭 ${escapeHtml(r.name)}</div>
+                    <div class="role-desc">${escapeHtml(r.desc || r.summary || '')}</div>
+                </div>`;
+            });
+        }
         html += '</div>';
         document.getElementById('modalBody').innerHTML = html;
         document.getElementById('modalFooter').innerHTML = '<button class="btn-secondary" onclick="closeModal()">取消</button>';
         modal.classList.add('active');
-        // 存储当前选中的角色ID，在selectCharacterAndNewChat中使用
-        window._selectRoleId = null;
     }
 
     function selectCharacterAndNewChat(roleId) {
@@ -1230,14 +1235,12 @@
             closeModal();
             return;
         }
-        // 新建对话，并填充角色设定
         createNewDialog();
         setTimeout(() => {
             const inp = document.getElementById('userInput');
             if (inp) {
                 let content = `【角色扮演】你是${role.name}。`;
                 if (role.desc) content += ` ${role.desc}`;
-                // 如果有其他字段，也加进去
                 if (role.personality) content += ` 性格：${role.personality}`;
                 if (role.background) content += ` 背景：${role.background}`;
                 if (role.appearance) content += ` 外貌：${role.appearance}`;
@@ -1511,7 +1514,6 @@
         currentModalType = 'market';
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '📋 指令市场';
-        // 显示一个文本域，刷新按钮，保存和新建按钮
         let html = `
             <div style="margin-bottom:1rem;">
                 <textarea id="marketInstructionDisplay" rows="4" style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); border-radius:12px; padding:8px; color:var(--text-primary); resize:vertical; font-family:inherit;"></textarea>
@@ -1553,7 +1555,6 @@
         const content = document.getElementById('marketInstructionDisplay').value.trim();
         if (!content) { alert('没有内容可保存'); return; }
         const title = content.split('\n')[0].substring(0, 40) || '市场指令';
-        // 检查是否已存在相同内容
         if (instructions.some(i => i.content === content)) {
             alert('该指令已存在于指令管理中');
             return;
@@ -1593,7 +1594,6 @@
         modal.classList.add('active');
         renderManageList();
         document.getElementById('addManageBtn').addEventListener('click', () => {
-            // 打开表单编辑（直接使用模态框）
             showInstructionForm(null);
         });
     }
@@ -1623,9 +1623,7 @@
         const inst = instId ? instructions.find(i => i.id == instId) : null;
         editingInstructionId = instId || null;
         const modal = document.getElementById('genericModal');
-        // 临时改变modal内容为表单
-        const title = inst ? '编辑指令' : '新增指令';
-        document.getElementById('modalTitle').innerHTML = title;
+        document.getElementById('modalTitle').innerHTML = inst ? '编辑指令' : '新增指令';
         let html = `
             <div style="margin-bottom:1rem;">
                 <label style="color:var(--text-secondary);font-size:0.8rem;">标题</label>
@@ -1646,12 +1644,10 @@
         `;
         document.getElementById('saveInstFormBtn').addEventListener('click', saveInstructionForm);
         document.getElementById('instOptimizeBtn').addEventListener('click', optimizeInstruction);
-        // 存储当前编辑ID
         window._editingInstId = instId;
     }
 
     function cancelInstructionForm() {
-        // 返回列表视图
         openManageModal();
     }
 
@@ -1670,7 +1666,7 @@
             instructions.unshift({ id: Date.now(), title, content, type: 'manual' });
         }
         saveInstructions();
-        openManageModal(); // 刷新列表
+        openManageModal();
     }
 
     function editInstructionFromManage(id) {
@@ -1843,7 +1839,6 @@
         document.getElementById('saveRoleFormBtn').addEventListener('click', saveRoleForm);
         document.getElementById('roleAiGenerateBtn').addEventListener('click', aiGenerateRole);
 
-        // 活跃度滑块实时显示
         const slider = document.getElementById('roleFormTalkativeness');
         const display = document.getElementById('talkativenessDisplay');
         if (slider && display) {
@@ -1851,7 +1846,6 @@
                 display.textContent = slider.value;
             });
         }
-        // 存储当前编辑ID
         window._editingRoleId = roleId;
     }
 
@@ -1874,7 +1868,7 @@
         const roleData = {
             id: id || Date.now() + Math.random(),
             name,
-            desc: summary || personality || background || '', // 保持兼容
+            desc: summary || personality || background || '',
             summary,
             personality,
             background,
@@ -1953,17 +1947,14 @@
             if (!response.ok) throw new Error('API请求失败');
             const data = await response.json();
             const jsonStr = data.choices[0].message.content;
-            // 尝试解析JSON
             let parsed;
             try {
-                // 可能包含markdown代码块
                 const match = jsonStr.match(/```json\s*([\s\S]*?)\s*```/);
                 if (match) parsed = JSON.parse(match[1]);
                 else parsed = JSON.parse(jsonStr);
             } catch(e) {
                 throw new Error('解析JSON失败，请重试');
             }
-            // 填充表单
             if (parsed.name) document.getElementById('roleFormName').value = parsed.name;
             if (parsed.summary) document.getElementById('roleFormSummary').value = parsed.summary;
             if (parsed.personality) document.getElementById('roleFormPersonality').value = parsed.personality;
