@@ -145,22 +145,25 @@
         .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .history-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; position: relative; }
 
-        /* 三点菜单按钮（电脑端显示，手机端隐藏） */
+        /* 三点菜单按钮 - 横三点，居中，悬停圆形背景 */
         .history-more-btn {
             background: none;
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0 4px;
+            font-size: 1.3rem;
             line-height: 1;
-            border-radius: 4px;
-            transition: all 0.2s;
+            padding: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 24px;
-            height: 24px;
+            transition: background 0.2s, color 0.2s;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-align: center;
         }
         .history-more-btn:hover {
             background: var(--btn-icon-bg);
@@ -173,12 +176,10 @@
             }
         }
 
-        /* 下拉菜单 - 右下角对齐 */
+        /* 下拉菜单 - 跨越侧边栏与主页面，位置由 JS 动态设置 */
         .history-dropdown {
             display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
+            position: fixed;  /* 由 JS 设置 left/top */
             background: var(--dropdown-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
@@ -188,6 +189,9 @@
             z-index: 500;
             backdrop-filter: blur(10px);
             left: auto;
+            right: auto;
+            top: auto;
+            bottom: auto;
         }
         .history-dropdown.open {
             display: block;
@@ -1657,7 +1661,13 @@
     }
 
     function closeAllDropdowns() {
-        document.querySelectorAll('.history-dropdown.open').forEach(d => d.classList.remove('open'));
+        document.querySelectorAll('.history-dropdown.open').forEach(d => {
+            d.classList.remove('open');
+            d.style.position = '';
+            d.style.left = '';
+            d.style.top = '';
+            d.style.right = '';
+        });
         currentOpenDropdown = null;
     }
 
@@ -1759,13 +1769,13 @@
         loadCurrentConversation();
         closeModal();
 
-        // 群聊创建后输入框保持空白，用户自己输入
+        // 群聊创建后输入框保持空白，并自动获得焦点
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
         document.getElementById('userInput').focus();
     }
 
-    // ==================== 新建角色对话（修改后） ====================
+    // ==================== 新建角色对话 ====================
     function openCharacterSelectForNewChat() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
@@ -1790,7 +1800,6 @@
         modal.classList.add('active');
     }
 
-    // ===== 【已修改】选择角色后，输入框保持空白，不自动填充角色设定 =====
     function selectCharacterAndNewChat(roleId) {
         const role = roles.find(r => r.id == roleId);
         if (!role) {
@@ -1799,7 +1808,6 @@
             return;
         }
 
-        // 创建角色对话，标题为角色名
         const newId = Date.now().toString();
         const newConv = {
             id: newId,
@@ -1817,12 +1825,9 @@
         loadCurrentConversation();
         closeModal();
 
-        // 【修改点】输入框保持空白，不自动填充任何内容
-        // 用户自行输入想要说的话
+        // 输入框保持空白，自动获得焦点
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
-
-        // 【新增】让输入框自动获得焦点，光标闪烁，直接打字
         document.getElementById('userInput').focus();
     }
 
@@ -2078,6 +2083,7 @@
     }
 
     function showFullFavorite(content, convTitle) {
+        // 不再关闭收藏栏，仅打开原文弹窗
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = `📖 原文 - ${convTitle || '收藏'}`;
         document.getElementById('modalBody').innerHTML = `
@@ -2651,7 +2657,6 @@
     }
 
     function useRoleInChat(id) {
-        // 直接用新建角色对话的逻辑
         selectCharacterAndNewChat(id);
     }
 
@@ -2736,7 +2741,8 @@
                 >
                     <span class="history-title">${escapedTitle}</span>
                     <div class="history-actions">
-                        <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">⋮</button>
+                        <!-- 横三点按钮 -->
+                        <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">…</button>
                         <div class="history-dropdown" id="dropdown_${conv.id}">
                             <div class="history-dropdown-item" onclick="event.stopPropagation(); togglePin('${conv.id}'); closeAllDropdowns();">
                                 <span class="icon">${pinIcon}</span> ${pinLabel}
@@ -2804,29 +2810,103 @@
         }
     }
 
+    // ===== 电脑端三点菜单自适应 =====
     function toggleDropdown(event, convId) {
         event.stopPropagation();
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
+
+        // 关闭所有其他下拉
         closeAllDropdowns();
-        dropdown.classList.toggle('open');
-        if (dropdown.classList.contains('open')) {
-            currentOpenDropdown = dropdown;
-        } else {
-            currentOpenDropdown = null;
+
+        // 获取按钮位置
+        const button = event.currentTarget;
+        const rect = button.getBoundingClientRect();
+        const sidebar = document.getElementById('sidebar');
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const sidebarRight = sidebarRect.right;
+
+        const menuWidth = 150;
+        const menuHeight = 200;
+        const viewportHeight = window.innerHeight;
+        let left = sidebarRight - menuWidth / 2;
+        if (left + menuWidth > window.innerWidth - 10) {
+            left = window.innerWidth - menuWidth - 10;
         }
+        if (left < 10) left = 10;
+
+        let top;
+        if (rect.top < viewportHeight / 2) {
+            top = rect.bottom + 4;
+            if (top + menuHeight > viewportHeight - 10) {
+                top = rect.top - menuHeight - 4;
+                if (top < 10) top = 10;
+            }
+        } else {
+            top = rect.top - menuHeight - 4;
+            if (top < 10) {
+                top = rect.bottom + 4;
+                if (top + menuHeight > viewportHeight - 10) {
+                    top = 10;
+                }
+            }
+        }
+
+        dropdown.style.position = 'fixed';
+        dropdown.style.left = left + 'px';
+        dropdown.style.top = top + 'px';
+        dropdown.style.right = 'auto';
+        dropdown.classList.add('open');
+        currentOpenDropdown = dropdown;
     }
 
+    // ===== 手机端长按菜单自适应 =====
     function showDropdownAtPosition(convId, x, y) {
         closeAllDropdowns();
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
+
+        const item = document.querySelector(`.history-item[data-convid="${convId}"]`);
+        if (!item) return;
+
+        const rect = item.getBoundingClientRect();
+        const sidebar = document.getElementById('sidebar');
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const sidebarRight = sidebarRect.right;
+
+        const menuWidth = 150;
+        const menuHeight = 200;
+        const viewportHeight = window.innerHeight;
+        let left = sidebarRight - menuWidth / 2;
+        if (left + menuWidth > window.innerWidth - 10) {
+            left = window.innerWidth - menuWidth - 10;
+        }
+        if (left < 10) left = 10;
+
+        let top;
+        if (rect.top < viewportHeight / 2) {
+            top = rect.bottom + 4;
+            if (top + menuHeight > viewportHeight - 10) {
+                top = rect.top - menuHeight - 4;
+                if (top < 10) top = 10;
+            }
+        } else {
+            top = rect.top - menuHeight - 4;
+            if (top < 10) {
+                top = rect.bottom + 4;
+                if (top + menuHeight > viewportHeight - 10) {
+                    top = 10;
+                }
+            }
+        }
+
         dropdown.style.position = 'fixed';
-        dropdown.style.left = Math.min(x - 80, window.innerWidth - 160) + 'px';
-        dropdown.style.top = Math.min(y - 40, window.innerHeight - 200) + 'px';
+        dropdown.style.left = left + 'px';
+        dropdown.style.top = top + 'px';
         dropdown.style.right = 'auto';
         dropdown.classList.add('open');
         currentOpenDropdown = dropdown;
+
         setTimeout(() => {
             const closeHandler = (e) => {
                 if (!dropdown.contains(e.target)) {
@@ -2964,10 +3044,8 @@
         newBanner.style.display = 'none';
         container.appendChild(newBanner);
 
-        // 先清除所有特殊类
         chatPanel.classList.remove('group-chat', 'character-chat');
 
-        // ===== 处理群聊 =====
         if (conv.isGroup) {
             chatPanel.classList.add('group-chat');
             const memberIds = conv.groupMemberIds || [];
@@ -2979,7 +3057,6 @@
             }
         }
 
-        // ===== 处理角色对话 =====
         if (conv.isCharacter && conv.characterId) {
             chatPanel.classList.add('character-chat');
             const role = roles.find(r => r.id == conv.characterId);
@@ -2987,14 +3064,12 @@
                 newBanner.innerHTML = `👤 正在与角色对话：<strong>${escapeHtml(role.name)}</strong>`;
                 newBanner.style.display = 'block';
             } else {
-                // 如果角色已被删除，降级为普通对话
                 conv.isCharacter = false;
                 conv.characterId = null;
                 saveConversations();
             }
         }
 
-        // 渲染消息
         if (!conv.messages.length) {
             const welcome = document.createElement('div');
             welcome.className = 'welcome-message';
@@ -3153,7 +3228,6 @@
 
             let systemPrompt = null;
 
-            // ===== 群聊系统指令 =====
             if (conv.isGroup && conv.groupMemberIds && conv.groupMemberIds.length > 0) {
                 const selectedRoles = roles.filter(r => conv.groupMemberIds.includes(r.id));
                 if (selectedRoles.length > 0) {
@@ -3175,7 +3249,6 @@
                 }
             }
 
-            // ===== 角色对话系统指令 =====
             if (conv.isCharacter && conv.characterId) {
                 const role = roles.find(r => r.id == conv.characterId);
                 if (role) {
@@ -3258,7 +3331,6 @@
         loadCurrentConversation();
     }
 
-    // 保存消息时判断是否应自动截取标题
     function saveMessageToCurrentConv(role, content, thought = null) {
         let conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
@@ -3267,10 +3339,6 @@
         conv.messages.push(msg);
         saveConversations();
 
-        // 只在以下情况自动截取标题：
-        // 1. 这是第一条消息（messages.length === 1）
-        // 2. 且是用户发的（role === 'user'）
-        // 3. 且当前标题是默认值（"新对话" 或 "群聊"）或为空
         if (conv.messages.length === 1 && role === 'user') {
             const defaultTitles = ['新对话', '群聊'];
             if (!conv.title || defaultTitles.includes(conv.title) || conv.title === '') {
