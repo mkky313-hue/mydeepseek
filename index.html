@@ -1759,13 +1759,12 @@
         loadCurrentConversation();
         closeModal();
 
-        // 【需求1】不再自动发送系统消息，让用户自己输入
-        // 仅清空输入框，不自动发送
+        // 群聊创建后输入框保持空白，用户自己输入
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
     }
 
-    // ==================== 新建角色对话（需求4） ====================
+    // ==================== 新建角色对话（修改后） ====================
     function openCharacterSelectForNewChat() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
@@ -1790,6 +1789,7 @@
         modal.classList.add('active');
     }
 
+    // ===== 【已修改】选择角色后，输入框保持空白，不自动填充角色设定 =====
     function selectCharacterAndNewChat(roleId) {
         const role = roles.find(r => r.id == roleId);
         if (!role) {
@@ -1816,16 +1816,13 @@
         loadCurrentConversation();
         closeModal();
 
-        // 自动填入角色扮演指令到输入框（不自动发送）
-        let content = `【角色扮演】你是${role.name}。`;
-        if (role.desc) content += ` ${role.desc}`;
-        if (role.personality) content += ` 性格：${role.personality}`;
-        if (role.background) content += ` 背景：${role.background}`;
-        if (role.appearance) content += ` 外貌：${role.appearance}`;
-        if (role.speakingStyle) content += ` 说话风格：${role.speakingStyle}`;
-        if (role.catchphrases) content += ` 口头禅：${role.catchphrases}`;
-        document.getElementById('userInput').value = content;
+        // 【修改点】输入框保持空白，不自动填充任何内容
+        // 用户自行输入想要说的话
+        document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
+
+        // 【新增】让输入框自动获得焦点，光标闪烁，直接打字
+        document.getElementById('userInput').focus();
     }
 
     function performSearch() {
@@ -2815,7 +2812,6 @@
         dropdown.classList.toggle('open');
         if (dropdown.classList.contains('open')) {
             currentOpenDropdown = dropdown;
-            // 右下角对齐：已经是 right:0，不需要额外调整
         } else {
             currentOpenDropdown = null;
         }
@@ -2983,7 +2979,7 @@
             }
         }
 
-        // ===== 【需求4】处理角色对话 =====
+        // ===== 处理角色对话 =====
         if (conv.isCharacter && conv.characterId) {
             chatPanel.classList.add('character-chat');
             const role = roles.find(r => r.id == conv.characterId);
@@ -3179,7 +3175,7 @@
                 }
             }
 
-            // ===== 【需求4】角色对话系统指令 =====
+            // ===== 角色对话系统指令 =====
             if (conv.isCharacter && conv.characterId) {
                 const role = roles.find(r => r.id == conv.characterId);
                 if (role) {
@@ -3262,7 +3258,7 @@
         loadCurrentConversation();
     }
 
-    // ===== 【需求2】修改：保存消息时判断是否应自动截取标题 =====
+    // 保存消息时判断是否应自动截取标题
     function saveMessageToCurrentConv(role, content, thought = null) {
         let conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
