@@ -145,14 +145,12 @@
         .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .history-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; position: relative; }
 
-        /* 三点菜单按钮 - 横三点，居中，悬停圆形背景 */
+        /* 三点菜单按钮 - SVG居中，悬停圆形背景 */
         .history-more-btn {
             background: none;
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 1.3rem;
-            line-height: 1;
             padding: 0;
             width: 28px;
             height: 28px;
@@ -161,9 +159,11 @@
             align-items: center;
             justify-content: center;
             transition: background 0.2s, color 0.2s;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-align: center;
+        }
+        .history-more-btn svg {
+            width: 20px;
+            height: 20px;
+            display: block;
         }
         .history-more-btn:hover {
             background: var(--btn-icon-bg);
@@ -179,12 +179,12 @@
         /* 下拉菜单 - 跨越侧边栏与主页面，位置由 JS 动态设置 */
         .history-dropdown {
             display: none;
-            position: fixed;  /* 由 JS 设置 left/top */
+            position: fixed;
             background: var(--dropdown-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 4px 0;
-            min-width: 150px;
+            min-width: 140px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.4);
             z-index: 500;
             backdrop-filter: blur(10px);
@@ -199,10 +199,10 @@
         .history-dropdown-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 14px;
+            gap: 8px;
+            padding: 6px 12px;
             color: var(--text-secondary);
-            font-size: 0.82rem;
+            font-size: 0.75rem;
             cursor: pointer;
             transition: background 0.15s;
             white-space: nowrap;
@@ -212,7 +212,7 @@
             color: var(--text-primary);
         }
         .history-dropdown-item .icon {
-            font-size: 1rem;
+            font-size: 0.85rem;
             flex-shrink: 0;
         }
 
@@ -2741,8 +2741,14 @@
                 >
                     <span class="history-title">${escapedTitle}</span>
                     <div class="history-actions">
-                        <!-- 横三点按钮 -->
-                        <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">…</button>
+                        <!-- SVG 三个点图标（居中） -->
+                        <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="6" cy="12" r="2"/>
+                                <circle cx="12" cy="12" r="2"/>
+                                <circle cx="18" cy="12" r="2"/>
+                            </svg>
+                        </button>
                         <div class="history-dropdown" id="dropdown_${conv.id}">
                             <div class="history-dropdown-item" onclick="event.stopPropagation(); togglePin('${conv.id}'); closeAllDropdowns();">
                                 <span class="icon">${pinIcon}</span> ${pinLabel}
@@ -2826,14 +2832,17 @@
         const sidebarRect = sidebar.getBoundingClientRect();
         const sidebarRight = sidebarRect.right;
 
+        // 菜单宽度
         const menuWidth = 150;
         const menuHeight = 200;
         const viewportHeight = window.innerHeight;
-        let left = sidebarRight - menuWidth / 2;
-        if (left + menuWidth > window.innerWidth - 10) {
-            left = window.innerWidth - menuWidth - 10;
+
+        // 【修复】菜单从侧边栏右边缘开始向左展开，确保主体显示在主页面区域
+        let left = sidebarRight - 10;
+        // 如果菜单宽度超出视口，则向左移动
+        if (left - menuWidth < 10) {
+            left = menuWidth + 10;
         }
-        if (left < 10) left = 10;
 
         let top;
         if (rect.top < viewportHeight / 2) {
@@ -2877,11 +2886,12 @@
         const menuWidth = 150;
         const menuHeight = 200;
         const viewportHeight = window.innerHeight;
-        let left = sidebarRight - menuWidth / 2;
-        if (left + menuWidth > window.innerWidth - 10) {
-            left = window.innerWidth - menuWidth - 10;
+
+        // 【修复】菜单从侧边栏右边缘开始向左展开
+        let left = sidebarRight - 10;
+        if (left - menuWidth < 10) {
+            left = menuWidth + 10;
         }
-        if (left < 10) left = 10;
 
         let top;
         if (rect.top < viewportHeight / 2) {
