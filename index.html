@@ -26,7 +26,8 @@
             --highlight-color: #ffd700;
             --token-info-color: #7a8aa0;
             --msg-icon-color: #c0d0e0;
-            --group-chat-bg: #0a0a0a; /* 夜间群聊背景 */
+            --group-chat-bg: #0a0a0a;
+            --dropdown-bg: rgba(30, 35, 48, 0.98);
         }
         [data-theme="light"] {
             --bg-primary: linear-gradient(145deg, #f0f2f5 0%, #e0e4e9 100%);
@@ -47,7 +48,8 @@
             --highlight-color: #fbbf24;
             --token-info-color: #5a6e8a;
             --msg-icon-color: #4a5a6a;
-            --group-chat-bg: #e5e7eb; /* 日间群聊背景（浅灰） */
+            --group-chat-bg: #e5e7eb;
+            --dropdown-bg: rgba(255, 255, 255, 0.98);
         }
 
         * {
@@ -78,7 +80,7 @@
             overflow: hidden;
         }
 
-        /* 侧边栏 - z-index 提高，确保覆盖底部输入区域 */
+        /* 侧边栏 */
         .sidebar {
             width: 280px;
             background: var(--bg-sidebar);
@@ -123,21 +125,92 @@
         .history-header { padding: 8px 16px; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
         .history-list { max-height: 240px; overflow-y: auto; flex: 1; }
         .history-item {
-            padding: 6px 12px; margin: 2px 8px; border-radius: 8px; cursor: pointer;
+            padding: 6px 12px; margin: 2px 8px; border-radius: 8px;
             display: flex; justify-content: space-between; align-items: center;
             color: var(--text-primary);
             font-size: 0.85rem;
             background: transparent;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .history-item.pinned {
+            background: rgba(46, 107, 94, 0.2);
+            border-left: 3px solid var(--accent-color);
         }
         .history-item:hover { background: rgba(128,128,128,0.15); }
         .history-item.active { background: rgba(46,107,94,0.3); color: var(--accent-color); }
         .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-actions { display: flex; gap: 6px; opacity: 1; }
-        .history-action-btn {
-            background: none; border: none; color: var(--text-muted);
-            cursor: pointer; font-size: 0.7rem; padding: 2px 4px; border-radius: 4px;
+        .history-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+        /* 三点菜单按钮（电脑端显示，手机端隐藏） */
+        .history-more-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0 4px;
+            line-height: 1;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
         }
-        .history-action-btn:hover { background: rgba(128,128,128,0.2); color: var(--text-primary); }
+        .history-more-btn:hover {
+            background: var(--btn-icon-bg);
+            color: var(--text-primary);
+        }
+        /* 手机端隐藏三点按钮 */
+        @media (max-width: 768px) {
+            .history-more-btn {
+                display: none !important;
+            }
+        }
+
+        /* 下拉菜单 */
+        .history-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 4px 0;
+            min-width: 150px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            z-index: 500;
+            backdrop-filter: blur(10px);
+        }
+        .history-dropdown.open {
+            display: block;
+        }
+        .history-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            white-space: nowrap;
+        }
+        .history-dropdown-item:hover {
+            background: var(--btn-icon-bg);
+            color: var(--text-primary);
+        }
+        .history-dropdown-item .icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
         .storage-info {
             padding: 10px 1rem;
             font-size: 0.7rem;
@@ -145,7 +218,6 @@
             border-top: 1px solid var(--border-color);
             border-bottom: 1px solid var(--border-color);
         }
-        /* 侧边栏官网超链接 & Token充值 */
         .storage-link {
             padding: 10px 1rem;
             font-size: 0.7rem;
@@ -196,7 +268,7 @@
         }
         .footer-btn:hover { background: var(--btn-icon-hover); }
 
-        /* 主内容区 - 占满视口高度，flex列布局 */
+        /* 主内容区 */
         .main-content {
             flex: 1;
             margin-left: 280px;
@@ -213,7 +285,7 @@
             max-width: 100vw;
         }
 
-        /* 顶部导航 - 固定不滚动 */
+        /* 顶部导航 */
         .top-nav {
             background: var(--bg-nav);
             backdrop-filter: blur(10px);
@@ -337,7 +409,7 @@
         }
         .hamburger-icon:hover, .icon-btn:hover { background: var(--btn-icon-hover); }
 
-        /* ===== 聊天区域 - 占满剩余空间 ===== */
+        /* ===== 聊天区域 ===== */
         .chat-container {
             flex: 1;
             display: flex;
@@ -362,12 +434,10 @@
             transition: background-color 0.3s;
             border-radius: 12px;
         }
-        /* ===== 群聊背景加深 ===== */
         .chat-container.group-chat .chat-messages {
             background-color: var(--group-chat-bg);
         }
 
-        /* ===== 群聊顶部横幅 ===== */
         .group-banner {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -385,7 +455,7 @@
             color: var(--text-primary);
         }
 
-        /* ===== 消息气泡 ===== */
+        /* 消息气泡 */
         .message-wrapper {
             display: flex;
             flex-direction: column;
@@ -503,7 +573,6 @@
             opacity: 1;
         }
 
-        /* Token统计信息 - 横排显示 */
         .token-info {
             font-size: 0.65rem;
             color: var(--token-info-color);
@@ -515,22 +584,16 @@
             text-overflow: ellipsis;
             max-width: 100%;
         }
-        .message.user .token-info {
-            text-align: right;
-        }
-        .message.ai .token-info {
-            text-align: left;
-        }
-        .token-info.hidden-token {
-            display: none;
-        }
+        .message.user .token-info { text-align: right; }
+        .message.ai .token-info { text-align: left; }
+        .token-info.hidden-token { display: none; }
 
         .thinking .bubble { background: rgba(128,128,128,0.2); display: flex; align-items: center; gap: 8px; }
         .dot-floating { display: inline-flex; gap: 4px; }
         .dot-floating span { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; animation: float 1.4s infinite; }
         @keyframes float { 0%,100%{transform:scale(0.6);opacity:0.4;} 50%{transform:scale(1);opacity:1;} }
 
-        /* 输入区域 - 固定在底部 */
+        /* 输入区域 */
         .input-section {
             flex-shrink: 0;
             background: var(--bg-card);
@@ -588,11 +651,7 @@
             gap: 8px;
         }
         .modal-header h3 { color: #a3e0d0; font-size: 1.1rem; margin: 0; }
-        .modal-header .modal-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+        .modal-header .modal-actions { display: flex; gap: 8px; align-items: center; }
         .modal-close {
             background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);
         }
@@ -607,20 +666,13 @@
         }
         .btn-save, .btn-primary { background: var(--accent-color); border: none; color: white; padding: 6px 16px; border-radius: 20px; cursor: pointer; }
         .btn-secondary { background: var(--btn-icon-bg); border: none; color: var(--text-primary); padding: 6px 16px; border-radius: 20px; cursor: pointer; }
-        .btn-gray { background: var(--btn-icon-bg); border: none; color: var(--text-primary); padding: 6px 16px; border-radius: 20px; cursor: pointer; }
-        .btn-blue { background: var(--accent-color); border: none; color: white; padding: 6px 16px; border-radius: 20px; cursor: pointer; }
 
-        /* 【修改点2】导出弹窗 - 提高层级到最上层 */
-        #exportModal.modal-overlay {
-            z-index: 500 !important;
-        }
+        #exportModal.modal-overlay { z-index: 500 !important; }
+        #settingsModal.modal-overlay { z-index: 500 !important; }
+        #genericModal.modal-overlay { z-index: 400; }
+        #favoriteModal.modal-overlay { z-index: 350; }
 
-        /* ===== 新增：设置弹窗强制置顶 ===== */
-        #settingsModal.modal-overlay {
-            z-index: 500 !important;
-        }
-
-        /* 指令/角色卡片样式 (保持原有风格) */
+        /* 指令/角色卡片样式 */
         .instruction-card, .role-card {
             background: var(--bg-input);
             border-radius: 1rem;
@@ -638,10 +690,7 @@
         .card-btn.primary { background: var(--accent-color); color: white; }
         .empty-placeholder { text-align: center; padding: 2rem; color: var(--text-muted); }
 
-        /* 角色卡编辑表单 */
-        .character-edit-field {
-            margin-bottom: 1rem;
-        }
+        .character-edit-field { margin-bottom: 1rem; }
         .character-field-label {
             display: block;
             color: var(--text-secondary);
@@ -684,9 +733,7 @@
             text-align: center;
             color: var(--text-primary);
         }
-        .character-brief-wrapper {
-            position: relative;
-        }
+        .character-brief-wrapper { position: relative; }
         .character-brief-ai-btn {
             position: absolute;
             right: 8px;
@@ -711,9 +758,7 @@
             cursor: pointer;
             padding: 2px;
         }
-        .prompt-ai-opt-btn:hover {
-            color: var(--accent-color);
-        }
+        .prompt-ai-opt-btn:hover { color: var(--accent-color); }
         .prompt-ai-label {
             font-size: 0.7rem;
             color: var(--text-muted);
@@ -725,7 +770,7 @@
             margin-top: 1rem;
         }
 
-        /* 设置内部样式 - 保持与优秀网页一致但保留皮肤 */
+        /* 设置内部样式 */
         .settings-section {
             margin-bottom: 1.2rem;
             padding-bottom: 1rem;
@@ -786,7 +831,6 @@
             background: var(--accent-hover);
         }
 
-        /* 日间模式开关（仿优秀网页） */
         .settings-toggle-row {
             display: flex;
             align-items: center;
@@ -840,7 +884,6 @@
             transform: translateX(20px);
         }
 
-        /* 字体选项网格 */
         .settings-font-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -866,7 +909,6 @@
             color: white;
         }
 
-        /* 模型和记忆策略选项 */
         .settings-radio-group {
             display: flex;
             flex-direction: column;
@@ -903,7 +945,7 @@
             margin-left: 4px;
         }
 
-        /* 预览实际网页的 iframe 弹窗 */
+        /* 预览网页弹窗 */
         .preview-modal {
             display: none;
             position: fixed;
@@ -925,7 +967,6 @@
         .preview-header { padding: 0.8rem; background: var(--bg-card); display: flex; justify-content: space-between; }
         .preview-iframe { flex: 1; border: none; background: white; }
 
-        /* 导出弹窗专用样式 */
         .export-option {
             display: flex;
             align-items: center;
@@ -967,22 +1008,15 @@
             font-size: 0.95rem;
         }
 
-        /* 预览网页弹窗 */
-        .preview-web-modal .modal-container {
-            max-width: 550px;
-        }
-        .preview-web-modal .modal-body {
-            padding: 1rem 1.2rem;
-        }
+        .preview-web-modal .modal-container { max-width: 550px; }
+        .preview-web-modal .modal-body { padding: 1rem 1.2rem; }
         .preview-web-desc {
             color: var(--text-secondary);
             font-size: 0.9rem;
             line-height: 1.6;
             margin-bottom: 16px;
         }
-        .preview-web-desc strong {
-            color: var(--text-primary);
-        }
+        .preview-web-desc strong { color: var(--text-primary); }
         .preview-example-box {
             background: var(--bg-input);
             border-radius: 12px;
@@ -1062,9 +1096,7 @@
             line-height: 1.5;
             word-break: break-word;
         }
-        .preview-example-text strong {
-            color: #a3e0d0;
-        }
+        .preview-example-text strong { color: #a3e0d0; }
         .preview-start-btn {
             width: 100%;
             padding: 10px;
@@ -1081,7 +1113,6 @@
             transform: scale(0.98);
         }
 
-        /* 手机自适应 */
         @media (max-width: 768px) {
             .sidebar { width: 260px; }
             .main-content { margin-left: 0; max-width: 100vw; }
@@ -1105,7 +1136,7 @@
             .msg-action svg { width: 14px; height: 14px; }
         }
 
-        /* ===== 收藏栏专用样式 ===== */
+        /* 收藏栏专用样式 */
         .favorite-item {
             background: var(--bg-input);
             border-radius: 10px;
@@ -1144,7 +1175,6 @@
             padding: 3px 10px;
         }
 
-        /* 显示原文模态框内样式 */
         .full-text-content {
             background: var(--bg-input);
             border-radius: 12px;
@@ -1159,16 +1189,6 @@
             overflow-y: auto;
         }
 
-        /* 显示原文弹窗放在最上层 */
-        #genericModal.modal-overlay {
-            z-index: 400;
-        }
-        /* 收藏栏弹窗保持在普通层级 */
-        #favoriteModal.modal-overlay {
-            z-index: 350;
-        }
-
-        /* 【修改点1】修改名称弹窗输入框样式 */
         .rename-input {
             width: 100%;
             background: var(--bg-input);
@@ -1191,7 +1211,7 @@
             margin-top: 6px;
         }
 
-        /* ===== 群聊创建面板中的复选框列表 ===== */
+        /* 群聊创建面板复选框 */
         .group-role-checkbox-item {
             display: flex;
             align-items: center;
@@ -1232,7 +1252,7 @@
 </head>
 <body>
 <div class="app-wrapper">
-    <!-- 侧边栏（默认收起） -->
+    <!-- 侧边栏 -->
     <div class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header"><h3>My DeepSeek</h3></div>
         <div class="sidebar-nav">
@@ -1244,16 +1264,11 @@
         <div class="history-header"><span>📋 历史对话</span></div>
         <div class="history-list" id="historyList"></div>
         <div class="storage-info" id="storageInfo">本地存储容量 0KB / 5MB (0%)</div>
-        <!-- 侧边栏官网超链接 & Token充值 -->
         <div class="storage-link">
-            <a href="https://platform.deepseek.com/usage" target="_blank" rel="noopener noreferrer">
-                🔗 查看DeepSeek官网用量
-            </a>
+            <a href="https://platform.deepseek.com/usage" target="_blank" rel="noopener noreferrer">🔗 查看DeepSeek官网用量</a>
         </div>
         <div class="storage-link">
-            <a href="https://platform.deepseek.com/top_up" target="_blank" rel="noopener noreferrer">
-                💳 Token充值
-            </a>
+            <a href="https://platform.deepseek.com/top_up" target="_blank" rel="noopener noreferrer">💳 Token充值</a>
         </div>
         <div class="sidebar-footer">
             <button class="footer-btn" id="favoriteStarBtn">⭐ 收藏</button>
@@ -1276,7 +1291,6 @@
                 </div>
             </div>
             <div class="top-nav-right">
-                <!-- 加号下拉菜单 -->
                 <div class="add-dropdown-wrapper">
                     <button class="icon-btn" id="addMenuBtn">➕</button>
                     <div class="add-dropdown" id="addDropdown">
@@ -1319,7 +1333,7 @@
     </div>
 </div>
 
-<!-- 通用模态框（所有弹窗共用） -->
+<!-- 通用模态框 -->
 <div id="genericModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -1447,6 +1461,9 @@
     let editingInstructionId = null;
     let renameConvId = null;
     const API_URL = "https://api.deepseek.com/v1/chat/completions";
+
+    // 当前打开的下拉菜单（用于点击外部关闭）
+    let currentOpenDropdown = null;
 
     // ===== Token估算工具函数 =====
     function estimateTokens(text) {
@@ -1579,6 +1596,9 @@
             });
         });
 
+        // 点击页面其他地方关闭所有下拉菜单
+        document.addEventListener('click', closeAllDropdowns);
+
         updateExampleDisplay();
         document.getElementById('refreshExampleBtn').addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1608,6 +1628,11 @@
         renameConvId = null;
     }
 
+    function closeAllDropdowns() {
+        document.querySelectorAll('.history-dropdown.open').forEach(d => d.classList.remove('open'));
+        currentOpenDropdown = null;
+    }
+
     function updateExampleDisplay() {
         const container = document.getElementById('previewExampleText');
         if (container) {
@@ -1631,7 +1656,7 @@
         sendMessage();
     }
 
-    // ==================== 【新增】群聊创建面板 ====================
+    // ==================== 群聊创建面板 ====================
     function openCreateGroupPanel() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '👥 新建群聊（功能测试中）';
@@ -1674,7 +1699,10 @@
     }
 
     function confirmCreateGroup() {
-        const groupName = document.getElementById('groupNameInput').value.trim() || '群聊';
+        // 读取群聊名称，若为空则使用"群聊"
+        let groupName = document.getElementById('groupNameInput').value.trim();
+        if (!groupName) groupName = '群聊';
+
         const checkedBoxes = document.querySelectorAll('#groupRoleCheckboxList input[type="checkbox"]:checked');
         const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
         if (selectedIds.length < 2) {
@@ -1694,7 +1722,8 @@
             messages: [],
             totalTokens: 0,
             isGroup: true,
-            groupMemberIds: validRoles.map(r => r.id)
+            groupMemberIds: validRoles.map(r => r.id),
+            pinned: false
         };
         conversations.unshift(newConv);
         currentConvId = newId;
@@ -1712,7 +1741,7 @@
         }, 300);
     }
 
-    // ===== 原有的角色选择（新建角色对话） =====
+    // ===== 原有的角色选择 =====
     function openCharacterSelectForNewChat() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
@@ -2649,19 +2678,194 @@
     function loadConversations() {
         const saved = localStorage.getItem('my_conversations');
         if (saved) conversations = JSON.parse(saved);
-        else { const id = Date.now().toString(); conversations = [{ id, title: '新对话', messages: [], totalTokens: 0 }]; currentConvId = id; saveConversations(); }
+        else { const id = Date.now().toString(); conversations = [{ id, title: '新对话', messages: [], totalTokens: 0, pinned: false }]; currentConvId = id; saveConversations(); }
         if (!currentConvId && conversations.length) currentConvId = conversations[0].id;
         renderHistoryList();
         loadCurrentConversation();
     }
     function saveConversations() { localStorage.setItem('my_conversations', JSON.stringify(conversations)); updateStorageInfo(); renderHistoryList(); }
+
+    // ========== 核心：渲染历史列表（置顶 + 三点菜单 + 长按） ==========
     function renderHistoryList() {
         const container = document.getElementById('historyList');
         if (!container) return;
         if (!conversations.length) { container.innerHTML = '<div style="padding:8px 16px;color:var(--text-muted)">暂无对话</div>'; return; }
-        container.innerHTML = conversations.map(conv => `<div class="history-item ${currentConvId === conv.id ? 'active' : ''}" onclick="switchConversation('${conv.id}')"><span class="history-title">${escapeHtml(conv.title)}</span><div class="history-actions"><button class="history-action-btn" title="修改名称" onclick="event.stopPropagation(); showRenameDialog('${conv.id}')">✏️</button><button class="history-action-btn" title="释放空间 (删除AI思考过程)" onclick="event.stopPropagation(); releaseThoughtSpace('${conv.id}')">🗑️</button><button class="history-action-btn" title="导出对话" onclick="event.stopPropagation(); openExportModal('${conv.id}')">📤</button><button class="history-action-btn" title="删除对话" onclick="event.stopPropagation(); deleteConv('${conv.id}')">❌</button></div></div>`).join('');
+
+        // 排序：置顶的在前，保持原有顺序
+        const sorted = [...conversations].sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return 0; // 保持原有顺序
+        });
+
+        container.innerHTML = sorted.map(conv => {
+            const isActive = currentConvId === conv.id;
+            const pinIcon = conv.pinned ? '📌' : '📌';
+            const pinLabel = conv.pinned ? '取消置顶' : '置顶';
+            const escapedTitle = escapeHtml(conv.title);
+
+            return `
+                <div class="history-item ${isActive ? 'active' : ''} ${conv.pinned ? 'pinned' : ''}" 
+                     data-convid="${conv.id}"
+                     onclick="handleHistoryClick(event, '${conv.id}')"
+                     oncontextmenu="event.preventDefault(); showDropdownForConv(event, '${conv.id}')"
+                     ontouchstart="handleTouchStart(event, '${conv.id}')"
+                     ontouchend="handleTouchEnd(event, '${conv.id}')"
+                     ontouchmove="handleTouchMove(event)"
+                >
+                    <span class="history-title">${escapedTitle}</span>
+                    <div class="history-actions">
+                        <!-- 电脑端三点按钮 -->
+                        <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">⋮</button>
+                        <!-- 下拉菜单 -->
+                        <div class="history-dropdown" id="dropdown_${conv.id}">
+                            <div class="history-dropdown-item" onclick="event.stopPropagation(); togglePin('${conv.id}'); closeAllDropdowns();">
+                                <span class="icon">${pinIcon}</span> ${pinLabel}
+                            </div>
+                            <div class="history-dropdown-item" onclick="event.stopPropagation(); showRenameDialog('${conv.id}'); closeAllDropdowns();">
+                                <span class="icon">✏️</span> 修改名称
+                            </div>
+                            <div class="history-dropdown-item" onclick="event.stopPropagation(); releaseThoughtSpace('${conv.id}'); closeAllDropdowns();">
+                                <span class="icon">🗑️</span> 释放空间
+                            </div>
+                            <div class="history-dropdown-item" onclick="event.stopPropagation(); openExportModal('${conv.id}'); closeAllDropdowns();">
+                                <span class="icon">📤</span> 导出对话
+                            </div>
+                            <div class="history-dropdown-item" onclick="event.stopPropagation(); deleteConv('${conv.id}'); closeAllDropdowns();">
+                                <span class="icon">❌</span> 删除对话
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // 绑定手机端长按检测（由于 innerHTML 重建，用事件委托）
+        // 在全局 touch 处理中通过 data-convid 获取 id
     }
 
+    // ========== 历史点击处理（点击对话切换） ==========
+    function handleHistoryClick(event, convId) {
+        // 如果点击的是下拉菜单内部或三点按钮，不切换
+        if (event.target.closest('.history-dropdown') || event.target.closest('.history-more-btn')) return;
+        switchConversation(convId);
+    }
+
+    // ========== 手机端长按检测 ==========
+    let longPressTimer = null;
+    let longPressTargetId = null;
+    let isTouchMoved = false;
+
+    function handleTouchStart(event, convId) {
+        // 如果点击的是下拉菜单或三点按钮，不触发长按
+        if (event.target.closest('.history-dropdown') || event.target.closest('.history-more-btn')) return;
+        longPressTargetId = convId;
+        isTouchMoved = false;
+        longPressTimer = setTimeout(() => {
+            if (!isTouchMoved && longPressTargetId) {
+                // 触发长按：显示下拉菜单
+                const item = document.querySelector(`.history-item[data-convid="${longPressTargetId}"]`);
+                if (item) {
+                    // 获取点击位置
+                    const rect = item.getBoundingClientRect();
+                    const touch = event.touches ? event.touches[0] : null;
+                    const x = touch ? touch.clientX : rect.left + rect.width / 2;
+                    const y = touch ? touch.clientY : rect.top + rect.height / 2;
+                    showDropdownAtPosition(longPressTargetId, x, y);
+                }
+            }
+            longPressTimer = null;
+        }, 500);
+    }
+
+    function handleTouchEnd(event, convId) {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+        longPressTargetId = null;
+    }
+
+    function handleTouchMove(event) {
+        isTouchMoved = true;
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }
+
+    // ========== 下拉菜单控制 ==========
+    function toggleDropdown(event, convId) {
+        event.stopPropagation();
+        const dropdown = document.getElementById(`dropdown_${convId}`);
+        if (!dropdown) return;
+        // 关闭其他所有下拉
+        closeAllDropdowns();
+        dropdown.classList.toggle('open');
+        if (dropdown.classList.contains('open')) {
+            currentOpenDropdown = dropdown;
+            // 调整位置防止溢出
+            const rect = dropdown.parentElement.getBoundingClientRect();
+            const dropdownRect = dropdown.getBoundingClientRect();
+            if (dropdownRect.right > window.innerWidth) {
+                dropdown.style.left = 'auto';
+                dropdown.style.right = '0';
+            } else {
+                dropdown.style.left = '0';
+                dropdown.style.right = 'auto';
+            }
+        } else {
+            currentOpenDropdown = null;
+        }
+    }
+
+    function showDropdownAtPosition(convId, x, y) {
+        closeAllDropdowns();
+        const dropdown = document.getElementById(`dropdown_${convId}`);
+        if (!dropdown) return;
+        // 将下拉菜单位置设置在触摸点附近
+        dropdown.style.position = 'fixed';
+        dropdown.style.left = Math.min(x - 80, window.innerWidth - 160) + 'px';
+        dropdown.style.top = Math.min(y - 40, window.innerHeight - 200) + 'px';
+        dropdown.style.right = 'auto';
+        dropdown.classList.add('open');
+        currentOpenDropdown = dropdown;
+        // 点击其他地方关闭
+        setTimeout(() => {
+            const closeHandler = (e) => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                    dropdown.style.position = '';
+                    dropdown.style.left = '';
+                    dropdown.style.top = '';
+                    dropdown.style.right = '';
+                    currentOpenDropdown = null;
+                    document.removeEventListener('click', closeHandler);
+                }
+            };
+            document.addEventListener('click', closeHandler);
+        }, 10);
+    }
+
+    function showDropdownForConv(event, convId) {
+        // 右键菜单（桌面端备用）
+        event.preventDefault();
+        const x = event.clientX || 0;
+        const y = event.clientY || 0;
+        showDropdownAtPosition(convId, x, y);
+    }
+
+    // ========== 置顶功能 ==========
+    function togglePin(convId) {
+        const conv = conversations.find(c => c.id == convId);
+        if (!conv) return;
+        conv.pinned = !conv.pinned;
+        saveConversations();
+        renderHistoryList();
+        // 如果当前对话被置顶/取消置顶，重新加载当前对话不影响内容
+    }
+
+    // ========== 其他历史操作 ==========
     function showRenameDialog(convId) {
         const conv = conversations.find(c => c.id == convId);
         if (!conv) return;
@@ -2679,10 +2883,7 @@
         modal.classList.add('active');
         setTimeout(() => {
             const input = document.getElementById('renameInput');
-            if (input) {
-                input.focus();
-                input.select();
-            }
+            if (input) { input.focus(); input.select(); }
         }, 100);
         const saveBtn = document.getElementById('renameSaveBtn');
         if (saveBtn) {
@@ -2693,10 +2894,7 @@
         const inputField = document.getElementById('renameInput');
         if (inputField) {
             inputField.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    saveRename();
-                }
+                if (e.key === 'Enter') { e.preventDefault(); saveRename(); }
             });
         }
     }
@@ -2705,10 +2903,7 @@
         const input = document.getElementById('renameInput');
         if (!input) return;
         const newName = input.value.trim();
-        if (!newName) {
-            alert('名称不能为空');
-            return;
-        }
+        if (!newName) { alert('名称不能为空'); return; }
         if (renameConvId) {
             const conv = conversations.find(c => c.id == renameConvId);
             if (conv) {
@@ -2739,9 +2934,29 @@
             alert('该对话没有可释放的内容（没有深度思考过程）。');
         }
     }
-    window.switchConversation = (id) => { currentConvId = id; renderHistoryList(); loadCurrentConversation(); };
 
-    // ==================== 【修改】加载对话时处理群聊横幅与背景 ====================
+    function deleteConv(id) {
+        if (!confirm('确定删除这个对话吗？此操作不可撤销。')) return;
+        conversations = conversations.filter(c => c.id != id);
+        if (conversations.length === 0) {
+            let newId = Date.now().toString();
+            conversations = [{ id: newId, title: '新对话', messages: [], totalTokens: 0, pinned: false }];
+            currentConvId = newId;
+        } else if (currentConvId === id) {
+            currentConvId = conversations[0].id;
+        }
+        saveConversations();
+        loadCurrentConversation();
+    }
+
+    window.switchConversation = (id) => { 
+        currentConvId = id; 
+        renderHistoryList(); 
+        loadCurrentConversation(); 
+        closeAllDropdowns();
+    };
+
+    // ==================== 加载当前对话 ====================
     function loadCurrentConversation() {
         const conv = conversations.find(c => c.id == currentConvId);
         const container = document.getElementById('chatMessages');
@@ -2750,16 +2965,13 @@
 
         if (!conv) return;
 
-        // 清空容器，保留横幅（但先删除旧的横幅，再重新添加）
         container.innerHTML = '';
-        // 重新创建横幅（始终存在，但通过 display 控制显隐）
         const newBanner = document.createElement('div');
         newBanner.id = 'groupBanner';
         newBanner.className = 'group-banner';
         newBanner.style.display = 'none';
         container.appendChild(newBanner);
 
-        // 处理群聊背景加深
         if (conv.isGroup) {
             chatPanel.classList.add('group-chat');
             const memberIds = conv.groupMemberIds || [];
@@ -2773,7 +2985,6 @@
             chatPanel.classList.remove('group-chat');
         }
 
-        // 渲染消息（按顺序追加，横幅已在顶部）
         if (!conv.messages.length) {
             const welcome = document.createElement('div');
             welcome.className = 'welcome-message';
@@ -2786,7 +2997,7 @@
         refreshTokenDisplay();
     }
 
-    // ==================== renderMessage 消息渲染 ====================
+    // ==================== renderMessage ====================
     function renderMessage(msg, idx) {
         const container = document.getElementById('chatMessages');
         const wrapper = document.createElement('div');
@@ -2853,7 +3064,6 @@
             wrapper.appendChild(tokenDiv);
         }
 
-        // 直接追加到容器末尾（横幅已固定为第一个子元素）
         container.appendChild(wrapper);
     }
 
@@ -2889,14 +3099,12 @@
     function recalcConvTokens(conv) {
         let totalTokens = 0;
         for (let msg of conv.messages) {
-            if (msg.tokens) {
-                totalTokens += msg.tokens;
-            }
+            if (msg.tokens) { totalTokens += msg.tokens; }
         }
         conv.totalTokens = totalTokens;
     }
 
-    // ==================== 【核心修改】发送消息 - 支持群聊系统指令 ====================
+    // ==================== 发送消息 ====================
     async function sendMessageWithContext(content) {
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
         if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
@@ -2933,7 +3141,6 @@
                 messagesToSend = messagesToSend.slice(-20);
             }
 
-            // ===== 群聊系统指令注入 =====
             if (conv.isGroup && conv.groupMemberIds && conv.groupMemberIds.length > 0) {
                 const selectedRoles = roles.filter(r => conv.groupMemberIds.includes(r.id));
                 if (selectedRoles.length > 0) {
@@ -3008,19 +3215,16 @@
         }
     }
 
-    // 保留空函数以防报错
-    function renameConv(id) {
-        showRenameDialog(id);
-    }
+    function renameConv(id) { showRenameDialog(id); }
 
-    function deleteConv(id) { if (confirm('删除对话？')) { conversations = conversations.filter(c => c.id != id); if (conversations.length === 0) { let newId = Date.now().toString(); conversations = [{ id: newId, title: '新对话', messages: [], totalTokens: 0 }]; currentConvId = newId; } else if (currentConvId === id) currentConvId = conversations[0].id; saveConversations(); loadCurrentConversation(); } }
     function createNewDialog() {
         let newId = Date.now().toString();
-        conversations.unshift({ id: newId, title: '新对话', messages: [], totalTokens: 0 });
+        conversations.unshift({ id: newId, title: '新对话', messages: [], totalTokens: 0, pinned: false });
         currentConvId = newId;
         saveConversations();
         loadCurrentConversation();
     }
+
     function saveMessageToCurrentConv(role, content, thought = null) {
         let conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
@@ -3034,6 +3238,7 @@
         }
         return msgId;
     }
+
     async function sendMessage() {
         const inp = document.getElementById('userInput');
         const msg = inp.value.trim();
@@ -3042,10 +3247,9 @@
         inp.value = '';
     }
 
-    // ==================== addMessageToDOM 消息添加到DOM（追加到末尾） ====================
+    // ==================== addMessageToDOM ====================
     function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         const container = document.getElementById('chatMessages');
-        // 移除欢迎语（如果存在）
         const welcome = container.querySelector('.welcome-message');
         if (welcome) welcome.remove();
 
@@ -3113,7 +3317,6 @@
             wrapper.appendChild(tokenDiv);
         }
 
-        // 直接追加到末尾
         container.appendChild(wrapper);
         scrollToBottom();
     }
@@ -3125,7 +3328,6 @@
         div.id = id; 
         div.className = 'message ai thinking'; 
         div.innerHTML = `<div class="bubble"><div class="dot-floating"><span>●</span><span>●</span><span>●</span></div> 思考中...</div>`; 
-        // 直接追加到末尾
         container.appendChild(div);
         scrollToBottom(); 
         return id; 
