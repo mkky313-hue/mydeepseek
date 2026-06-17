@@ -1662,17 +1662,17 @@
         renameConvId = null;
     }
 
-    function closeAllDropdowns() {
-        document.querySelectorAll('.history-dropdown.open').forEach(d => {
-            d.classList.remove('open');
-            d.style.position = '';
-            d.style.left = '';
-            d.style.top = '';
-            d.style.right = '';
-            d.style.transform = '';
-        });
-        currentOpenDropdown = null;
-    }
+function closeAllDropdowns() {
+    document.querySelectorAll('.history-dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        d.style.position = '';
+        d.style.left = '';
+        d.style.top = '';
+        d.style.right = '';
+        d.style.transform = '';
+    });
+    currentOpenDropdown = null;
+}
 
     function updateExampleDisplay() {
         const container = document.getElementById('previewExampleText');
@@ -2833,9 +2833,20 @@
     const sidebarRect = sidebar.getBoundingClientRect();
     const sidebarRight = sidebarRect.right;
 
+    // 动态获取菜单实际宽度
+    const menuWidth = dropdown.scrollWidth || 170;
     const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
-    const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // 计算 left：从侧边栏右边缘向左偏移菜单宽度的一半
+    let left = sidebarRight - menuWidth / 2;
+
+    // 边界保护：确保菜单不超出左右边界
+    if (left < 10) left = 10;
+    if (left + menuWidth > viewportWidth - 10) {
+        left = viewportWidth - menuWidth - 10;
+    }
 
     // 计算 top：自适应向上或向下展开
     let top;
@@ -2855,12 +2866,12 @@
         }
     }
 
-    // 使用 transform 居中
+    // 使用固定定位，精确 left 值，不使用 transform
     dropdown.style.position = 'fixed';
-    dropdown.style.left = sidebarRight + 'px';
+    dropdown.style.left = left + 'px';
     dropdown.style.top = top + 'px';
     dropdown.style.right = 'auto';
-    dropdown.style.transform = 'translateX(-50%)';
+    dropdown.style.transform = 'none';
     dropdown.classList.add('open');
     currentOpenDropdown = dropdown;
 }
@@ -2879,8 +2890,20 @@ function showDropdownAtPosition(convId, x, y) {
     const sidebarRect = sidebar.getBoundingClientRect();
     const sidebarRight = sidebarRect.right;
 
+    // 动态获取菜单实际宽度
+    const menuWidth = dropdown.scrollWidth || 170;
     const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
+    const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+
+    // 计算 left：从侧边栏右边缘向左偏移菜单宽度的一半
+    let left = sidebarRight - menuWidth / 2;
+
+    // 边界保护
+    if (left < 10) left = 10;
+    if (left + menuWidth > viewportWidth - 10) {
+        left = viewportWidth - menuWidth - 10;
+    }
 
     // 计算 top：自适应
     let top;
@@ -2900,12 +2923,12 @@ function showDropdownAtPosition(convId, x, y) {
         }
     }
 
-    // 使用 transform 居中
+    // 使用固定定位，精确 left 值，不使用 transform
     dropdown.style.position = 'fixed';
-    dropdown.style.left = sidebarRight + 'px';
+    dropdown.style.left = left + 'px';
     dropdown.style.top = top + 'px';
     dropdown.style.right = 'auto';
-    dropdown.style.transform = 'translateX(-50%)';
+    dropdown.style.transform = 'none';
     dropdown.classList.add('open');
     currentOpenDropdown = dropdown;
 
@@ -2926,6 +2949,7 @@ function showDropdownAtPosition(convId, x, y) {
         document.addEventListener('click', closeHandler);
     }, 10);
 }
+
     function showDropdownForConv(event, convId) {
         event.preventDefault();
         const x = event.clientX || 0;
