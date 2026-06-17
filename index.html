@@ -1669,6 +1669,7 @@
             d.style.left = '';
             d.style.top = '';
             d.style.right = '';
+            d.style.transform = '';
         });
         currentOpenDropdown = null;
     }
@@ -2820,136 +2821,111 @@
 
     // ===== 电脑端三点菜单自适应（修复右侧遮挡，层级最高） =====
     function toggleDropdown(event, convId) {
-        event.stopPropagation();
-        const dropdown = document.getElementById(`dropdown_${convId}`);
-        if (!dropdown) return;
+    event.stopPropagation();
+    const dropdown = document.getElementById(`dropdown_${convId}`);
+    if (!dropdown) return;
 
-        closeAllDropdowns();
+    closeAllDropdowns();
 
-        const button = event.currentTarget;
-        const rect = button.getBoundingClientRect();
-        const sidebar = document.getElementById('sidebar');
-        const sidebarRect = sidebar.getBoundingClientRect();
-        const sidebarRight = sidebarRect.right;
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const sidebar = document.getElementById('sidebar');
+    const sidebarRect = sidebar.getBoundingClientRect();
+    const sidebarRight = sidebarRect.right;
 
-        // 动态获取菜单实际宽度
-        const menuWidth = 170;
-        const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+    const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
 
-        // 计算 left：从侧边栏右边缘居中
-        let left = sidebarRight - menuWidth / 2;
-
-        // 确保菜单不超出右侧边界
-        if (left + menuWidth > viewportWidth - 10) {
-            left = viewportWidth - menuWidth - 10;
+    // 计算 top：自适应向上或向下展开
+    let top;
+    if (rect.top < viewportHeight / 2) {
+        top = rect.bottom + 4;
+        if (top + menuHeight > viewportHeight - 10) {
+            top = rect.top - menuHeight - 4;
+            if (top < 10) top = 10;
         }
-        // 确保菜单不超出左侧边界
-        if (left < 10) {
-            left = 10;
-        }
-
-        // 计算 top：自适应向上或向下展开
-        let top;
-        if (rect.top < viewportHeight / 2) {
+    } else {
+        top = rect.top - menuHeight - 4;
+        if (top < 10) {
             top = rect.bottom + 4;
             if (top + menuHeight > viewportHeight - 10) {
-                top = rect.top - menuHeight - 4;
-                if (top < 10) top = 10;
-            }
-        } else {
-            top = rect.top - menuHeight - 4;
-            if (top < 10) {
-                top = rect.bottom + 4;
-                if (top + menuHeight > viewportHeight - 10) {
-                    top = 10;
-                }
+                top = 10;
             }
         }
-
-        dropdown.style.position = 'fixed';
-        dropdown.style.left = left + 'px';
-        dropdown.style.top = top + 'px';
-        dropdown.style.right = 'auto';
-        dropdown.classList.add('open');
-        currentOpenDropdown = dropdown;
     }
+
+    // 使用 transform 居中
+    dropdown.style.position = 'fixed';
+    dropdown.style.left = sidebarRight + 'px';
+    dropdown.style.top = top + 'px';
+    dropdown.style.right = 'auto';
+    dropdown.style.transform = 'translateX(-50%)';
+    dropdown.classList.add('open');
+    currentOpenDropdown = dropdown;
+}
 
     // ===== 手机端长按菜单自适应（修复右侧遮挡，层级最高） =====
-    function showDropdownAtPosition(convId, x, y) {
-        closeAllDropdowns();
-        const dropdown = document.getElementById(`dropdown_${convId}`);
-        if (!dropdown) return;
+function showDropdownAtPosition(convId, x, y) {
+    closeAllDropdowns();
+    const dropdown = document.getElementById(`dropdown_${convId}`);
+    if (!dropdown) return;
 
-        const item = document.querySelector(`.history-item[data-convid="${convId}"]`);
-        if (!item) return;
+    const item = document.querySelector(`.history-item[data-convid="${convId}"]`);
+    if (!item) return;
 
-        const rect = item.getBoundingClientRect();
-        const sidebar = document.getElementById('sidebar');
-        const sidebarRect = sidebar.getBoundingClientRect();
-        const sidebarRight = sidebarRect.right;
+    const rect = item.getBoundingClientRect();
+    const sidebar = document.getElementById('sidebar');
+    const sidebarRect = sidebar.getBoundingClientRect();
+    const sidebarRight = sidebarRect.right;
 
-        // 动态获取菜单实际宽度
-        const menuWidth = 170;
-        const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+    const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
+    const viewportHeight = window.innerHeight;
 
-        // 计算 left：从侧边栏右边缘居中
-        let left = sidebarRight - menuWidth / 2;
-
-        // 确保菜单不超出右侧边界
-        if (left + menuWidth > viewportWidth - 10) {
-            left = viewportWidth - menuWidth - 10;
+    // 计算 top：自适应
+    let top;
+    if (rect.top < viewportHeight / 2) {
+        top = rect.bottom + 4;
+        if (top + menuHeight > viewportHeight - 10) {
+            top = rect.top - menuHeight - 4;
+            if (top < 10) top = 10;
         }
-        // 确保菜单不超出左侧边界
-        if (left < 10) {
-            left = 10;
-        }
-
-        // 计算 top：自适应向上或向下展开
-        let top;
-        if (rect.top < viewportHeight / 2) {
+    } else {
+        top = rect.top - menuHeight - 4;
+        if (top < 10) {
             top = rect.bottom + 4;
             if (top + menuHeight > viewportHeight - 10) {
-                top = rect.top - menuHeight - 4;
-                if (top < 10) top = 10;
-            }
-        } else {
-            top = rect.top - menuHeight - 4;
-            if (top < 10) {
-                top = rect.bottom + 4;
-                if (top + menuHeight > viewportHeight - 10) {
-                    top = 10;
-                }
+                top = 10;
             }
         }
-
-        dropdown.style.position = 'fixed';
-        dropdown.style.left = left + 'px';
-        dropdown.style.top = top + 'px';
-        dropdown.style.right = 'auto';
-        dropdown.classList.add('open');
-        currentOpenDropdown = dropdown;
-
-        // 点击其他地方关闭
-        setTimeout(() => {
-            const closeHandler = (e) => {
-                if (!dropdown.contains(e.target)) {
-                    dropdown.classList.remove('open');
-                    dropdown.style.position = '';
-                    dropdown.style.left = '';
-                    dropdown.style.top = '';
-                    dropdown.style.right = '';
-                    currentOpenDropdown = null;
-                    document.removeEventListener('click', closeHandler);
-                }
-            };
-            document.addEventListener('click', closeHandler);
-        }, 10);
     }
 
+    // 使用 transform 居中
+    dropdown.style.position = 'fixed';
+    dropdown.style.left = sidebarRight + 'px';
+    dropdown.style.top = top + 'px';
+    dropdown.style.right = 'auto';
+    dropdown.style.transform = 'translateX(-50%)';
+    dropdown.classList.add('open');
+    currentOpenDropdown = dropdown;
+
+    // 点击其他地方关闭
+    setTimeout(() => {
+        const closeHandler = (e) => {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+                dropdown.style.position = '';
+                dropdown.style.left = '';
+                dropdown.style.top = '';
+                dropdown.style.right = '';
+                dropdown.style.transform = '';
+                currentOpenDropdown = null;
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        document.addEventListener('click', closeHandler);
+    }, 10);
+}
     function showDropdownForConv(event, convId) {
         event.preventDefault();
         const x = event.clientX || 0;
