@@ -131,7 +131,7 @@
             font-size: 0.85rem;
             background: transparent;
             cursor: pointer;
-            position: relative;
+            position: relative; /* 新增：作为下拉菜单的定位容器 */
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
@@ -143,7 +143,13 @@
         .history-item:hover { background: rgba(128,128,128,0.15); }
         .history-item.active { background: rgba(46,107,94,0.3); color: var(--accent-color); }
         .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; position: relative; }
+        .history-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative; /* 备用，但我们将菜单放在 .history-item 下 */
+        }
 
         /* 三点菜单按钮 - SVG居中，悬停圆形背景 */
         .history-more-btn {
@@ -178,10 +184,14 @@
             }
         }
 
-        /* 下拉菜单 - 完全在侧边栏内，右边缘对齐侧边栏右边缘，由 JS 动态定位，层级最高 */
+        /* 下拉菜单 - 绝对定位，右边缘对齐父容器（.history-item）的右边缘，由 JS 控制 top */
         .history-dropdown {
             display: none;
-            position: fixed;
+            position: absolute;
+            right: 0;
+            left: auto;
+            top: auto;
+            bottom: auto;
             background: var(--dropdown-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
@@ -190,10 +200,6 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.4);
             z-index: 99999;
             backdrop-filter: blur(10px);
-            left: auto;
-            right: auto;
-            top: auto;
-            bottom: auto;
             transform: none;
         }
         .history-dropdown.open {
@@ -1663,15 +1669,12 @@
         renameConvId = null;
     }
 
+    // 关闭所有下拉菜单，重置样式
     function closeAllDropdowns() {
         document.querySelectorAll('.history-dropdown.open').forEach(d => {
             d.classList.remove('open');
-            d.style.position = '';
-            d.style.left = '';
-            d.style.right = '';
             d.style.top = '';
             d.style.bottom = '';
-            d.style.transform = '';
         });
         currentOpenDropdown = null;
     }
@@ -2754,6 +2757,7 @@
                                 <circle cx="18" cy="12" r="2"/>
                             </svg>
                         </button>
+                        <!-- 下拉菜单 - 绝对定位在 .history-item 内，右对齐 -->
                         <div class="history-dropdown" id="dropdown_${conv.id}">
                             <div class="history-dropdown-item" onclick="event.stopPropagation(); togglePin('${conv.id}'); closeAllDropdowns();">
                                 <span class="icon">${pinIcon}</span> ${pinLabel}
@@ -2792,14 +2796,7 @@
         isTouchMoved = false;
         longPressTimer = setTimeout(() => {
             if (!isTouchMoved && longPressTargetId) {
-                const item = document.querySelector(`.history-item[data-convid="${longPressTargetId}"]`);
-                if (item) {
-                    const rect = item.getBoundingClientRect();
-                    const touch = event.touches ? event.touches[0] : null;
-                    const x = touch ? touch.clientX : rect.left + rect.width / 2;
-                    const y = touch ? touch.clientY : rect.top + rect.height / 2;
-                    showDropdownAtPosition(longPressTargetId, x, y);
-                }
+                showDropdownForItem(longPressTargetId);
             }
             longPressTimer = null;
         }, 500);
@@ -2821,127 +2818,70 @@
         }
     }
 
-    // ===== 电脑端三点菜单：右边缘对齐侧边栏右边缘，自适应上下展开 =====
+    // ===== 显示下拉菜单（共用） =====
+    function showDropdownForItem(convId) {
+        closeAllDropdowns();
+        const dropdown = document.getElementById(`dropdown_${convId}`);
+        if (!dropdown) return;
+
+        // 获取父级 .history-item
+        const item = dropdown.closest('.history-item');
+        if (!item) return;
+
+        const rect = item.getBoundingClientRect();
+        const menuHeight = dropdown.scrollHeight || 200;
+        const viewportHeight = window.innerHeight;
+
+        // 计算 top：根据 item 在视口中的位置决定向下或向上展开
+        let top;
+        if (rect.top < viewportHeight / 2) {
+            // 在上半部分，向下展开
+            top = item.offsetHeight + 4; // 相对于 item 顶部
+            // 如果超出底部，则改为向上
+            if (rect.top + top + menuHeight > viewportHeight - 10) {
+                top = -menuHeight - 4;
+            }
+        } else {
+            // 在下半部分，向上展开
+            top = -menuHeight - 4;
+            if (rect.top + top < 10) {
+                top = item.offsetHeight + 4;
+            }
+        }
+
+        dropdown.style.top = top + 'px';
+        dropdown.style.bottom = 'auto';
+        dropdown.classList.add('open');
+        currentOpenDropdown = dropdown;
+    }
+
     function toggleDropdown(event, convId) {
         event.stopPropagation();
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
 
-        closeAllDropdowns();
-
-        const button = event.currentTarget;
-        const rect = button.getBoundingClientRect();
-        const sidebar = document.getElementById('sidebar');
-        const sidebarRect = sidebar.getBoundingClientRect();
-        const sidebarRight = sidebarRect.right;
-
-        const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
-
-        // 计算 top：自适应向上或向下展开
-        let top;
-        if (rect.top < viewportHeight / 2) {
-            top = rect.bottom + 4;
-            if (top + menuHeight > viewportHeight - 10) {
-                top = rect.top - menuHeight - 4;
-                if (top < 10) top = 10;
-            }
-        } else {
-            top = rect.top - menuHeight - 4;
-            if (top < 10) {
-                top = rect.bottom + 4;
-                if (top + menuHeight > viewportHeight - 10) {
-                    top = 10;
-                }
-            }
+        // 如果已经打开则关闭
+        if (dropdown.classList.contains('open')) {
+            closeAllDropdowns();
+            return;
         }
 
-        // 菜单右边缘对齐侧边栏右边缘
-        const rightOffset = viewportWidth - sidebarRight;
-
-        dropdown.style.position = 'fixed';
-        dropdown.style.right = rightOffset + 'px';
-        dropdown.style.left = 'auto';
-        dropdown.style.top = top + 'px';
-        dropdown.style.bottom = 'auto';
-        dropdown.style.transform = 'none';
-        dropdown.classList.add('open');
-        currentOpenDropdown = dropdown;
-    }
-
-    // ===== 手机端长按菜单：右边缘对齐侧边栏右边缘，自适应上下展开 =====
-    function showDropdownAtPosition(convId, x, y) {
-        closeAllDropdowns();
-        const dropdown = document.getElementById(`dropdown_${convId}`);
-        if (!dropdown) return;
-
-        const item = document.querySelector(`.history-item[data-convid="${convId}"]`);
-        if (!item) return;
-
-        const rect = item.getBoundingClientRect();
-        const sidebar = document.getElementById('sidebar');
-        const sidebarRect = sidebar.getBoundingClientRect();
-        const sidebarRight = sidebarRect.right;
-
-        const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
-
-        // 计算 top：自适应
-        let top;
-        if (rect.top < viewportHeight / 2) {
-            top = rect.bottom + 4;
-            if (top + menuHeight > viewportHeight - 10) {
-                top = rect.top - menuHeight - 4;
-                if (top < 10) top = 10;
-            }
-        } else {
-            top = rect.top - menuHeight - 4;
-            if (top < 10) {
-                top = rect.bottom + 4;
-                if (top + menuHeight > viewportHeight - 10) {
-                    top = 10;
-                }
-            }
-        }
-
-        // 菜单右边缘对齐侧边栏右边缘
-        const rightOffset = viewportWidth - sidebarRight;
-
-        dropdown.style.position = 'fixed';
-        dropdown.style.right = rightOffset + 'px';
-        dropdown.style.left = 'auto';
-        dropdown.style.top = top + 'px';
-        dropdown.style.bottom = 'auto';
-        dropdown.style.transform = 'none';
-        dropdown.classList.add('open');
-        currentOpenDropdown = dropdown;
-
-        // 点击其他地方关闭
-        setTimeout(() => {
-            const closeHandler = (e) => {
-                if (!dropdown.contains(e.target)) {
-                    dropdown.classList.remove('open');
-                    dropdown.style.position = '';
-                    dropdown.style.left = '';
-                    dropdown.style.right = '';
-                    dropdown.style.top = '';
-                    dropdown.style.bottom = '';
-                    dropdown.style.transform = '';
-                    currentOpenDropdown = null;
-                    document.removeEventListener('click', closeHandler);
-                }
-            };
-            document.addEventListener('click', closeHandler);
-        }, 10);
+        showDropdownForItem(convId);
     }
 
     function showDropdownForConv(event, convId) {
         event.preventDefault();
-        const x = event.clientX || 0;
-        const y = event.clientY || 0;
-        showDropdownAtPosition(convId, x, y);
+        showDropdownForItem(convId);
+    }
+
+    // ===== 重置所有下拉 =====
+    function closeAllDropdowns() {
+        document.querySelectorAll('.history-dropdown.open').forEach(d => {
+            d.classList.remove('open');
+            d.style.top = '';
+            d.style.bottom = '';
+        });
+        currentOpenDropdown = null;
     }
 
     function togglePin(convId) {
