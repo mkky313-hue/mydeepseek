@@ -143,7 +143,7 @@
         .history-item:hover { background: rgba(128,128,128,0.15); }
         .history-item.active { background: rgba(46,107,94,0.3); color: var(--accent-color); }
         .history-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+        .history-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; position: relative; }
 
         /* 三点菜单按钮（电脑端显示，手机端隐藏） */
         .history-more-btn {
@@ -173,7 +173,7 @@
             }
         }
 
-        /* 下拉菜单 */
+        /* 下拉菜单 - 右下角对齐 */
         .history-dropdown {
             display: none;
             position: absolute;
@@ -187,6 +187,7 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.4);
             z-index: 500;
             backdrop-filter: blur(10px);
+            left: auto;
         }
         .history-dropdown.open {
             display: block;
@@ -435,6 +436,9 @@
             border-radius: 12px;
         }
         .chat-container.group-chat .chat-messages {
+            background-color: var(--group-chat-bg);
+        }
+        .chat-container.character-chat .chat-messages {
             background-color: var(--group-chat-bg);
         }
 
@@ -1248,6 +1252,32 @@
             color: var(--text-muted);
             margin-top: 4px;
         }
+
+        /* 角色选择列表（用于新建角色对话） */
+        .character-select-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .character-select-item:hover {
+            background: var(--btn-icon-hover);
+            border-color: var(--accent-color);
+        }
+        .character-select-item .char-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .character-select-item .char-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
@@ -1462,7 +1492,6 @@
     let renameConvId = null;
     const API_URL = "https://api.deepseek.com/v1/chat/completions";
 
-    // 当前打开的下拉菜单（用于点击外部关闭）
     let currentOpenDropdown = null;
 
     // ===== Token估算工具函数 =====
@@ -1596,7 +1625,6 @@
             });
         });
 
-        // 点击页面其他地方关闭所有下拉菜单
         document.addEventListener('click', closeAllDropdowns);
 
         updateExampleDisplay();
@@ -1699,7 +1727,6 @@
     }
 
     function confirmCreateGroup() {
-        // 读取群聊名称，若为空则使用"群聊"
         let groupName = document.getElementById('groupNameInput').value.trim();
         if (!groupName) groupName = '群聊';
 
@@ -1732,16 +1759,13 @@
         loadCurrentConversation();
         closeModal();
 
-        const memberNames = validRoles.map(r => r.name).join('、');
-        const initMsg = `【群聊启动】我是用户，现在我和 ${memberNames} 开始群聊。请各位按照自己的设定依次发言，无需等待用户提问，先各自做个简单的自我介绍或开场白。`;
-        setTimeout(() => {
-            document.getElementById('userInput').value = initMsg;
-            document.getElementById('userInput').dispatchEvent(new Event('input'));
-            sendMessage();
-        }, 300);
+        // 【需求1】不再自动发送系统消息，让用户自己输入
+        // 仅清空输入框，不自动发送
+        document.getElementById('userInput').value = '';
+        document.getElementById('userInput').dispatchEvent(new Event('input'));
     }
 
-    // ===== 原有的角色选择 =====
+    // ==================== 新建角色对话（需求4） ====================
     function openCharacterSelectForNewChat() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
@@ -1750,10 +1774,14 @@
             html += '<div class="empty-placeholder">还没有角色卡，请先去“角色卡管理”创建。</div>';
         } else {
             roles.forEach(r => {
-                html += `<div class="role-card" style="cursor:pointer;" onclick="selectCharacterAndNewChat('${r.id}')">
-                    <div class="role-name">🎭 ${escapeHtml(r.name)}</div>
-                    <div class="role-desc">${escapeHtml(r.desc || r.summary || '')}</div>
-                </div>`;
+                html += `
+                    <div class="character-select-item" onclick="selectCharacterAndNewChat('${r.id}')">
+                        <div>
+                            <div class="char-name">${escapeHtml(r.name)}</div>
+                            <div class="char-desc">${escapeHtml(r.desc || r.summary || '')}</div>
+                        </div>
+                    </div>
+                `;
             });
         }
         html += '</div>';
@@ -1769,22 +1797,35 @@
             closeModal();
             return;
         }
-        createNewDialog();
-        setTimeout(() => {
-            const inp = document.getElementById('userInput');
-            if (inp) {
-                let content = `【角色扮演】你是${role.name}。`;
-                if (role.desc) content += ` ${role.desc}`;
-                if (role.personality) content += ` 性格：${role.personality}`;
-                if (role.background) content += ` 背景：${role.background}`;
-                if (role.appearance) content += ` 外貌：${role.appearance}`;
-                if (role.speakingStyle) content += ` 说话风格：${role.speakingStyle}`;
-                if (role.catchphrases) content += ` 口头禅：${role.catchphrases}`;
-                inp.value = content;
-                inp.dispatchEvent(new Event('input'));
-            }
-        }, 200);
+
+        // 创建角色对话，标题为角色名
+        const newId = Date.now().toString();
+        const newConv = {
+            id: newId,
+            title: role.name,
+            messages: [],
+            totalTokens: 0,
+            pinned: false,
+            isCharacter: true,
+            characterId: role.id
+        };
+        conversations.unshift(newConv);
+        currentConvId = newId;
+        saveConversations();
+        renderHistoryList();
+        loadCurrentConversation();
         closeModal();
+
+        // 自动填入角色扮演指令到输入框（不自动发送）
+        let content = `【角色扮演】你是${role.name}。`;
+        if (role.desc) content += ` ${role.desc}`;
+        if (role.personality) content += ` 性格：${role.personality}`;
+        if (role.background) content += ` 背景：${role.background}`;
+        if (role.appearance) content += ` 外貌：${role.appearance}`;
+        if (role.speakingStyle) content += ` 说话风格：${role.speakingStyle}`;
+        if (role.catchphrases) content += ` 口头禅：${role.catchphrases}`;
+        document.getElementById('userInput').value = content;
+        document.getElementById('userInput').dispatchEvent(new Event('input'));
     }
 
     function performSearch() {
@@ -2613,24 +2654,8 @@
     }
 
     function useRoleInChat(id) {
-        const role = roles.find(r => r.id == id);
-        if (!role) return;
-        createNewDialog();
-        setTimeout(() => {
-            const inp = document.getElementById('userInput');
-            if (inp) {
-                let content = `【角色扮演】你是${role.name}。`;
-                if (role.desc) content += ` ${role.desc}`;
-                if (role.personality) content += ` 性格：${role.personality}`;
-                if (role.background) content += ` 背景：${role.background}`;
-                if (role.appearance) content += ` 外貌：${role.appearance}`;
-                if (role.speakingStyle) content += ` 说话风格：${role.speakingStyle}`;
-                if (role.catchphrases) content += ` 口头禅：${role.catchphrases}`;
-                inp.value = content;
-                inp.dispatchEvent(new Event('input'));
-            }
-        }, 200);
-        closeModal();
+        // 直接用新建角色对话的逻辑
+        selectCharacterAndNewChat(id);
     }
 
     async function aiGenerateRole() {
@@ -2685,17 +2710,16 @@
     }
     function saveConversations() { localStorage.setItem('my_conversations', JSON.stringify(conversations)); updateStorageInfo(); renderHistoryList(); }
 
-    // ========== 核心：渲染历史列表（置顶 + 三点菜单 + 长按） ==========
+    // ========== 渲染历史列表（置顶 + 三点菜单 + 长按） ==========
     function renderHistoryList() {
         const container = document.getElementById('historyList');
         if (!container) return;
         if (!conversations.length) { container.innerHTML = '<div style="padding:8px 16px;color:var(--text-muted)">暂无对话</div>'; return; }
 
-        // 排序：置顶的在前，保持原有顺序
         const sorted = [...conversations].sort((a, b) => {
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
-            return 0; // 保持原有顺序
+            return 0;
         });
 
         container.innerHTML = sorted.map(conv => {
@@ -2715,9 +2739,7 @@
                 >
                     <span class="history-title">${escapedTitle}</span>
                     <div class="history-actions">
-                        <!-- 电脑端三点按钮 -->
                         <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">⋮</button>
-                        <!-- 下拉菜单 -->
                         <div class="history-dropdown" id="dropdown_${conv.id}">
                             <div class="history-dropdown-item" onclick="event.stopPropagation(); togglePin('${conv.id}'); closeAllDropdowns();">
                                 <span class="icon">${pinIcon}</span> ${pinLabel}
@@ -2739,34 +2761,25 @@
                 </div>
             `;
         }).join('');
-
-        // 绑定手机端长按检测（由于 innerHTML 重建，用事件委托）
-        // 在全局 touch 处理中通过 data-convid 获取 id
     }
 
-    // ========== 历史点击处理（点击对话切换） ==========
     function handleHistoryClick(event, convId) {
-        // 如果点击的是下拉菜单内部或三点按钮，不切换
         if (event.target.closest('.history-dropdown') || event.target.closest('.history-more-btn')) return;
         switchConversation(convId);
     }
 
-    // ========== 手机端长按检测 ==========
     let longPressTimer = null;
     let longPressTargetId = null;
     let isTouchMoved = false;
 
     function handleTouchStart(event, convId) {
-        // 如果点击的是下拉菜单或三点按钮，不触发长按
         if (event.target.closest('.history-dropdown') || event.target.closest('.history-more-btn')) return;
         longPressTargetId = convId;
         isTouchMoved = false;
         longPressTimer = setTimeout(() => {
             if (!isTouchMoved && longPressTargetId) {
-                // 触发长按：显示下拉菜单
                 const item = document.querySelector(`.history-item[data-convid="${longPressTargetId}"]`);
                 if (item) {
-                    // 获取点击位置
                     const rect = item.getBoundingClientRect();
                     const touch = event.touches ? event.touches[0] : null;
                     const x = touch ? touch.clientX : rect.left + rect.width / 2;
@@ -2794,26 +2807,15 @@
         }
     }
 
-    // ========== 下拉菜单控制 ==========
     function toggleDropdown(event, convId) {
         event.stopPropagation();
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
-        // 关闭其他所有下拉
         closeAllDropdowns();
         dropdown.classList.toggle('open');
         if (dropdown.classList.contains('open')) {
             currentOpenDropdown = dropdown;
-            // 调整位置防止溢出
-            const rect = dropdown.parentElement.getBoundingClientRect();
-            const dropdownRect = dropdown.getBoundingClientRect();
-            if (dropdownRect.right > window.innerWidth) {
-                dropdown.style.left = 'auto';
-                dropdown.style.right = '0';
-            } else {
-                dropdown.style.left = '0';
-                dropdown.style.right = 'auto';
-            }
+            // 右下角对齐：已经是 right:0，不需要额外调整
         } else {
             currentOpenDropdown = null;
         }
@@ -2823,14 +2825,12 @@
         closeAllDropdowns();
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
-        // 将下拉菜单位置设置在触摸点附近
         dropdown.style.position = 'fixed';
         dropdown.style.left = Math.min(x - 80, window.innerWidth - 160) + 'px';
         dropdown.style.top = Math.min(y - 40, window.innerHeight - 200) + 'px';
         dropdown.style.right = 'auto';
         dropdown.classList.add('open');
         currentOpenDropdown = dropdown;
-        // 点击其他地方关闭
         setTimeout(() => {
             const closeHandler = (e) => {
                 if (!dropdown.contains(e.target)) {
@@ -2848,24 +2848,20 @@
     }
 
     function showDropdownForConv(event, convId) {
-        // 右键菜单（桌面端备用）
         event.preventDefault();
         const x = event.clientX || 0;
         const y = event.clientY || 0;
         showDropdownAtPosition(convId, x, y);
     }
 
-    // ========== 置顶功能 ==========
     function togglePin(convId) {
         const conv = conversations.find(c => c.id == convId);
         if (!conv) return;
         conv.pinned = !conv.pinned;
         saveConversations();
         renderHistoryList();
-        // 如果当前对话被置顶/取消置顶，重新加载当前对话不影响内容
     }
 
-    // ========== 其他历史操作 ==========
     function showRenameDialog(convId) {
         const conv = conversations.find(c => c.id == convId);
         if (!conv) return;
@@ -2956,7 +2952,7 @@
         closeAllDropdowns();
     };
 
-    // ==================== 加载当前对话 ====================
+    // ==================== 加载当前对话（含角色对话横幅和皮肤） ====================
     function loadCurrentConversation() {
         const conv = conversations.find(c => c.id == currentConvId);
         const container = document.getElementById('chatMessages');
@@ -2972,6 +2968,10 @@
         newBanner.style.display = 'none';
         container.appendChild(newBanner);
 
+        // 先清除所有特殊类
+        chatPanel.classList.remove('group-chat', 'character-chat');
+
+        // ===== 处理群聊 =====
         if (conv.isGroup) {
             chatPanel.classList.add('group-chat');
             const memberIds = conv.groupMemberIds || [];
@@ -2981,10 +2981,24 @@
                 newBanner.innerHTML = `👥 群聊成员：<strong>${escapeHtml(memberNames)}</strong>`;
                 newBanner.style.display = 'block';
             }
-        } else {
-            chatPanel.classList.remove('group-chat');
         }
 
+        // ===== 【需求4】处理角色对话 =====
+        if (conv.isCharacter && conv.characterId) {
+            chatPanel.classList.add('character-chat');
+            const role = roles.find(r => r.id == conv.characterId);
+            if (role) {
+                newBanner.innerHTML = `👤 正在与角色对话：<strong>${escapeHtml(role.name)}</strong>`;
+                newBanner.style.display = 'block';
+            } else {
+                // 如果角色已被删除，降级为普通对话
+                conv.isCharacter = false;
+                conv.characterId = null;
+                saveConversations();
+            }
+        }
+
+        // 渲染消息
         if (!conv.messages.length) {
             const welcome = document.createElement('div');
             welcome.className = 'welcome-message';
@@ -3104,7 +3118,7 @@
         conv.totalTokens = totalTokens;
     }
 
-    // ==================== 发送消息 ====================
+    // ==================== 发送消息（含群聊和角色对话的系统指令） ====================
     async function sendMessageWithContext(content) {
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
         if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
@@ -3141,10 +3155,13 @@
                 messagesToSend = messagesToSend.slice(-20);
             }
 
+            let systemPrompt = null;
+
+            // ===== 群聊系统指令 =====
             if (conv.isGroup && conv.groupMemberIds && conv.groupMemberIds.length > 0) {
                 const selectedRoles = roles.filter(r => conv.groupMemberIds.includes(r.id));
                 if (selectedRoles.length > 0) {
-                    let systemPrompt = "你是一个多角色群聊模拟器。用户是'用户'。以下是本次群聊中除用户外的所有角色及其设定：\n\n";
+                    systemPrompt = "你是一个多角色群聊模拟器。用户是'用户'。以下是本次群聊中除用户外的所有角色及其设定：\n\n";
                     selectedRoles.forEach((r, index) => {
                         systemPrompt += `${index+1}. 角色名：${r.name}\n`;
                         if (r.personality) systemPrompt += `   性格：${r.personality}\n`;
@@ -3159,8 +3176,28 @@
                     } else {
                         systemPrompt += `\n回复时，请直接以【角色名】：... 的格式输出每个角色的发言，不需要思考过程。每个角色都必须根据其设定独立发言。`;
                     }
-                    messagesToSend.unshift({ role: 'system', content: systemPrompt });
                 }
+            }
+
+            // ===== 【需求4】角色对话系统指令 =====
+            if (conv.isCharacter && conv.characterId) {
+                const role = roles.find(r => r.id == conv.characterId);
+                if (role) {
+                    systemPrompt = `你现在是角色「${role.name}」。请完全以该角色的身份进行对话。\n`;
+                    if (role.personality) systemPrompt += `性格：${role.personality}\n`;
+                    if (role.background) systemPrompt += `背景：${role.background}\n`;
+                    if (role.appearance) systemPrompt += `外貌：${role.appearance}\n`;
+                    if (role.speakingStyle) systemPrompt += `说话风格：${role.speakingStyle}\n`;
+                    if (role.catchphrases) systemPrompt += `口头禅：${role.catchphrases}\n`;
+                    systemPrompt += `\n请用${role.name}的身份回复用户的消息，保持角色一致性。`;
+                    if (deepThinkEnabled) {
+                        systemPrompt += `\n【深度思考模式已开启】\n在回复之前，请先输出角色的内心思考（格式：【内心思考】：...），然后再输出发言。`;
+                    }
+                }
+            }
+
+            if (systemPrompt) {
+                messagesToSend.unshift({ role: 'system', content: systemPrompt });
             }
 
             const requestBody = {
@@ -3225,6 +3262,7 @@
         loadCurrentConversation();
     }
 
+    // ===== 【需求2】修改：保存消息时判断是否应自动截取标题 =====
     function saveMessageToCurrentConv(role, content, thought = null) {
         let conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
@@ -3232,9 +3270,19 @@
         const msg = { id: msgId, role, content, thought, timestamp: Date.now() };
         conv.messages.push(msg);
         saveConversations();
+
+        // 只在以下情况自动截取标题：
+        // 1. 这是第一条消息（messages.length === 1）
+        // 2. 且是用户发的（role === 'user'）
+        // 3. 且当前标题是默认值（"新对话" 或 "群聊"）或为空
         if (conv.messages.length === 1 && role === 'user') {
-            conv.title = content.substring(0, 20) + (content.length > 20 ? '...' : '');
-            renderHistoryList();
+            const defaultTitles = ['新对话', '群聊'];
+            if (!conv.title || defaultTitles.includes(conv.title) || conv.title === '') {
+                const newTitle = content.substring(0, 20) + (content.length > 20 ? '...' : '');
+                conv.title = newTitle;
+                renderHistoryList();
+                saveConversations();
+            }
         }
         return msgId;
     }
