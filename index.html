@@ -1762,6 +1762,7 @@
         // 群聊创建后输入框保持空白，用户自己输入
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
+        document.getElementById('userInput').focus();
     }
 
     // ==================== 新建角色对话（修改后） ====================
@@ -2077,7 +2078,6 @@
     }
 
     function showFullFavorite(content, convTitle) {
-        closeFavoriteModal();
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = `📖 原文 - ${convTitle || '收藏'}`;
         document.getElementById('modalBody').innerHTML = `
