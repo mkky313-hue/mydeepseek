@@ -178,7 +178,7 @@
             }
         }
 
-        /* 下拉菜单 - 跨越侧边栏与主页面，由 JS 动态定位，层级最高 */
+        /* 下拉菜单 - 完全在侧边栏内，右边缘对齐侧边栏右边缘，由 JS 动态定位，层级最高 */
         .history-dropdown {
             display: none;
             position: fixed;
@@ -186,7 +186,7 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 4px 0;
-            min-width: 170px;
+            min-width: 150px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.4);
             z-index: 99999;
             backdrop-filter: blur(10px);
@@ -194,6 +194,7 @@
             right: auto;
             top: auto;
             bottom: auto;
+            transform: none;
         }
         .history-dropdown.open {
             display: block;
@@ -1662,17 +1663,18 @@
         renameConvId = null;
     }
 
-function closeAllDropdowns() {
-    document.querySelectorAll('.history-dropdown.open').forEach(d => {
-        d.classList.remove('open');
-        d.style.position = '';
-        d.style.left = '';
-        d.style.right = '';
-        d.style.top = '';
-        d.style.transform = '';
-    });
-    currentOpenDropdown = null;
-}
+    function closeAllDropdowns() {
+        document.querySelectorAll('.history-dropdown.open').forEach(d => {
+            d.classList.remove('open');
+            d.style.position = '';
+            d.style.left = '';
+            d.style.right = '';
+            d.style.top = '';
+            d.style.bottom = '';
+            d.style.transform = '';
+        });
+        currentOpenDropdown = null;
+    }
 
     function updateExampleDisplay() {
         const container = document.getElementById('previewExampleText');
@@ -2819,115 +2821,122 @@ function closeAllDropdowns() {
         }
     }
 
-    // ===== 电脑端三点菜单自适应（修复右侧遮挡，层级最高） =====
-function toggleDropdown(event, convId) {
-    event.stopPropagation();
-    const dropdown = document.getElementById(`dropdown_${convId}`);
-    if (!dropdown) return;
+    // ===== 电脑端三点菜单：右边缘对齐侧边栏右边缘，自适应上下展开 =====
+    function toggleDropdown(event, convId) {
+        event.stopPropagation();
+        const dropdown = document.getElementById(`dropdown_${convId}`);
+        if (!dropdown) return;
 
-    closeAllDropdowns();
+        closeAllDropdowns();
 
-    const button = event.currentTarget;
-    const rect = button.getBoundingClientRect();
-    const sidebar = document.getElementById('sidebar');
-    const sidebarRect = sidebar.getBoundingClientRect();
-    const sidebarRight = sidebarRect.right;
+        const button = event.currentTarget;
+        const rect = button.getBoundingClientRect();
+        const sidebar = document.getElementById('sidebar');
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const sidebarRight = sidebarRect.right;
 
-    const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
-    const viewportHeight = window.innerHeight;
+        const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
 
-    // 计算 top：自适应向上或向下展开
-    let top;
-    if (rect.top < viewportHeight / 2) {
-        top = rect.bottom + 4;
-        if (top + menuHeight > viewportHeight - 10) {
-            top = rect.top - menuHeight - 4;
-            if (top < 10) top = 10;
-        }
-    } else {
-        top = rect.top - menuHeight - 4;
-        if (top < 10) {
+        // 计算 top：自适应向上或向下展开
+        let top;
+        if (rect.top < viewportHeight / 2) {
             top = rect.bottom + 4;
             if (top + menuHeight > viewportHeight - 10) {
-                top = 10;
+                top = rect.top - menuHeight - 4;
+                if (top < 10) top = 10;
+            }
+        } else {
+            top = rect.top - menuHeight - 4;
+            if (top < 10) {
+                top = rect.bottom + 4;
+                if (top + menuHeight > viewportHeight - 10) {
+                    top = 10;
+                }
             }
         }
+
+        // 菜单右边缘对齐侧边栏右边缘
+        const rightOffset = viewportWidth - sidebarRight;
+
+        dropdown.style.position = 'fixed';
+        dropdown.style.right = rightOffset + 'px';
+        dropdown.style.left = 'auto';
+        dropdown.style.top = top + 'px';
+        dropdown.style.bottom = 'auto';
+        dropdown.style.transform = 'none';
+        dropdown.classList.add('open');
+        currentOpenDropdown = dropdown;
     }
 
-    // 菜单右边缘对齐侧边栏右边缘
-    const right = window.innerWidth - sidebarRight;
+    // ===== 手机端长按菜单：右边缘对齐侧边栏右边缘，自适应上下展开 =====
+    function showDropdownAtPosition(convId, x, y) {
+        closeAllDropdowns();
+        const dropdown = document.getElementById(`dropdown_${convId}`);
+        if (!dropdown) return;
 
-    dropdown.style.position = 'fixed';
-    dropdown.style.right = right + 'px';
-    dropdown.style.left = 'auto';
-    dropdown.style.top = top + 'px';
-    dropdown.style.transform = 'none';
-    dropdown.classList.add('open');
-    currentOpenDropdown = dropdown;
-}
-    // ===== 手机端长按菜单自适应（修复右侧遮挡，层级最高） =====
-function showDropdownAtPosition(convId, x, y) {
-    closeAllDropdowns();
-    const dropdown = document.getElementById(`dropdown_${convId}`);
-    if (!dropdown) return;
+        const item = document.querySelector(`.history-item[data-convid="${convId}"]`);
+        if (!item) return;
 
-    const item = document.querySelector(`.history-item[data-convid="${convId}"]`);
-    if (!item) return;
+        const rect = item.getBoundingClientRect();
+        const sidebar = document.getElementById('sidebar');
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const sidebarRight = sidebarRect.right;
 
-    const rect = item.getBoundingClientRect();
-    const sidebar = document.getElementById('sidebar');
-    const sidebarRect = sidebar.getBoundingClientRect();
-    const sidebarRight = sidebarRect.right;
+        const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
 
-    const menuHeight = Math.min(dropdown.scrollHeight || 200, 300);
-    const viewportHeight = window.innerHeight;
-
-    // 计算 top：自适应
-    let top;
-    if (rect.top < viewportHeight / 2) {
-        top = rect.bottom + 4;
-        if (top + menuHeight > viewportHeight - 10) {
-            top = rect.top - menuHeight - 4;
-            if (top < 10) top = 10;
-        }
-    } else {
-        top = rect.top - menuHeight - 4;
-        if (top < 10) {
+        // 计算 top：自适应
+        let top;
+        if (rect.top < viewportHeight / 2) {
             top = rect.bottom + 4;
             if (top + menuHeight > viewportHeight - 10) {
-                top = 10;
+                top = rect.top - menuHeight - 4;
+                if (top < 10) top = 10;
+            }
+        } else {
+            top = rect.top - menuHeight - 4;
+            if (top < 10) {
+                top = rect.bottom + 4;
+                if (top + menuHeight > viewportHeight - 10) {
+                    top = 10;
+                }
             }
         }
+
+        // 菜单右边缘对齐侧边栏右边缘
+        const rightOffset = viewportWidth - sidebarRight;
+
+        dropdown.style.position = 'fixed';
+        dropdown.style.right = rightOffset + 'px';
+        dropdown.style.left = 'auto';
+        dropdown.style.top = top + 'px';
+        dropdown.style.bottom = 'auto';
+        dropdown.style.transform = 'none';
+        dropdown.classList.add('open');
+        currentOpenDropdown = dropdown;
+
+        // 点击其他地方关闭
+        setTimeout(() => {
+            const closeHandler = (e) => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                    dropdown.style.position = '';
+                    dropdown.style.left = '';
+                    dropdown.style.right = '';
+                    dropdown.style.top = '';
+                    dropdown.style.bottom = '';
+                    dropdown.style.transform = '';
+                    currentOpenDropdown = null;
+                    document.removeEventListener('click', closeHandler);
+                }
+            };
+            document.addEventListener('click', closeHandler);
+        }, 10);
     }
 
-    // 菜单右边缘对齐侧边栏右边缘
-    const right = window.innerWidth - sidebarRight;
-
-    dropdown.style.position = 'fixed';
-    dropdown.style.right = right + 'px';
-    dropdown.style.left = 'auto';
-    dropdown.style.top = top + 'px';
-    dropdown.style.transform = 'none';
-    dropdown.classList.add('open');
-    currentOpenDropdown = dropdown;
-
-    // 点击其他地方关闭
-    setTimeout(() => {
-        const closeHandler = (e) => {
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.remove('open');
-                dropdown.style.position = '';
-                dropdown.style.left = '';
-                dropdown.style.right = '';
-                dropdown.style.top = '';
-                dropdown.style.transform = '';
-                currentOpenDropdown = null;
-                document.removeEventListener('click', closeHandler);
-            }
-        };
-        document.addEventListener('click', closeHandler);
-    }, 10);
-}
     function showDropdownForConv(event, convId) {
         event.preventDefault();
         const x = event.clientX || 0;
