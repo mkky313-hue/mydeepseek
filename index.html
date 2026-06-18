@@ -67,15 +67,7 @@
             max-width:100vw;
             height:100vh;
         }
-        .app-wrapper {
-            display:flex;
-            min-height:100vh;
-            height:100vh;
-            position:relative;
-            width:100%;
-            max-width:100vw;
-            overflow:hidden;
-        }
+        .app-wrapper { display:flex; min-height:100vh; height:100vh; position:relative; width:100%; max-width:100vw; overflow:hidden; }
         .sidebar {
             width:280px;
             background:var(--bg-sidebar);
@@ -94,24 +86,9 @@
         }
         .sidebar.collapsed { transform:translateX(-280px); }
         .sidebar-header { padding:1rem; border-bottom:1px solid var(--border-color); }
-        .sidebar-header h3 {
-            font-size:1.1rem;
-            font-weight:500;
-            background:linear-gradient(135deg,#c0e0ff,#a3b8f0);
-            -webkit-background-clip:text;
-            background-clip:text;
-            color:transparent;
-        }
+        .sidebar-header h3 { font-size:1.1rem; font-weight:500; background:linear-gradient(135deg,#c0e0ff,#a3b8f0); -webkit-background-clip:text; background-clip:text; color:transparent; }
         .sidebar-nav { padding:0.5rem 0; }
-        .nav-item {
-            padding:8px 1rem;
-            margin:2px 8px;
-            border-radius:10px;
-            cursor:pointer;
-            color:var(--text-secondary);
-            font-size:0.9rem;
-            transition:all 0.2s;
-        }
+        .nav-item { padding:8px 1rem; margin:2px 8px; border-radius:10px; cursor:pointer; color:var(--text-secondary); font-size:0.9rem; transition:all 0.2s; }
         .nav-item:hover { background:rgba(128,128,128,0.2); color:var(--text-primary); }
         .history-divider { border-top:1px solid var(--border-color); margin:8px 12px; }
         .history-header { padding:8px 16px; font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between; }
@@ -133,12 +110,7 @@
         .history-item.active { background:rgba(46,107,94,0.3); color:var(--accent-color); }
         .history-title { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .history-actions { display:flex; gap:6px; align-items:center; flex-shrink:0; position:relative; }
-        .history-more-btn {
-            background:none; border:none; color:var(--text-muted); cursor:pointer;
-            padding:0; width:28px; height:28px; border-radius:50%;
-            display:inline-flex; align-items:center; justify-content:center;
-            transition:background 0.2s,color 0.2s; flex-shrink:0;
-        }
+        .history-more-btn { background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0; width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; transition:background 0.2s,color 0.2s; flex-shrink:0; }
         .history-more-btn svg { width:20px; height:20px; fill:currentColor; display:block; }
         .history-more-btn:hover { background:var(--btn-icon-bg); color:var(--text-primary); }
         @media(max-width:768px){ .history-more-btn { display:none !important; } }
@@ -150,11 +122,7 @@
             backdrop-filter:blur(10px); transform:none;
         }
         .history-dropdown.open { display:block; }
-        .history-dropdown-item {
-            display:flex; align-items:center; gap:8px;
-            padding:6px 12px; color:var(--text-secondary);
-            font-size:0.78rem; cursor:pointer; transition:background 0.15s; white-space:nowrap;
-        }
+        .history-dropdown-item { display:flex; align-items:center; gap:8px; padding:6px 12px; color:var(--text-secondary); font-size:0.78rem; cursor:pointer; transition:background 0.15s; white-space:nowrap; }
         .history-dropdown-item:hover { background:var(--btn-icon-bg); color:var(--text-primary); }
         .history-dropdown-item .icon { font-size:0.9rem; flex-shrink:0; }
         .storage-info { padding:10px 1rem; font-size:0.7rem; color:var(--text-muted); border-top:1px solid var(--border-color); border-bottom:1px solid var(--border-color); }
@@ -162,200 +130,73 @@
         .storage-link:hover { color:var(--accent-color); }
         .storage-link a { color:inherit; text-decoration:none; display:flex; align-items:center; gap:6px; }
         .storage-link a:hover { color:var(--accent-color); }
-        .sidebar-footer {
-            padding:0.8rem 1rem; display:flex; justify-content:space-between; gap:8px;
-            border-top:1px solid var(--border-color); flex-wrap:wrap; flex-shrink:0;
-        }
-        .footer-btn {
-            background:var(--btn-icon-bg); border:none; color:var(--text-primary);
-            font-size:1rem; cursor:pointer; display:flex; align-items:center; gap:4px;
-            padding:6px 12px; border-radius:20px; transition:all 0.2s;
-            flex:1; justify-content:center;
-        }
+        .sidebar-footer { padding:0.8rem 1rem; display:flex; justify-content:space-between; gap:8px; border-top:1px solid var(--border-color); flex-wrap:wrap; flex-shrink:0; }
+        .footer-btn { background:var(--btn-icon-bg); border:none; color:var(--text-primary); font-size:1rem; cursor:pointer; display:flex; align-items:center; gap:4px; padding:6px 12px; border-radius:20px; transition:all 0.2s; flex:1; justify-content:center; }
         .footer-btn:hover { background:var(--btn-icon-hover); }
-        .main-content {
-            flex:1; margin-left:280px; transition:margin-left 0.3s;
-            height:100vh; overflow:hidden; display:flex; flex-direction:column;
-            min-height:0; max-width:calc(100vw - 280px);
-        }
+        .main-content { flex:1; margin-left:280px; transition:margin-left 0.3s; height:100vh; overflow:hidden; display:flex; flex-direction:column; min-height:0; max-width:calc(100vw - 280px); }
         .main-content.expanded { margin-left:0; max-width:100vw; }
-        .top-nav {
-            background:var(--bg-nav); backdrop-filter:blur(10px);
-            padding:0.8rem 1rem; display:flex; align-items:center; justify-content:space-between;
-            gap:12px; border-bottom:1px solid var(--border-color);
-            position:sticky; top:0; z-index:101; flex-shrink:0;
-        }
+        .top-nav { background:var(--bg-nav); backdrop-filter:blur(10px); padding:0.8rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid var(--border-color); position:sticky; top:0; z-index:101; flex-shrink:0; }
         .top-nav-left { flex-shrink:0; }
         .top-nav-center { flex:1; text-align:center; transition:all 0.2s; overflow:hidden; }
-        .top-nav-center h1 {
-            font-size:1.2rem; font-weight:600;
-            background:linear-gradient(135deg,#c0e0ff,#a3b8f0);
-            -webkit-background-clip:text; background-clip:text; color:transparent;
-            white-space:nowrap; display:inline-block;
-        }
-        .search-input-wrapper {
-            display:none; align-items:center; background:var(--bg-input);
-            border:1px solid var(--border-color); border-radius:40px;
-            padding:6px 12px; width:100%; max-width:300px; margin:0 auto;
-        }
+        .top-nav-center h1 { font-size:1.2rem; font-weight:600; background:linear-gradient(135deg,#c0e0ff,#a3b8f0); -webkit-background-clip:text; background-clip:text; color:transparent; white-space:nowrap; display:inline-block; }
+        .search-input-wrapper { display:none; align-items:center; background:var(--bg-input); border:1px solid var(--border-color); border-radius:40px; padding:6px 12px; width:100%; max-width:300px; margin:0 auto; }
         .search-input-wrapper.active { display:flex; }
-        .search-input-wrapper input {
-            flex:1; background:transparent; border:none; outline:none;
-            color:var(--text-primary); font-size:0.9rem; min-width:0;
-        }
+        .search-input-wrapper input { flex:1; background:transparent; border:none; outline:none; color:var(--text-primary); font-size:0.9rem; min-width:0; }
         .search-input-wrapper button { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1rem; flex-shrink:0; }
         .top-nav-right { display:flex; gap:8px; flex-shrink:0; align-items:center; }
         .add-dropdown-wrapper { position:relative; display:inline-block; }
-        .add-dropdown {
-            display:none; position:absolute; right:0; top:calc(100% + 4px);
-            background:var(--bg-card); border:1px solid var(--border-color);
-            border-radius:12px; padding:6px 0; min-width:170px;
-            backdrop-filter:blur(10px); box-shadow:0 8px 30px rgba(0,0,0,0.5); z-index:999;
-        }
+        .add-dropdown { display:none; position:absolute; right:0; top:calc(100% + 4px); background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:6px 0; min-width:170px; backdrop-filter:blur(10px); box-shadow:0 8px 30px rgba(0,0,0,0.5); z-index:999; }
         .add-dropdown.open { display:block; }
-        .dropdown-item {
-            display:flex; align-items:center; gap:10px; padding:8px 16px;
-            color:var(--text-secondary); font-size:0.85rem; cursor:pointer;
-            transition:background 0.2s; white-space:nowrap;
-        }
+        .dropdown-item { display:flex; align-items:center; gap:10px; padding:8px 16px; color:var(--text-secondary); font-size:0.85rem; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
         .dropdown-item:hover { background:rgba(128,128,128,0.2); color:var(--text-primary); }
         .dropdown-item svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
-        .hamburger-icon, .icon-btn {
-            background:var(--btn-icon-bg); border:none; color:var(--icon-color);
-            font-size:1.2rem; padding:6px 10px; border-radius:8px;
-            cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; justify-content:center;
-        }
+        .hamburger-icon, .icon-btn { background:var(--btn-icon-bg); border:none; color:var(--icon-color); font-size:1.2rem; padding:6px 10px; border-radius:8px; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; justify-content:center; }
         .hamburger-icon:hover, .icon-btn:hover { background:var(--btn-icon-hover); }
-        .chat-container {
-            flex:1; display:flex; flex-direction:column; max-width:900px;
-            width:100%; margin:0 auto; padding:0.5rem;
-            overflow:hidden; min-height:0; box-sizing:border-box;
-        }
-        .chat-messages {
-            flex:1; overflow-y:auto; padding:0.5rem;
-            display:flex; flex-direction:column; gap:1rem;
-            min-height:0; overflow-x:hidden;
-            transition:background-color 0.3s; border-radius:12px;
-        }
+        .chat-container { flex:1; display:flex; flex-direction:column; max-width:900px; width:100%; margin:0 auto; padding:0.5rem; overflow:hidden; min-height:0; box-sizing:border-box; }
+        .chat-messages { flex:1; overflow-y:auto; padding:0.5rem; display:flex; flex-direction:column; gap:1rem; min-height:0; overflow-x:hidden; transition:background-color 0.3s; border-radius:12px; }
         .chat-container.group-chat .chat-messages { background-color:var(--group-chat-bg); }
         .chat-container.character-chat .chat-messages { background-color:var(--group-chat-bg); }
-        .group-banner {
-            background:var(--bg-card); border:1px solid var(--border-color);
-            border-radius:12px; padding:10px 16px; margin-bottom:8px;
-            text-align:center; color:var(--text-secondary); font-size:0.9rem;
-            width:100%; flex-shrink:0; backdrop-filter:blur(6px);
-        }
+        .group-banner { background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:10px 16px; margin-bottom:8px; text-align:center; color:var(--text-secondary); font-size:0.9rem; width:100%; flex-shrink:0; backdrop-filter:blur(6px); }
         .group-banner strong { color:var(--text-primary); }
-        .message-wrapper {
-            display:flex; flex-direction:column; max-width:85%;
-            width:auto; box-sizing:border-box; transition:background 0.3s;
-        }
+        .message-wrapper { display:flex; flex-direction:column; max-width:85%; width:auto; box-sizing:border-box; transition:background 0.3s; }
         .message-wrapper.highlight { background:var(--highlight-color); border-radius:12px; padding:2px 4px; }
         .message.user { align-self:flex-end; align-items:flex-end; }
         .message.user .bubble { text-align:left; background:var(--bubble-user); color:white; border-bottom-right-radius:0.3rem; }
         .message.ai { align-self:flex-start; align-items:flex-start; }
         .message.ai .bubble { text-align:left; background:var(--bubble-ai); color:var(--text-primary); border-bottom-left-radius:0.3rem; border:1px solid var(--border-color); }
-        .bubble {
-            padding:0.7rem 1rem; border-radius:1.2rem; line-height:1.5;
-            font-size:0.92rem; word-break:break-word; white-space:pre-wrap;
-            overflow-wrap:break-word; width:auto; max-width:100%; display:inline-block;
-        }
-        .thought-section {
-            margin-bottom:8px; background:var(--bg-input); border-radius:8px;
-            padding:6px 10px; border-left:3px solid var(--accent-color);
-        }
-        .thought-header {
-            display:flex; justify-content:space-between; align-items:center;
-            cursor:pointer; user-select:none; color:var(--text-muted);
-            font-size:0.8rem;
-        }
+        .bubble { padding:0.7rem 1rem; border-radius:1.2rem; line-height:1.5; font-size:0.92rem; word-break:break-word; white-space:pre-wrap; overflow-wrap:break-word; width:auto; max-width:100%; display:inline-block; }
+        .thought-section { margin-bottom:8px; background:var(--bg-input); border-radius:8px; padding:6px 10px; border-left:3px solid var(--accent-color); }
+        .thought-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; color:var(--text-muted); font-size:0.8rem; }
         .thought-header:hover { color:var(--text-primary); }
         .thought-header .arrow { display:inline-block; transition:transform 0.2s; font-size:0.7rem; margin-left:6px; }
         .thought-header .arrow.open { transform:rotate(90deg); }
-        .thought-content {
-            font-size:0.8rem; color:var(--text-secondary); padding:6px 0 2px 0;
-            white-space:pre-wrap; word-break:break-word;
-            border-top:1px solid var(--border-color); margin-top:4px; padding-top:6px;
-            display:block;
-        }
+        .thought-content { font-size:0.8rem; color:var(--text-secondary); padding:6px 0 2px 0; white-space:pre-wrap; word-break:break-word; border-top:1px solid var(--border-color); margin-top:4px; padding-top:6px; display:block; }
         .thought-content.hidden { display:none; }
-        .html-preview-wrapper {
-            margin:8px 0; border-radius:8px; background:var(--code-bg);
-            border:1px solid var(--border-color); overflow:hidden;
-        }
-        .html-preview-header {
-            display:flex; justify-content:space-between; align-items:center;
-            padding:6px 12px; background:var(--bg-nav); cursor:pointer;
-            user-select:none; font-size:0.85rem; color:var(--text-secondary);
-        }
+        .html-preview-wrapper { margin:8px 0; border-radius:8px; background:var(--code-bg); border:1px solid var(--border-color); overflow:hidden; }
+        .html-preview-header { display:flex; justify-content:space-between; align-items:center; padding:6px 12px; background:var(--bg-nav); cursor:pointer; user-select:none; font-size:0.85rem; color:var(--text-secondary); }
         .html-preview-header:hover { background:var(--btn-icon-hover); }
         .html-preview-header .arrow { transition:transform 0.2s; display:inline-block; margin-left:6px; }
         .html-preview-header .arrow.open { transform:rotate(90deg); }
-        .html-preview-code {
-            padding:12px; overflow-x:auto; white-space:pre-wrap; word-break:break-word;
-            font-family:'Consolas','Monaco',monospace; font-size:0.8rem;
-            color:var(--text-primary); background:var(--code-bg);
-            display:block; max-height:300px; overflow-y:auto;
-        }
+        .html-preview-code { padding:12px; overflow-x:auto; white-space:pre-wrap; word-break:break-word; font-family:'Consolas','Monaco',monospace; font-size:0.8rem; color:var(--text-primary); background:var(--code-bg); display:block; max-height:300px; overflow-y:auto; }
         .html-preview-code.hidden { display:none; }
-        .html-preview-btn {
-            display:inline-block; margin:8px 12px 12px 12px;
-            padding:4px 16px; background:transparent; color:var(--preview-btn-color);
-            border:1px solid var(--preview-btn-color); border-radius:16px;
-            font-size:0.8rem; cursor:pointer; transition:all 0.2s;
-        }
+        .html-preview-btn { display:inline-block; margin:8px 12px 12px 12px; padding:4px 16px; background:transparent; color:var(--preview-btn-color); border:1px solid var(--preview-btn-color); border-radius:16px; font-size:0.8rem; cursor:pointer; transition:all 0.2s; }
         .html-preview-btn:hover { background:var(--preview-btn-color); color:white; }
-        .preview-modal {
-            display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.85); z-index:300;
-            justify-content:center; align-items:center; padding:20px;
-        }
+        .preview-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; justify-content:center; align-items:center; padding:20px; }
         .preview-modal.active { display:flex; }
-        .preview-content {
-            background:var(--bg-card); width:95%; max-width:1000px;
-            height:90%; border-radius:1rem; overflow:hidden;
-            display:flex; flex-direction:column; border:1px solid var(--border-color);
-        }
-        .preview-header {
-            padding:0.8rem 1rem; background:var(--bg-nav);
-            display:flex; justify-content:space-between; align-items:center;
-            flex-shrink:0; border-bottom:1px solid var(--border-color);
-        }
+        .preview-content { background:var(--bg-card); width:95%; max-width:1000px; height:90%; border-radius:1rem; overflow:hidden; display:flex; flex-direction:column; border:1px solid var(--border-color); }
+        .preview-header { padding:0.8rem 1rem; background:var(--bg-nav); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; border-bottom:1px solid var(--border-color); }
         .preview-header span { font-weight:500; color:var(--text-primary); }
         .preview-iframe { flex:1; border:none; background:white; width:100%; height:100%; }
-        .message-actions {
-            display:flex; gap:4px; justify-content:flex-end; margin-top:4px;
-            opacity:1; flex-wrap:wrap; align-items:center;
-        }
+        .message-actions { display:flex; gap:4px; justify-content:flex-end; margin-top:4px; opacity:1; flex-wrap:wrap; align-items:center; }
         .message.user .message-actions { justify-content:flex-end; }
         .message.ai .message-actions { justify-content:flex-start; }
-        .msg-action {
-            background:var(--btn-icon-bg); border:none; border-radius:8px;
-            padding:4px 6px; cursor:pointer; color:var(--msg-icon-color);
-            position:relative; transition:background 0.2s,color 0.2s;
-            display:inline-flex; align-items:center; justify-content:center;
-            min-width:28px; height:28px; font-family:'Segoe UI','PingFang SC',sans-serif;
-        }
+        .msg-action { background:var(--btn-icon-bg); border:none; border-radius:8px; padding:4px 6px; cursor:pointer; color:var(--msg-icon-color); position:relative; transition:background 0.2s,color 0.2s; display:inline-flex; align-items:center; justify-content:center; min-width:28px; height:28px; font-family:'Segoe UI','PingFang SC',sans-serif; }
         .msg-action:hover { background:var(--accent-color); color:white; }
         .msg-action svg { display:block; stroke:currentColor; }
-        .msg-action .tooltip {
-            visibility:hidden; opacity:0; width:auto; min-width:50px;
-            background:rgba(0,0,0,0.8); color:#fff; text-align:center;
-            border-radius:6px; padding:3px 10px; font-size:0.65rem;
-            position:absolute; bottom:120%; left:50%; transform:translateX(-50%);
-            white-space:nowrap; transition:opacity 0.2s; pointer-events:none;
-        }
-        .msg-action .tooltip::after {
-            content:''; position:absolute; top:100%; left:50%;
-            transform:translateX(-50%);
-            border:4px solid transparent; border-top-color:rgba(0,0,0,0.8);
-        }
+        .msg-action .tooltip { visibility:hidden; opacity:0; width:auto; min-width:50px; background:rgba(0,0,0,0.8); color:#fff; text-align:center; border-radius:6px; padding:3px 10px; font-size:0.65rem; position:absolute; bottom:120%; left:50%; transform:translateX(-50%); white-space:nowrap; transition:opacity 0.2s; pointer-events:none; }
+        .msg-action .tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:4px solid transparent; border-top-color:rgba(0,0,0,0.8); }
         .msg-action:hover .tooltip { visibility:visible; opacity:1; }
-        .token-info {
-            font-size:0.65rem; color:var(--token-info-color); margin-top:2px;
-            padding:0 4px; opacity:0.8; white-space:nowrap;
-            overflow:hidden; text-overflow:ellipsis; max-width:100%;
-        }
+        .token-info { font-size:0.65rem; color:var(--token-info-color); margin-top:2px; padding:0 4px; opacity:0.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
         .message.user .token-info { text-align:right; }
         .message.ai .token-info { text-align:left; }
         .token-info.hidden-token { display:none; }
@@ -363,35 +204,19 @@
         .dot-floating { display:inline-flex; gap:4px; }
         .dot-floating span { width:8px; height:8px; background:var(--text-muted); border-radius:50%; animation:float 1.4s infinite; }
         @keyframes float { 0%,100%{transform:scale(0.6);opacity:0.4;} 50%{transform:scale(1);opacity:1;} }
-        .input-section {
-            flex-shrink:0; background:var(--bg-card); border-radius:1rem;
-            padding:0.8rem; margin-top:0.5rem; position:sticky; bottom:0; z-index:100;
-        }
+        .input-section { flex-shrink:0; background:var(--bg-card); border-radius:1rem; padding:0.8rem; margin-top:0.5rem; position:sticky; bottom:0; z-index:100; }
         .input-row { display:flex; gap:10px; align-items:flex-end; }
         .input-wrapper { flex:1; background:var(--bg-input); border-radius:24px; padding:6px 12px; border:1px solid var(--border-color); }
         textarea { width:100%; background:transparent; border:none; color:var(--text-primary); font-size:0.9rem; font-family:inherit; resize:none; outline:none; }
         .send-btn { background:linear-gradient(135deg,#3b6e62,#2c554a); border:none; color:white; padding:6px 16px; border-radius:24px; cursor:pointer; }
         .action-buttons { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
-        .action-btn {
-            background:var(--btn-icon-bg); border:1px solid var(--border-color);
-            color:var(--text-primary); padding:4px 12px; border-radius:20px;
-            font-size:0.75rem; cursor:pointer;
-        }
+        .action-btn { background:var(--btn-icon-bg); border:1px solid var(--border-color); color:var(--text-primary); padding:4px 12px; border-radius:20px; font-size:0.75rem; cursor:pointer; }
         .action-btn.active { background:var(--accent-color); color:white; border-color:var(--accent-color); }
         .action-btn.preview-active { background:var(--accent-color); color:white; border-color:var(--accent-color); }
         .welcome-message { text-align:center; color:var(--text-muted); background:rgba(128,128,128,0.1); padding:1rem; border-radius:1rem; }
-        .modal-overlay {
-            display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.7); z-index:200;
-            justify-content:center; align-items:center; padding:16px; box-sizing:border-box;
-        }
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:200; justify-content:center; align-items:center; padding:16px; box-sizing:border-box; }
         .modal-overlay.active { display:flex; }
-        .modal-container {
-            background:var(--bg-card); width:100%; max-width:500px;
-            max-height:85vh; border-radius:1.5rem; overflow-y:auto;
-            border:1px solid var(--border-color); backdrop-filter:blur(10px);
-            box-sizing:border-box; padding:0;
-        }
+        .modal-container { background:var(--bg-card); width:100%; max-width:500px; max-height:85vh; border-radius:1.5rem; overflow-y:auto; border:1px solid var(--border-color); backdrop-filter:blur(10px); box-sizing:border-box; padding:0; }
         .modal-header { display:flex; justify-content:space-between; align-items:center; padding:1rem; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:8px; }
         .modal-header h3 { color:#a3e0d0; font-size:1.1rem; margin:0; }
         .modal-close { background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-secondary); }
@@ -508,6 +333,7 @@
 </head>
 <body>
 <div class="app-wrapper">
+    <!-- 侧边栏 -->
     <div class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header"><h3>My DeepSeek</h3></div>
         <div class="sidebar-nav">
@@ -526,6 +352,8 @@
             <button class="footer-btn" id="settingsFooterBtn">⚙️ 设置</button>
         </div>
     </div>
+
+    <!-- 主内容区 -->
     <div class="main-content expanded" id="mainContent">
         <div class="top-nav">
             <div class="top-nav-left"><button class="hamburger-icon" id="toggleSidebarBtn">☰</button></div>
@@ -549,6 +377,7 @@
                 <button class="icon-btn" id="searchIconBtn">🔍</button>
             </div>
         </div>
+
         <div id="chatPanel" class="chat-container">
             <div class="chat-messages" id="chatMessages">
                 <div id="groupBanner" class="group-banner" style="display:none;"></div>
@@ -567,6 +396,8 @@
         </div>
     </div>
 </div>
+
+<!-- ===== 模态框 ===== -->
 <div id="genericModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3 id="modalTitle">标题</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body" id="modalBody"></div><div class="modal-footer" id="modalFooter"></div></div></div>
 <div id="settingsModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>⚙️ 设置</h3><button class="modal-close" onclick="closeSettingsModal()">✕</button></div><div class="modal-body" id="settingsBody"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeSettingsModal()">取消</button><button class="btn-save" id="saveSettingsBtn">保存并关闭</button></div></div></div>
 <div id="apiKeyModal" class="modal-overlay"><div class="modal-container" style="max-width:400px"><div class="modal-header"><h3>🔑 设置 API Key</h3><button class="modal-close" onclick="closeApiKeyModal()">✕</button></div><div class="modal-body"><p style="margin-bottom:12px">请填写你的 DeepSeek API Key：</p><input type="password" id="firstApiKey" placeholder="sk-..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); padding:8px; border-radius:20px; color:var(--text-primary);"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeApiKeyModal()">稍后</button><button class="btn-save" id="saveFirstApiKeyBtn">保存</button></div></div></div>
@@ -575,10 +406,12 @@
 <div id="editMessageModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>✏️ 编辑消息</h3><button class="modal-close" onclick="closeEditMessageModal()">✕</button></div><div class="modal-body"><textarea id="editMessageInput" rows="4" style="width:100%;background:var(--bg-input);border:1px solid var(--border-color);border-radius:12px;padding:10px;color:var(--text-primary);resize:vertical;font-size:0.95rem;box-sizing:border-box;"></textarea></div><div class="modal-footer"><button class="btn-secondary" onclick="closeEditMessageModal()">取消</button><button class="btn-save" id="saveEditMessageBtn">保存并重新生成</button></div></div></div>
 <div id="previewWebModal" class="modal-overlay preview-web-modal"><div class="modal-container"><div class="modal-header"><h3>🌐 预览网页 · 把创意变成能看见的页面</h3><button class="modal-close" onclick="closePreviewWebModal()">✕</button></div><div class="modal-body"><div class="preview-web-desc">开启后，AI 的回答会自动变成一个真实可预览的网页——无论是角色资料卡、同人作品展示页，还是一张纪念你和 CP 故事的"证件"，生成完成后一键预览即可。<br><br><strong>不用懂代码，描述你想要的样子就行。</strong></div><div class="preview-example-box"><div class="preview-example-header"><span class="preview-example-label">📌 指令示例</span><div class="preview-example-actions"><button class="preview-example-btn" id="refreshExampleBtn" title="换一个示例">🔄<span class="tooltip">换一个示例</span></button><button class="preview-example-btn" id="copyExampleBtn" title="复制到输入框">📋<span class="tooltip">复制到输入框</span></button></div></div><div id="previewExampleText" class="preview-example-text"></div></div><button class="preview-start-btn" id="startCreationBtn">✨ 好，开始创作</button></div></div></div>
 <div id="previewModal" class="preview-modal"><div class="preview-content"><div class="preview-header"><span>🌐 HTML 预览</span><button class="icon-btn" onclick="closePreview()" style="background:none">✕</button></div><iframe id="previewIframe" class="preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe></div></div>
+
 <script>
 // ============================================================
-// 完整 JavaScript（所有功能）
+// 完整 JavaScript —— 所有功能已完整实现
 // ============================================================
+
 let DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key') || '';
 let deepThinkEnabled = false;
 let previewModeEnabled = false;
@@ -608,6 +441,7 @@ const examples = [
     '创作一张"纪念日"主题的网页，包含日期、标题、照片墙（用 emoji 代替）、回忆文字、音乐推荐，用 HTML 和 CSS 实现，风格温馨怀旧。'
 ];
 
+// ---- 工具函数 ----
 function estimateTokens(text) {
     if (!text) return 0;
     const chineseCount = (text.match(/[\u4e00-\u9fa5]/g)||[]).length;
@@ -631,7 +465,7 @@ function updateStorageInfo() {
 }
 function scrollToBottom() { const c=document.getElementById('chatMessages'); if(c) c.scrollTop=c.scrollHeight; }
 
-// ---- 预览网页 ----
+// ---- 预览网页引导 ----
 function updateExampleDisplay() {
     const container=document.getElementById('previewExampleText');
     if(container) container.innerHTML = examples[exampleIndex].replace(/\*\*/g,'<strong>**</strong>');
@@ -662,13 +496,15 @@ function startCreation() {
     document.getElementById('userInput').focus();
 }
 function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
+
+// ---- 深度思考切换 ----
 function toggleDeepThink() {
     deepThinkEnabled=!deepThinkEnabled;
     document.getElementById('deepThinkBtn').classList.toggle('active');
     if(deepThinkEnabled && previewModeEnabled){ previewModeEnabled=false; updatePreviewBtnState(); }
 }
 
-// ---- 重新生成 ----
+// ---- 重新生成（核心功能1） ----
 async function regenerateAI(msgId) {
     const conv=conversations.find(c=>c.id==currentConvId);
     if(!conv) return;
@@ -692,7 +528,7 @@ async function regenerateAI(msgId) {
 }
 function recalcConvTokens(conv){ let total=0; conv.messages.forEach(m=>{ if(m.tokens) total+=m.tokens; }); conv.totalTokens=total; }
 
-// ---- 保存消息 ----
+// ---- 保存消息（支持思考内容） ----
 function saveMessageToCurrentConv(role, content, thought=null, thoughtElapsed=null) {
     let conv=conversations.find(c=>c.id==currentConvId);
     if(!conv) return null;
@@ -720,7 +556,7 @@ function addThinkingMessage() {
 }
 function removeThinkingMessage(id){ const el=document.getElementById(id); if(el) el.remove(); }
 
-// ---- 渲染消息 ----
+// ---- 渲染消息（核心功能2和3） ----
 function renderMessage(msg, idx) {
     const container=document.getElementById('chatMessages');
     const wrapper=document.createElement('div');
@@ -730,14 +566,18 @@ function renderMessage(msg, idx) {
     const bubbleDiv=document.createElement('div');
     bubbleDiv.className='bubble';
     let bubbleHtml='';
-    // 深度思考
+
+    // 【2】深度思考显示
     if(msg.role==='ai' && msg.thought && deepThinkEnabled) {
         const thoughtId='thought-'+msgId;
         const elapsed=msg.thoughtElapsed ? `（用时 ${msg.thoughtElapsed} 秒）` : '';
         bubbleHtml += `<div class="thought-section"><div class="thought-header" onclick="toggleThought('${thoughtId}')"><span>💭 已思考 ${elapsed}</span><span class="arrow open" id="arrow-${thoughtId}">▶</span></div><div class="thought-content" id="${thoughtId}">${escapeHtml(msg.thought)}</div></div>`;
     }
-    let contentHtml=escapeHtml(msg.content).replace(/\n/g,'<br>');
-    // 预览网页折叠
+
+    // 正文
+    let contentHtml = escapeHtml(msg.content).replace(/\n/g,'<br>');
+
+    // 【3】预览网页折叠
     if(previewModeEnabled && msg.role==='ai') {
         const htmlRegex=/```html\s*([\s\S]*?)\s*```/i;
         const match=msg.content.match(htmlRegex);
@@ -747,15 +587,28 @@ function renderMessage(msg, idx) {
             const after=msg.content.substring(match.index+match[0].length);
             let beforeHtml=escapeHtml(before).replace(/\n/g,'<br>');
             let afterHtml=escapeHtml(after).replace(/\n/g,'<br>');
-            const foldedHtml=`<div class="html-preview-wrapper"><div class="html-preview-header" onclick="toggleCode('${codeId}')"><span>📄 HTML 代码 <span class="arrow open" id="arrow-${codeId}">▼</span></span></div><div class="html-preview-code" id="${codeId}">${escapeHtml(code)}</div><button class="html-preview-btn" onclick="previewAsWebpage('${escapeHtml(code)}')">点击预览效果</button></div>`;
+            const foldedHtml=`
+                <div class="html-preview-wrapper">
+                    <div class="html-preview-header" onclick="toggleCode('${codeId}')">
+                        <span>📄 HTML 代码 <span class="arrow open" id="arrow-${codeId}">▼</span></span>
+                    </div>
+                    <div class="html-preview-code" id="${codeId}">${escapeHtml(code)}</div>
+                    <button class="html-preview-btn" onclick="previewAsWebpage('${escapeHtml(code)}')">点击预览效果</button>
+                </div>
+            `;
             contentHtml = beforeHtml + foldedHtml + afterHtml;
         }
     }
-    bubbleDiv.innerHTML=contentHtml;
+
+    bubbleDiv.innerHTML = contentHtml;
     wrapper.appendChild(bubbleDiv);
+
+    // ---- 操作按钮（AI消息使用重新生成图标） ----
     const actionsDiv=document.createElement('div');
     actionsDiv.className='message-actions';
+
     if(msg.role==='ai') {
+        // 【1】重新生成按钮（替换编辑）
         actionsDiv.innerHTML=`
             <button class="msg-action" onclick="regenerateAI('${msgId}')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -777,6 +630,7 @@ function renderMessage(msg, idx) {
             </button>
         `;
     } else {
+        // 用户消息保留编辑按钮
         actionsDiv.innerHTML=`
             <button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
@@ -796,6 +650,7 @@ function renderMessage(msg, idx) {
         `;
     }
     wrapper.appendChild(actionsDiv);
+
     if(msg.tokenInfo) {
         const tokenDiv=document.createElement('div');
         tokenDiv.className='token-info'+(showTokenEstimate?'':' hidden-token');
@@ -804,15 +659,29 @@ function renderMessage(msg, idx) {
     }
     container.appendChild(wrapper);
 }
-window.toggleThought=function(id){ const el=document.getElementById(id); if(!el)return; el.classList.toggle('hidden'); const arrow=document.getElementById('arrow-'+id); if(arrow) arrow.classList.toggle('open'); };
-window.toggleCode=function(id){ const el=document.getElementById(id); if(!el)return; el.classList.toggle('hidden'); const arrow=document.getElementById('arrow-'+id); if(arrow) arrow.classList.toggle('open'); };
+
+// ---- 折叠控制 ----
+window.toggleThought=function(id){
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.classList.toggle('hidden');
+    const arrow=document.getElementById('arrow-'+id);
+    if(arrow) arrow.classList.toggle('open');
+};
+window.toggleCode=function(id){
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.classList.toggle('hidden');
+    const arrow=document.getElementById('arrow-'+id);
+    if(arrow) arrow.classList.toggle('open');
+};
 window.previewAsWebpage=function(htmlContent){
     const decoded=htmlContent.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
     document.getElementById('previewIframe').srcdoc=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${decoded}</body></html>`;
     document.getElementById('previewModal').classList.add('active');
 };
 
-// ---- 发送消息 ----
+// ---- 发送消息（包含深度思考请求） ----
 async function sendMessageWithContext(content) {
     DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
     if(!DEEPSEEK_API_KEY){ alert('请先设置API Key'); return; }
@@ -832,6 +701,7 @@ async function sendMessageWithContext(content) {
         let messagesToSend=historyMessages;
         if(memoryStrategy==='window' && messagesToSend.length>20) messagesToSend=messagesToSend.slice(-20);
         let systemPrompt=null;
+        // 群聊逻辑
         if(conv.isGroup && conv.groupMemberIds && conv.groupMemberIds.length>0){
             const selectedRoles=roles.filter(r=>conv.groupMemberIds.includes(r.id));
             if(selectedRoles.length>0){
@@ -848,6 +718,7 @@ async function sendMessageWithContext(content) {
                 else systemPrompt+='\n回复时，请直接以【角色名】：... 的格式输出每个角色的发言，不需要思考过程。每个角色都必须根据其设定独立发言。';
             }
         }
+        // 角色对话逻辑
         if(conv.isCharacter && conv.characterId){
             const role=roles.find(r=>r.id==conv.characterId);
             if(role){
@@ -862,8 +733,13 @@ async function sendMessageWithContext(content) {
             }
         }
         if(systemPrompt) messagesToSend.unshift({role:'system', content:systemPrompt});
+
         const requestBody={ model:currentModel, messages:messagesToSend, stream:false };
-        if(deepThinkEnabled){ requestBody.reasoning_effort='high'; requestBody.extra_body={ thinking:{ type:'enabled' } }; }
+        if(deepThinkEnabled){
+            requestBody.reasoning_effort='high';
+            requestBody.extra_body={ thinking:{ type:'enabled' } };
+        }
+
         const startTime=Date.now();
         const response=await fetch(API_URL, {
             method:'POST',
@@ -875,11 +751,13 @@ async function sendMessageWithContext(content) {
         const aiContent=data.choices[0].message.content;
         const reasoningContent=data.choices[0].message.reasoning_content||null;
         const elapsedSeconds=((Date.now()-startTime)/1000).toFixed(1);
+
         const aiCharCount=countChars(aiContent), aiTokens=estimateTokens(aiContent);
         const reasoningCharCount=reasoningContent?countChars(reasoningContent):0;
         const reasoningTokens=reasoningContent?estimateTokens(reasoningContent):0;
         const totalAITokens=aiTokens+reasoningTokens;
         let aiTokenInfo=reasoningContent?`思考 ${reasoningCharCount} 字，正文 ${aiCharCount} 字，约 ${totalAITokens} tokens`:`正文 ${aiCharCount} 字，约 ${aiTokens} tokens`;
+
         removeThinkingMessage(thinkId);
         const aiMsgId=saveMessageToCurrentConv('assistant', aiContent, reasoningContent, elapsedSeconds);
         const aiMsg=conv.messages.find(m=>m.id==aiMsgId);
@@ -907,7 +785,6 @@ function addMessageToDOM(content, role, thought=null, tokenInfo=null) {
     wrapper.appendChild(bubbleDiv);
     const actionsDiv=document.createElement('div');
     actionsDiv.className='message-actions';
-    // 简化的操作按钮（出错时）
     actionsDiv.innerHTML=`<button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="tooltip">复制</span></button>`;
     wrapper.appendChild(actionsDiv);
     if(tokenInfo){ const td=document.createElement('div'); td.className='token-info'+(showTokenEstimate?'':' hidden-token'); td.textContent=tokenInfo; wrapper.appendChild(td); }
@@ -920,6 +797,22 @@ async function sendMessage() {
     if(!msg) return;
     await sendMessageWithContext(msg);
     inp.value='';
+}
+
+// ---- 释放空间（功能2） ----
+function releaseThoughtSpace(convId){
+    const conv=conversations.find(c=>c.id==convId);
+    if(!conv) return;
+    let released=false;
+    conv.messages.forEach(msg=>{
+        if(msg.role==='ai' && msg.thought){
+            delete msg.thought;
+            delete msg.thoughtElapsed;
+            released=true;
+        }
+    });
+    if(released){ saveConversations(); if(currentConvId===convId) loadCurrentConversation(); alert('已释放该对话中的深度思考内容。'); }
+    else alert('该对话没有可释放的内容（没有深度思考过程）。');
 }
 
 // ---- 对话管理 ----
@@ -1005,14 +898,6 @@ function saveRename(){
     if(!newName){ alert('名称不能为空'); return; }
     if(renameConvId){ const conv=conversations.find(c=>c.id==renameConvId); if(conv){ conv.title=newName; saveConversations(); renderHistoryList(); } }
     closeModal(); renameConvId=null;
-}
-function releaseThoughtSpace(convId){
-    const conv=conversations.find(c=>c.id==convId);
-    if(!conv) return;
-    let released=false;
-    conv.messages.forEach(msg=>{ if(msg.role==='ai' && msg.thought){ delete msg.thought; delete msg.thoughtElapsed; released=true; } });
-    if(released){ saveConversations(); if(currentConvId===convId) loadCurrentConversation(); alert('已释放该对话中的深度思考内容。'); }
-    else alert('该对话没有可释放的内容（没有深度思考过程）。');
 }
 function deleteMessage(msgId){
     if(!confirm('确定删除这条消息吗？')) return;
@@ -1624,6 +1509,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
         this.style.height=Math.min(this.scrollHeight,100)+'px';
     });
 });
+
+console.log('✅ 完整功能已加载：重新生成、深度思考显示与释放、预览网页折叠。');
 </script>
 </body>
 </html>
