@@ -184,7 +184,7 @@
             }
         }
 
-        /* 下拉菜单 - 绝对定位，右边缘对齐父容器（.history-item）的右边缘，由 JS 控制 top */
+        /* 下拉菜单 - 绝对定位，右边缘对齐父容器 */
         .history-dropdown {
             display: none;
             position: absolute;
@@ -631,6 +631,11 @@
             color: var(--text-primary); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;
         }
         .action-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .action-btn.preview-active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
         .welcome-message { text-align: center; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 1rem; border-radius: 1rem; }
 
         /* 通用模态框 */
@@ -1292,11 +1297,33 @@
             color: var(--text-muted);
         }
 
-        /* ===== 预览网页按钮高亮状态 ===== */
-        .action-btn.preview-active {
+        /* ===== 预览按钮消息样式 ===== */
+        .preview-btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            gap: 6px;
+        }
+        .preview-btn-wrapper .preview-hint {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .preview-btn-wrapper .preview-run-btn {
             background: var(--accent-color);
             color: white;
-            border-color: var(--accent-color);
+            border: none;
+            padding: 8px 28px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .preview-btn-wrapper .preview-run-btn:hover {
+            background: var(--accent-hover);
+        }
+        .preview-btn-wrapper .preview-run-btn:active {
+            transform: scale(0.96);
         }
     </style>
 </head>
@@ -1376,7 +1403,7 @@
                 </div>
                 <div class="action-buttons">
                     <button class="action-btn" id="deepThinkBtn" onclick="toggleDeepThink()">🧠 深度思考</button>
-                    <button class="action-btn" id="previewModeBtn" onclick="openPreviewWebModal()">🔮 预览网页</button>
+                    <button class="action-btn" id="previewModeBtn" onclick="togglePreviewMode()">🔮 预览网页</button>
                 </div>
             </div>
         </div>
@@ -1576,7 +1603,7 @@
         const mainContent = document.getElementById('mainContent');
         if (mainContent) {
             mainContent.addEventListener('click', () => {
-                // 【需求4】只在手机端自动收起侧边栏
+                // 只在手机端自动收起侧边栏
                 if (window.innerWidth <= 768) {
                     const sidebar = document.getElementById('sidebar');
                     if (!sidebar.classList.contains('collapsed')) {
@@ -1675,7 +1702,6 @@
         });
         document.getElementById('startCreationBtn').addEventListener('click', startCreation);
 
-        // 预览网页按钮初始状态
         updatePreviewBtnState();
     });
 
@@ -1704,12 +1730,10 @@
 
     // ===== 预览网页相关函数 =====
     function openPreviewWebModal() {
-        // 【需求3】点击预览网页时，自动关闭深度思考
         if (deepThinkEnabled) {
             deepThinkEnabled = false;
             document.getElementById('deepThinkBtn').classList.remove('active');
         }
-        // 打开引导弹窗
         currentExampleIndex = Math.floor(Math.random() * previewExamples.length);
         updateExampleDisplay();
         document.getElementById('previewWebModal').classList.add('active');
@@ -1717,13 +1741,11 @@
 
     function closePreviewWebModal() {
         document.getElementById('previewWebModal').classList.remove('active');
-        // 【需求3】关闭弹窗后，预览网页按钮亮起，开启预览模式
         previewModeEnabled = true;
         updatePreviewBtnState();
     }
 
     function togglePreviewMode() {
-        // 如果当前已开启则关闭，否则打开引导弹窗
         if (previewModeEnabled) {
             previewModeEnabled = false;
             updatePreviewBtnState();
@@ -1741,27 +1763,58 @@
         }
     }
 
-    // 【需求3】检测AI回复中的HTML代码并自动预览
+    // 【需求3】AI回复后生成"点击预览"按钮
     function autoPreviewHTML(content) {
         if (!previewModeEnabled) return;
-        // 检测是否包含HTML代码块
         const htmlMatch = content.match(/```html\s*([\s\S]*?)\s*```/i);
         if (htmlMatch) {
             const htmlContent = htmlMatch[1];
-            // 自动弹出预览
-            const modal = document.getElementById('previewModal');
-            const iframe = document.getElementById('previewIframe');
-            iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${htmlContent}</body></html>`;
-            modal.classList.add('active');
+            // 在聊天消息中插入一个可点击的预览按钮
+            addPreviewButtonMessage(htmlContent);
         }
     }
 
+    function addPreviewButtonMessage(htmlContent) {
+        const container = document.getElementById('chatMessages');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-wrapper message ai';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        // 对 htmlContent 进行转义，防止 XSS
+        const escapedHtml = escapeHtml(htmlContent);
+        bubble.innerHTML = `
+            <div class="preview-btn-wrapper">
+                <div class="preview-hint">✅ 网页已生成，点击下方按钮预览</div>
+                <button class="preview-run-btn" onclick="previewAsWebpage('${escapedHtml}')">🌐 点击预览</button>
+            </div>
+        `;
+        wrapper.appendChild(bubble);
+        container.appendChild(wrapper);
+        scrollToBottom();
+    }
+
+    // ===== 预览网页 =====
+    function previewAsWebpage(htmlContent) {
+        // 解码转义字符
+        const decoded = htmlContent.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        const modal = document.getElementById('previewModal');
+        const iframe = document.getElementById('previewIframe');
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${decoded}</body></html>`;
+        modal.classList.add('active');
+    }
+
+    function closePreview() {
+        document.getElementById('previewModal').classList.remove('active');
+    }
+
+    // 【需求3】点击"好，开始创作"只填入输入框，不自动发送
     function startCreation() {
         closePreviewWebModal();
         const text = previewExamples[currentExampleIndex];
         document.getElementById('userInput').value = text;
         document.getElementById('userInput').dispatchEvent(new Event('input'));
-        sendMessage();
+        document.getElementById('userInput').focus();
+        // 不自动发送，让用户自己点击发送
     }
 
     // ==================== 群聊创建面板 ====================
@@ -1839,7 +1892,6 @@
         loadCurrentConversation();
         closeModal();
 
-        // 群聊创建后输入框保持空白，并自动获得焦点
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
         document.getElementById('userInput').focus();
@@ -1895,7 +1947,6 @@
         loadCurrentConversation();
         closeModal();
 
-        // 输入框保持空白，自动获得焦点
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
         document.getElementById('userInput').focus();
@@ -2153,7 +2204,6 @@
     }
 
     function showFullFavorite(content, convTitle) {
-        // 不再关闭收藏栏，仅打开原文弹窗
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = `📖 原文 - ${convTitle || '收藏'}`;
         document.getElementById('modalBody').innerHTML = `
@@ -2282,18 +2332,6 @@
         closeEditMessageModal();
         await sendMessageWithContext(newContent);
     }
-
-    // ==================== 预览网页 ====================
-    function previewAsWebpage(content) {
-        let htmlContent = content;
-        const codeBlockMatch = content.match(/```html?([\s\S]*?)```/i);
-        if (codeBlockMatch) htmlContent = codeBlockMatch[1];
-        const modal = document.getElementById('previewModal');
-        const iframe = document.getElementById('previewIframe');
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${htmlContent}</body></html>`;
-        modal.classList.add('active');
-    }
-    function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
 
     // ==================== 指令 & 角色数据 ====================
     function loadInstructions() {
@@ -2782,7 +2820,7 @@
     }
     function saveConversations() { localStorage.setItem('my_conversations', JSON.stringify(conversations)); updateStorageInfo(); renderHistoryList(); }
 
-    // ========== 渲染历史列表（置顶 + 三点菜单 + 长按） ==========
+    // ========== 渲染历史列表 ==========
     function renderHistoryList() {
         const container = document.getElementById('historyList');
         if (!container) return;
@@ -2811,7 +2849,6 @@
                 >
                     <span class="history-title">${escapedTitle}</span>
                     <div class="history-actions">
-                        <!-- 三点 SVG 图标 -->
                         <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <circle cx="6" cy="12" r="2"/>
@@ -2819,7 +2856,6 @@
                                 <circle cx="18" cy="12" r="2"/>
                             </svg>
                         </button>
-                        <!-- 下拉菜单 - 绝对定位在 .history-item 内，右对齐 -->
                         <div class="history-dropdown" id="dropdown_${conv.id}">
                             <div class="history-dropdown-item" onclick="event.stopPropagation(); togglePin('${conv.id}'); closeAllDropdowns();">
                                 <span class="icon">${pinIcon}</span> ${pinLabel}
@@ -2880,13 +2916,11 @@
         }
     }
 
-    // ===== 显示下拉菜单（共用） =====
     function showDropdownForItem(convId) {
         closeAllDropdowns();
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
 
-        // 获取父级 .history-item
         const item = dropdown.closest('.history-item');
         if (!item) return;
 
@@ -2894,17 +2928,13 @@
         const menuHeight = dropdown.scrollHeight || 200;
         const viewportHeight = window.innerHeight;
 
-        // 计算 top：根据 item 在视口中的位置决定向下或向上展开
         let top;
         if (rect.top < viewportHeight / 2) {
-            // 在上半部分，向下展开
-            top = item.offsetHeight + 4; // 相对于 item 顶部
-            // 如果超出底部，则改为向上
+            top = item.offsetHeight + 4;
             if (rect.top + top + menuHeight > viewportHeight - 10) {
                 top = -menuHeight - 4;
             }
         } else {
-            // 在下半部分，向上展开
             top = -menuHeight - 4;
             if (rect.top + top < 10) {
                 top = item.offsetHeight + 4;
@@ -2933,15 +2963,6 @@
     function showDropdownForConv(event, convId) {
         event.preventDefault();
         showDropdownForItem(convId);
-    }
-
-    function closeAllDropdowns() {
-        document.querySelectorAll('.history-dropdown.open').forEach(d => {
-            d.classList.remove('open');
-            d.style.top = '';
-            d.style.bottom = '';
-        });
-        currentOpenDropdown = null;
     }
 
     function togglePin(convId) {
@@ -3021,11 +3042,10 @@
         }
     }
 
-    // ==================== 【需求1 + 需求2】删除消息优化 ====================
+    // ==================== 【需求2】删除消息优化 ====================
     window.deleteMessage = function(msgId) {
         if (!confirm('确定删除这条消息吗？')) return;
 
-        // 记录当前滚动位置
         const container = document.getElementById('chatMessages');
         const scrollPos = container.scrollTop;
 
@@ -3047,7 +3067,6 @@
             msgElement.remove();
         }
 
-        // 保存数据
         saveConversations();
 
         // 恢复滚动位置
@@ -3059,13 +3078,11 @@
         const conv = conversations.find(c => c.id == currentConvId);
         if (conv && conv.messages.length === 0) {
             const container2 = document.getElementById('chatMessages');
-            // 移除可能残留的欢迎语
             const oldWelcome = container2.querySelector('.welcome-message');
             if (oldWelcome) oldWelcome.remove();
             const welcome = document.createElement('div');
             welcome.className = 'welcome-message';
             welcome.textContent = '✨ 欢迎！输入你的问题，我会用心回答你 ✨';
-            // 横幅后面插入
             const banner = document.getElementById('groupBanner');
             if (banner && banner.nextSibling) {
                 container2.insertBefore(welcome, banner.nextSibling);
@@ -3096,7 +3113,7 @@
         closeAllDropdowns();
     };
 
-    // ==================== 加载当前对话（含角色对话横幅和皮肤） ====================
+    // ==================== 加载当前对话 ====================
     function loadCurrentConversation() {
         const conv = conversations.find(c => c.id == currentConvId);
         const container = document.getElementById('chatMessages');
@@ -3150,12 +3167,13 @@
         refreshTokenDisplay();
     }
 
-    // ==================== renderMessage ====================
+    // ==================== renderMessage（修复ID问题） ====================
     function renderMessage(msg, idx) {
         const container = document.getElementById('chatMessages');
         const wrapper = document.createElement('div');
         wrapper.className = `message-wrapper message ${msg.role}`;
-        const msgId = msg.id || (msg.id = Date.now() + '-' + idx);
+        // 【修复】直接使用消息存储的真实 ID
+        const msgId = msg.id;
         wrapper.setAttribute('data-msgid', msgId);
 
         const bubbleDiv = document.createElement('div');
@@ -3226,17 +3244,56 @@
         else addFavorite(convId, id, content, role, convTitle);
     };
     window.copyMessage = (txt) => { navigator.clipboard.writeText(txt); alert('已复制'); };
+
+    // ==================== 【需求2】重新生成功能修复 ====================
     window.regenerateAI = async (msgId) => {
         const conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
+
+        // 查找消息索引
         const msgIndex = conv.messages.findIndex(m => m.id == msgId);
-        if (msgIndex <= 0) return;
+        if (msgIndex <= 0) {
+            alert('无法重新生成：未找到对应的用户消息');
+            return;
+        }
+
+        // 前一条必须是用户消息
         const userMsg = conv.messages[msgIndex - 1];
-        if (!userMsg || userMsg.role !== 'user') return;
+        if (!userMsg || userMsg.role !== 'user') {
+            alert('无法重新生成：前一条消息不是用户消息');
+            return;
+        }
+
+        // 获取当前消息所在位置，以便删除后保持滚动
+        const container = document.getElementById('chatMessages');
+        const scrollPos = container.scrollTop;
+        const msgElement = document.querySelector(`.message-wrapper[data-msgid="${msgId}"]`);
+
+        // 删除该消息及之后的所有消息（即重新生成点之后的内容）
         conv.messages = conv.messages.slice(0, msgIndex);
+        // 从 DOM 中移除该消息及之后的消息
+        if (msgElement) {
+            // 找到当前消息节点，移除它及其后面的兄弟节点
+            let next = msgElement.nextSibling;
+            while (next) {
+                const toRemove = next;
+                next = next.nextSibling;
+                if (toRemove.classList && toRemove.classList.contains('message-wrapper')) {
+                    toRemove.remove();
+                }
+            }
+            msgElement.remove();
+        }
+
         recalcConvTokens(conv);
         saveConversations();
-        loadCurrentConversation();
+
+        // 恢复滚动位置
+        setTimeout(() => {
+            container.scrollTop = scrollPos;
+        }, 10);
+
+        // 重新发送用户消息
         await sendMessageWithContext(userMsg.content);
     };
 
@@ -3248,7 +3305,7 @@
         conv.totalTokens = totalTokens;
     }
 
-    // ==================== 发送消息（含群聊、角色对话、预览网页） ====================
+    // ==================== 【需求1】深度思考功能完善 + 发送消息 ====================
     async function sendMessageWithContext(content) {
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
         if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
@@ -3262,7 +3319,7 @@
         const totalInputTokens = userTokens + historyTokens;
         const userTokenInfo = `本次正文 ${userCharCount} 字，约 ${userTokens} tokens；历史记忆约 ${historyTokens} tokens；本轮输入共约 ${totalInputTokens} tokens`;
 
-        addMessageToDOM(content, 'user', null, userTokenInfo);
+        // 先添加用户消息到数据并保存
         const userMsgId = saveMessageToCurrentConv('user', content);
         const userMsg = conv.messages.find(m => m.id == userMsgId);
         if (userMsg) {
@@ -3272,6 +3329,9 @@
             conv.totalTokens = (conv.totalTokens || 0) + userTokens;
         }
         saveConversations();
+
+        // 重新加载当前对话以正确显示用户消息
+        loadCurrentConversation();
 
         const thinkId = addThinkingMessage();
         try {
@@ -3333,7 +3393,12 @@
                 messages: messagesToSend,
                 stream: false
             };
-            if (deepThinkEnabled) requestBody.reasoning_effort = "medium";
+
+            // 【需求1】深度思考参数完善
+            if (deepThinkEnabled) {
+                requestBody.reasoning_effort = "high";
+                requestBody.extra_body = { thinking: { type: "enabled" } };
+            }
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -3360,8 +3425,8 @@
             }
 
             removeThinkingMessage(thinkId);
-            addMessageToDOM(aiContent, 'ai', reasoningContent, aiTokenInfo);
 
+            // 使用真实 ID 添加消息
             const aiMsgId = saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
             const aiMsg = conv.messages.find(m => m.id == aiMsgId);
             if (aiMsg) {
@@ -3372,14 +3437,18 @@
                 conv.totalTokens = (conv.totalTokens || 0) + totalAITokens;
             }
             saveConversations();
-            refreshTokenDisplay();
 
-            // 【需求3】检测AI回复中的HTML代码，自动预览
+            // 重新加载以显示新消息（包括预览按钮）
+            loadCurrentConversation();
+
+            // 【需求3】检测AI回复中的HTML代码，生成预览按钮
             if (previewModeEnabled) {
                 setTimeout(() => {
                     autoPreviewHTML(aiContent);
                 }, 300);
             }
+
+            refreshTokenDisplay();
 
         } catch (e) {
             removeThinkingMessage(thinkId);
@@ -3387,45 +3456,7 @@
         }
     }
 
-    function renameConv(id) { showRenameDialog(id); }
-
-    function createNewDialog() {
-        let newId = Date.now().toString();
-        conversations.unshift({ id: newId, title: '新对话', messages: [], totalTokens: 0, pinned: false });
-        currentConvId = newId;
-        saveConversations();
-        loadCurrentConversation();
-    }
-
-    function saveMessageToCurrentConv(role, content, thought = null) {
-        let conv = conversations.find(c => c.id == currentConvId);
-        if (!conv) return;
-        const msgId = Date.now() + '-' + Math.random();
-        const msg = { id: msgId, role, content, thought, timestamp: Date.now() };
-        conv.messages.push(msg);
-        saveConversations();
-
-        if (conv.messages.length === 1 && role === 'user') {
-            const defaultTitles = ['新对话', '群聊'];
-            if (!conv.title || defaultTitles.includes(conv.title) || conv.title === '') {
-                const newTitle = content.substring(0, 20) + (content.length > 20 ? '...' : '');
-                conv.title = newTitle;
-                renderHistoryList();
-                saveConversations();
-            }
-        }
-        return msgId;
-    }
-
-    async function sendMessage() {
-        const inp = document.getElementById('userInput');
-        const msg = inp.value.trim();
-        if (!msg) return;
-        await sendMessageWithContext(msg);
-        inp.value = '';
-    }
-
-    // ==================== addMessageToDOM ====================
+    // ==================== addMessageToDOM（供出错时使用，使用临时ID） ====================
     function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         const container = document.getElementById('chatMessages');
         const welcome = container.querySelector('.welcome-message');
@@ -3499,6 +3530,44 @@
         scrollToBottom();
     }
 
+    function renameConv(id) { showRenameDialog(id); }
+
+    function createNewDialog() {
+        let newId = Date.now().toString();
+        conversations.unshift({ id: newId, title: '新对话', messages: [], totalTokens: 0, pinned: false });
+        currentConvId = newId;
+        saveConversations();
+        loadCurrentConversation();
+    }
+
+    function saveMessageToCurrentConv(role, content, thought = null) {
+        let conv = conversations.find(c => c.id == currentConvId);
+        if (!conv) return;
+        const msgId = Date.now() + '-' + Math.random();
+        const msg = { id: msgId, role, content, thought, timestamp: Date.now() };
+        conv.messages.push(msg);
+        saveConversations();
+
+        if (conv.messages.length === 1 && role === 'user') {
+            const defaultTitles = ['新对话', '群聊'];
+            if (!conv.title || defaultTitles.includes(conv.title) || conv.title === '') {
+                const newTitle = content.substring(0, 20) + (content.length > 20 ? '...' : '');
+                conv.title = newTitle;
+                renderHistoryList();
+                saveConversations();
+            }
+        }
+        return msgId;
+    }
+
+    async function sendMessage() {
+        const inp = document.getElementById('userInput');
+        const msg = inp.value.trim();
+        if (!msg) return;
+        await sendMessageWithContext(msg);
+        inp.value = '';
+    }
+
     function addThinkingMessage() { 
         const container = document.getElementById('chatMessages');
         const id = 'think-' + Date.now(); 
@@ -3516,7 +3585,6 @@
     function toggleDeepThink() {
         deepThinkEnabled = !deepThinkEnabled;
         document.getElementById('deepThinkBtn').classList.toggle('active');
-        // 如果深度思考开启，自动关闭预览网页
         if (deepThinkEnabled && previewModeEnabled) {
             previewModeEnabled = false;
             updatePreviewBtnState();
@@ -3539,11 +3607,6 @@
 
     document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
     document.getElementById('userInput').addEventListener('input', function () { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 100) + 'px'; });
-
-    // 【需求3】预览网页按钮绑定
-    document.getElementById('previewModeBtn').addEventListener('click', togglePreviewMode);
-    // 覆盖原来通过 onclick 调用的 openPreviewWebModal，改用 togglePreviewMode
-    // 但保留 onclick 中的函数名以兼容，实际逻辑在 togglePreviewMode 中
 </script>
 </body>
 </html>
