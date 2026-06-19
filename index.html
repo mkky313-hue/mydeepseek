@@ -28,10 +28,6 @@
             --msg-icon-color: #c0d0e0;
             --group-chat-bg: #0a0a0a;
             --dropdown-bg: rgba(30, 35, 48, 0.98);
-            --thinking-bg: rgba(255, 255, 255, 0.05);
-            --thinking-text: #8899aa;
-            --code-bg: rgba(0, 0, 0, 0.3);
-            --code-border: rgba(255, 255, 255, 0.1);
         }
         [data-theme="light"] {
             --bg-primary: linear-gradient(145deg, #f0f2f5 0%, #e0e4e9 100%);
@@ -54,10 +50,6 @@
             --msg-icon-color: #4a5a6a;
             --group-chat-bg: #e5e7eb;
             --dropdown-bg: rgba(255, 255, 255, 0.98);
-            --thinking-bg: rgba(0, 0, 0, 0.04);
-            --thinking-text: #556677;
-            --code-bg: rgba(0, 0, 0, 0.05);
-            --code-border: rgba(0, 0, 0, 0.1);
         }
 
         * {
@@ -139,7 +131,7 @@
             font-size: 0.85rem;
             background: transparent;
             cursor: pointer;
-            position: relative;
+            position: relative; /* 新增：作为下拉菜单的定位容器 */
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
@@ -156,9 +148,10 @@
             gap: 6px;
             align-items: center;
             flex-shrink: 0;
-            position: relative;
+            position: relative; /* 备用，但我们将菜单放在 .history-item 下 */
         }
 
+        /* 三点菜单按钮 - SVG居中，悬停圆形背景 */
         .history-more-btn {
             background: none;
             border: none;
@@ -184,12 +177,14 @@
             background: var(--btn-icon-bg);
             color: var(--text-primary);
         }
+        /* 手机端隐藏三点按钮 */
         @media (max-width: 768px) {
             .history-more-btn {
                 display: none !important;
             }
         }
 
+        /* 下拉菜单 - 绝对定位，右边缘对齐父容器（.history-item）的右边缘，由 JS 控制 top */
         .history-dropdown {
             display: none;
             position: absolute;
@@ -511,7 +506,6 @@
             color: var(--text-primary);
             border-bottom-left-radius: 0.3rem;
             border: 1px solid var(--border-color);
-            position: relative;
         }
 
         .bubble {
@@ -525,136 +519,6 @@
             width: auto;
             max-width: 100%;
             display: inline-block;
-        }
-
-        /* 深度思考样式 */
-        .thinking-section {
-            background: var(--thinking-bg);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 10px;
-            border-left: 3px solid var(--accent-color);
-        }
-        .thinking-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: var(--thinking-text);
-            cursor: pointer;
-            user-select: none;
-            gap: 8px;
-        }
-        .thinking-header .thinking-time {
-            color: var(--thinking-text);
-            opacity: 0.8;
-        }
-        .thinking-header .thinking-toggle {
-            background: none;
-            border: none;
-            color: var(--thinking-text);
-            cursor: pointer;
-            font-size: 0.8rem;
-            padding: 0 4px;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-        .thinking-header .thinking-toggle:hover {
-            opacity: 1;
-        }
-        .thinking-body {
-            font-size: 0.78rem;
-            color: var(--thinking-text);
-            line-height: 1.6;
-            margin-top: 6px;
-            white-space: pre-wrap;
-            word-break: break-word;
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .thinking-body.collapsed {
-            display: none;
-        }
-
-        /* 代码块折叠样式 */
-        .code-block-wrapper {
-            margin: 8px 0;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--code-border);
-            background: var(--code-bg);
-        }
-        .code-block-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 12px;
-            background: rgba(128,128,128,0.08);
-            cursor: pointer;
-            user-select: none;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            transition: background 0.2s;
-        }
-        .code-block-header:hover {
-            background: rgba(128,128,128,0.15);
-        }
-        .code-block-header .code-lang {
-            font-weight: 500;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-        .code-block-header .code-toggle {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-        .code-block-header .code-toggle svg {
-            width: 16px;
-            height: 16px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            transition: transform 0.2s;
-        }
-        .code-block-header .code-toggle .arrow-up {
-            transform: rotate(180deg);
-        }
-        .code-block-content {
-            padding: 12px;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 0.8rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            white-space: pre-wrap;
-            word-break: break-word;
-            max-height: 400px;
-            overflow-y: auto;
-            background: var(--code-bg);
-        }
-        .code-block-content.collapsed {
-            display: none;
-        }
-        .preview-btn-inline {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 4px 14px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .preview-btn-inline:hover {
-            background: var(--accent-hover);
         }
 
         .message-actions {
@@ -692,8 +556,6 @@
         .msg-action svg {
             display: block;
             stroke: currentColor;
-            width: 16px;
-            height: 16px;
         }
         .msg-action .tooltip {
             visibility: hidden;
@@ -769,11 +631,6 @@
             color: var(--text-primary); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;
         }
         .action-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-        .action-btn.preview-active {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-        }
         .welcome-message { text-align: center; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 1rem; border-radius: 1rem; }
 
         /* 通用模态框 */
@@ -832,6 +689,7 @@
         #genericModal.modal-overlay { z-index: 400; }
         #favoriteModal.modal-overlay { z-index: 350; }
 
+        /* 指令/角色卡片样式 */
         .instruction-card, .role-card {
             background: var(--bg-input);
             border-radius: 1rem;
@@ -1123,38 +981,8 @@
             display: flex;
             flex-direction: column;
         }
-        .preview-header {
-            padding: 0.8rem 1rem;
-            background: var(--bg-card);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-        .preview-header span {
-            font-weight: 500;
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-        .preview-header button {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.4rem;
-            cursor: pointer;
-            padding: 0 4px;
-        }
-        .preview-header button:hover {
-            color: var(--text-primary);
-        }
-        .preview-iframe {
-            flex: 1;
-            border: none;
-            background: white;
-            width: 100%;
-            height: 100%;
-        }
+        .preview-header { padding: 0.8rem; background: var(--bg-card); display: flex; justify-content: space-between; }
+        .preview-iframe { flex: 1; border: none; background: white; }
 
         .export-option {
             display: flex;
@@ -1323,7 +1151,6 @@
             .token-info { font-size: 0.55rem; white-space: normal; }
             .msg-action { padding: 3px 4px; min-width: 24px; height: 24px; }
             .msg-action svg { width: 14px; height: 14px; }
-            .preview-content { width: 95%; height: 80%; }
         }
 
         /* 收藏栏专用样式 */
@@ -1401,6 +1228,7 @@
             margin-top: 6px;
         }
 
+        /* 群聊创建面板复选框 */
         .group-role-checkbox-item {
             display: flex;
             align-items: center;
@@ -1438,6 +1266,7 @@
             margin-top: 4px;
         }
 
+        /* 角色选择列表（用于新建角色对话） */
         .character-select-item {
             display: flex;
             align-items: center;
@@ -1461,100 +1290,6 @@
         .character-select-item .char-desc {
             font-size: 0.8rem;
             color: var(--text-muted);
-        }
-
-        .preview-btn-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 4px 0;
-            gap: 4px;
-        }
-        .preview-btn-wrapper .preview-hint {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-        .preview-btn-wrapper .preview-run-btn {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 4px 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: background 0.2s;
-        }
-        .preview-btn-wrapper .preview-run-btn:hover {
-            background: var(--accent-hover);
-        }
-
-        /* 消息内联代码块折叠 - 用于预览网页 */
-        .inline-code-collapse {
-            margin: 6px 0;
-            border-radius: 6px;
-            border: 1px solid var(--code-border);
-            background: var(--code-bg);
-            overflow: hidden;
-        }
-        .inline-code-collapse .collapse-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 10px;
-            background: rgba(128,128,128,0.06);
-            cursor: pointer;
-            user-select: none;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            transition: background 0.2s;
-        }
-        .inline-code-collapse .collapse-header:hover {
-            background: rgba(128,128,128,0.12);
-        }
-        .inline-code-collapse .collapse-header .arrow-icon {
-            display: inline-block;
-            transition: transform 0.2s;
-        }
-        .inline-code-collapse .collapse-header .arrow-icon.open {
-            transform: rotate(180deg);
-        }
-        .inline-code-collapse .collapse-body {
-            padding: 8px 10px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 0.75rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            white-space: pre-wrap;
-            word-break: break-word;
-            max-height: 300px;
-            overflow-y: auto;
-            background: var(--code-bg);
-        }
-        .inline-code-collapse .collapse-body.collapsed {
-            display: none;
-        }
-        .inline-code-collapse .collapse-body code {
-            font-family: inherit;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        .preview-inline-btn {
-            display: inline-block;
-            margin-top: 6px;
-            padding: 3px 14px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .preview-inline-btn:hover {
-            background: var(--accent-hover);
-        }
-        .preview-inline-btn:active {
-            transform: scale(0.97);
         }
     </style>
 </head>
@@ -1634,7 +1369,7 @@
                 </div>
                 <div class="action-buttons">
                     <button class="action-btn" id="deepThinkBtn" onclick="toggleDeepThink()">🧠 深度思考</button>
-                    <button class="action-btn" id="previewModeBtn" onclick="togglePreviewMode()">🔮 预览网页</button>
+                    <button class="action-btn" id="previewModeBtn" onclick="openPreviewWebModal()">🔮 预览网页</button>
                 </div>
             </div>
         </div>
@@ -1729,10 +1464,7 @@
 <!-- 预览网页弹窗 -->
 <div id="previewWebModal" class="modal-overlay preview-web-modal">
     <div class="modal-container">
-        <div class="modal-header">
-            <h3>🌐 预览网页 · 把创意变成能看见的页面</h3>
-            <button class="modal-close" onclick="closePreviewWebModal()">✕</button>
-        </div>
+        <div class="modal-header"><h3>🌐 预览网页 · 把创意变成能看见的页面</h3><button class="modal-close" onclick="closePreviewWebModal()">✕</button></div>
         <div class="modal-body">
             <div class="preview-web-desc">开启后，AI 的回答会自动变成一个真实可预览的网页——无论是角色资料卡、同人作品展示页，还是一张纪念你和 CP 故事的"证件"，生成完成后一键预览即可。<br><br><strong>不用懂代码，描述你想要的样子就行。</strong></div>
             <div class="preview-example-box">
@@ -1751,15 +1483,7 @@
 </div>
 
 <!-- 预览实际网页 iframe -->
-<div id="previewModal" class="preview-modal">
-    <div class="preview-content">
-        <div class="preview-header">
-            <span>🌐 HTML预览</span>
-            <button onclick="closePreview()" style="background:none;border:none;color:var(--text-secondary);font-size:1.4rem;cursor:pointer;">✕</button>
-        </div>
-        <iframe id="previewIframe" class="preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe>
-    </div>
-</div>
+<div id="previewModal" class="preview-modal"><div class="preview-content"><div class="preview-header"><span>🌐 网页预览</span><button class="icon-btn" onclick="closePreview()" style="background:none">✕</button></div><iframe id="previewIframe" class="preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe></div></div>
 
 <script>
     // ==================== 全局变量 ====================
@@ -1783,6 +1507,7 @@
 
     let currentOpenDropdown = null;
 
+    // ===== Token估算工具函数 =====
     function estimateTokens(text) {
         if (!text) return 0;
         const charCount = text.length;
@@ -1797,15 +1522,15 @@
         return text.length;
     }
 
+    // ===== 预览网页示例列表 =====
     const previewExamples = [
-        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的抖音作品文案内容。每条需体现评论区回复、置顶评论、点赞收藏、合拍 / 转发、短视频 / 图文配景、私密作品、拉黑屏蔽、@好友提醒、发布时间、同城定位、热门话题、作品置顶等抖音平台功能。',
+        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的微博内容。每条需体现转发、评论、点赞、热搜、话题标签、配图 / 长图 / 视频、仅粉丝可见、分组屏蔽、特别关注提醒、发布时间、置顶、私信互动等微博平台功能。',
         '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的贴吧发帖内容。每条需体现楼中楼评论、层主回复、点赞 / 踩、收藏、帖子配图 / 视频、仅吧友可见、拉黑屏蔽、吧内 @提醒、发帖时间、精品帖、置顶帖、楼主追更等贴吧平台功能。',
-        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的朋友圈内容。每条需体现人物评论、回复、点赞、视频、配图、屏蔽、提醒、时间等朋友圈功能。',
-        '做一个 CP 纪念页，标题"我们的第 100 天"，顶部放三张占位图（用灰色方块代替），每张图下写一句短日记，整体用奶油色背景 + 米白卡片，手写体中文字体，有翻页按钮切换不同月份。',
-        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的小红书笔记内容。每条需体现评论区互动、作者回复、点赞收藏、话题标签、图文 / 短视频配图、好友可见、屏蔽用户、@好友提醒、发布时间、笔记置顶、合集收录、私信催更等小红书平台功能。',
-        '做一个同人社团主页，社团名"***"，顶部是社团 logo 占位和一句宣言"写给所有热爱故事的人"，中间是四张成员卡片（昵称、擅长类型、代表作），底部是招新按钮，整体用水墨中国风。',
-        '帮我做一个极简黑白风个人博客首页，顶部是我的名字「**」和一句话简介"****"，中间列出五篇文章标题和发布日期，hover 时标题有下划线动画，底部放三个社交图标。'
-        '做一个角色扮演打卡页，主角是"你今天扮演的自己"，顶部一个大标题"Day 42"，中间三个打卡区块：今日心情、今日台词、今日小剧场，每个区块配一个表情 emoji 和一句引导语，背景用浅粉渐变。'
+        '设计一个角色资料卡页面，包含头像（用 🧑‍🎤 表情代替）、姓名、年龄、身份、性格标签、背景故事简述、经典台词、人际关系（至少 3 个角色），用 HTML 和 CSS 实现，风格简约但精致。',
+        '创作一张 CP 故事的"证件"页面，包含两人姓名、相遇日期、专属称号、共同经历（至少 3 件事）、未来约定，用 HTML 和 CSS 实现，风格温暖浪漫。',
+        '设计一个同人作品展示页，包含作品名称、作者、配对、分级、摘要、章节列表（至少 3 章）、标签云，用 HTML 和 CSS 实现，风格适合同人圈展示。',
+        '设计一个角色卡页面，包含角色名、种族、职业、属性（力量、敏捷、智力等）、技能列表、背景故事、立绘占位，用 HTML 和 CSS 实现，风格像 RPG 游戏角色面板。',
+        '创作一张"纪念日"主题的网页，包含日期、标题、照片墙（用 emoji 代替）、回忆文字、音乐推荐，用 HTML 和 CSS 实现，风格温馨怀旧。'
     ];
     let currentExampleIndex = 0;
 
@@ -1841,12 +1566,10 @@
         const mainContent = document.getElementById('mainContent');
         if (mainContent) {
             mainContent.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    const sidebar = document.getElementById('sidebar');
-                    if (!sidebar.classList.contains('collapsed')) {
-                        sidebar.classList.add('collapsed');
-                        mainContent.classList.add('expanded');
-                    }
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
                 }
             });
         }
@@ -1938,8 +1661,6 @@
             });
         });
         document.getElementById('startCreationBtn').addEventListener('click', startCreation);
-
-        updatePreviewBtnState();
     });
 
     function closeModal() {
@@ -1948,6 +1669,7 @@
         renameConvId = null;
     }
 
+    // 关闭所有下拉菜单，重置样式
     function closeAllDropdowns() {
         document.querySelectorAll('.history-dropdown.open').forEach(d => {
             d.classList.remove('open');
@@ -1964,143 +1686,21 @@
             container.innerHTML = text.replace(/\*\*/g, '<strong>**</strong>');
         }
     }
-
-    // ===== 预览网页相关函数 =====
     function openPreviewWebModal() {
-        if (deepThinkEnabled) {
-            deepThinkEnabled = false;
-            document.getElementById('deepThinkBtn').classList.remove('active');
-        }
         currentExampleIndex = Math.floor(Math.random() * previewExamples.length);
         updateExampleDisplay();
         document.getElementById('previewWebModal').classList.add('active');
     }
-
     function closePreviewWebModal() {
         document.getElementById('previewWebModal').classList.remove('active');
     }
-
-    function togglePreviewMode() {
-        if (previewModeEnabled) {
-            previewModeEnabled = false;
-            updatePreviewBtnState();
-        } else {
-            openPreviewWebModal();
-        }
+    function startCreation() {
+        closePreviewWebModal();
+        const text = previewExamples[currentExampleIndex];
+        document.getElementById('userInput').value = text;
+        document.getElementById('userInput').dispatchEvent(new Event('input'));
+        sendMessage();
     }
-
-    function updatePreviewBtnState() {
-        const btn = document.getElementById('previewModeBtn');
-        if (previewModeEnabled) {
-            btn.classList.add('preview-active');
-        } else {
-            btn.classList.remove('preview-active');
-        }
-    }
-
-    // 【需求3】处理AI回复中的HTML代码块 - 折叠显示
-    function processHTMLCodeBlocks(content) {
-        if (!content) return content;
-        // 检测 ```html 代码块
-        const htmlRegex = /```html\s*([\s\S]*?)\s*```/gi;
-        let match;
-        let lastIndex = 0;
-        let result = '';
-        let hasHtmlBlock = false;
-
-        // 先检查是否有HTML代码块
-        const testMatch = content.match(htmlRegex);
-        if (!testMatch) return content;
-
-        // 分割内容，逐个处理
-        let parts = [];
-        let currentPos = 0;
-        const regex = /```html\s*([\s\S]*?)\s*```/gi;
-        let m;
-
-        while ((m = regex.exec(content)) !== null) {
-            // 添加代码块之前的内容
-            if (m.index > currentPos) {
-                parts.push({ type: 'text', content: content.substring(currentPos, m.index) });
-            }
-            // 添加代码块
-            const code = m[1];
-            const codeId = 'code-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
-            parts.push({ type: 'html', content: code, id: codeId });
-            currentPos = regex.lastIndex;
-            hasHtmlBlock = true;
-        }
-
-        // 添加剩余文本
-        if (currentPos < content.length) {
-            parts.push({ type: 'text', content: content.substring(currentPos) });
-        }
-
-        if (!hasHtmlBlock) return content;
-
-        // 构建HTML
-        let html = '';
-        for (const part of parts) {
-            if (part.type === 'text') {
-                html += part.content;
-            } else {
-                const escapedCode = escapeHtml(part.content);
-                html += `
-                    <div class="inline-code-collapse" data-codeid="${part.id}">
-                        <div class="collapse-header" onclick="toggleCodeBlock('${part.id}')">
-                            <span class="code-lang">📄 HTML</span>
-                            <span class="arrow-icon" id="arrow-${part.id}">▼</span>
-                        </div>
-                        <div class="collapse-body collapsed" id="codebody-${part.id}">
-                            <code>${escapedCode}</code>
-                        </div>
-                        <div style="padding:4px 10px 8px 10px; text-align:right;">
-                            <button class="preview-inline-btn" onclick="previewAsWebpage('${escapedCode}')">🌐 点击预览效果</button>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-        return html;
-    }
-
-    // 切换代码块展开/折叠
-    window.toggleCodeBlock = function(id) {
-        const body = document.getElementById('codebody-' + id);
-        const arrow = document.getElementById('arrow-' + id);
-        if (!body || !arrow) return;
-        body.classList.toggle('collapsed');
-        arrow.classList.toggle('open');
-        if (body.classList.contains('collapsed')) {
-            arrow.textContent = '▼';
-        } else {
-            arrow.textContent = '▲';
-        }
-    };
-
-    // 【需求3】预览网页 - 弹出窗口显示HTML
-    window.previewAsWebpage = function(htmlContent) {
-        const decoded = htmlContent.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-        const modal = document.getElementById('previewModal');
-        const iframe = document.getElementById('previewIframe');
-        // 确保 iframe 内容安全
-        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${decoded}</body></html>`;
-        modal.classList.add('active');
-    };
-
-    function closePreview() {
-        document.getElementById('previewModal').classList.remove('active');
-    }
-
-function startCreation() {
-    closePreviewWebModal();
-    previewModeEnabled = true;
-    updatePreviewBtnState();
-    const text = previewExamples[currentExampleIndex];
-    document.getElementById('userInput').value = text;
-    document.getElementById('userInput').dispatchEvent(new Event('input'));
-    document.getElementById('userInput').focus();
-}
 
     // ==================== 群聊创建面板 ====================
     function openCreateGroupPanel() {
@@ -2177,6 +1777,7 @@ function startCreation() {
         loadCurrentConversation();
         closeModal();
 
+        // 群聊创建后输入框保持空白，并自动获得焦点
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
         document.getElementById('userInput').focus();
@@ -2232,6 +1833,7 @@ function startCreation() {
         loadCurrentConversation();
         closeModal();
 
+        // 输入框保持空白，自动获得焦点
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
         document.getElementById('userInput').focus();
@@ -2489,6 +2091,7 @@ function startCreation() {
     }
 
     function showFullFavorite(content, convTitle) {
+        // 不再关闭收藏栏，仅打开原文弹窗
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = `📖 原文 - ${convTitle || '收藏'}`;
         document.getElementById('modalBody').innerHTML = `
@@ -2509,11 +2112,11 @@ function startCreation() {
         });
     }
 
-    function jumpToMessage(convId, id) {
+    function jumpToMessage(convId, msgId) {
         switchConversation(convId);
         closeFavoriteModal();
         setTimeout(() => {
-            const msgElement = document.querySelector(`.message-wrapper[data-id="${id}"]`);
+            const msgElement = document.querySelector(`.message-wrapper[data-msgid="${msgId}"]`);
             if (msgElement) {
                 msgElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 msgElement.classList.add('highlight');
@@ -2532,9 +2135,9 @@ function startCreation() {
     }
     function loadFavorites() { const stored = localStorage.getItem('my_favorites'); if(stored) favorites = JSON.parse(stored); else favorites = []; }
     function saveFavorites() { localStorage.setItem('my_favorites', JSON.stringify(favorites)); }
-    function addFavorite(convId, id, content, role, convTitle) {
-        if (favorites.some(f => f.id === id)) return;
-        favorites.push({ id: id, convId, content, role, timestamp: Date.now(), convTitle });
+    function addFavorite(convId, msgId, content, role, convTitle) {
+        if (favorites.some(f => f.id === msgId)) return;
+        favorites.push({ id: msgId, convId, content, role, timestamp: Date.now(), convTitle });
         saveFavorites();
         alert('已收藏');
     }
@@ -2591,13 +2194,13 @@ function startCreation() {
     }
 
     // ==================== 编辑消息 ====================
-    window.editMessage = function(id, role) {
+    window.editMessage = function(msgId, role) {
         if (role !== 'user') return;
         const conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
-        const msg = conv.messages.find(m => m.id == id);
+        const msg = conv.messages.find(m => m.id == msgId);
         if (!msg) return;
-        editingMessageId = id;
+        editingMessageId = msgId;
         document.getElementById('editMessageInput').value = msg.content;
         document.getElementById('editMessageModal').classList.add('active');
     };
@@ -2617,6 +2220,18 @@ function startCreation() {
         closeEditMessageModal();
         await sendMessageWithContext(newContent);
     }
+
+    // ==================== 预览网页 ====================
+    function previewAsWebpage(content) {
+        let htmlContent = content;
+        const codeBlockMatch = content.match(/```html?([\s\S]*?)```/i);
+        if (codeBlockMatch) htmlContent = codeBlockMatch[1];
+        const modal = document.getElementById('previewModal');
+        const iframe = document.getElementById('previewIframe');
+        iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${htmlContent}</body></html>`;
+        modal.classList.add('active');
+    }
+    function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
 
     // ==================== 指令 & 角色数据 ====================
     function loadInstructions() {
@@ -3105,7 +2720,7 @@ function startCreation() {
     }
     function saveConversations() { localStorage.setItem('my_conversations', JSON.stringify(conversations)); updateStorageInfo(); renderHistoryList(); }
 
-    // ========== 渲染历史列表 ==========
+    // ========== 渲染历史列表（置顶 + 三点菜单 + 长按） ==========
     function renderHistoryList() {
         const container = document.getElementById('historyList');
         if (!container) return;
@@ -3134,6 +2749,7 @@ function startCreation() {
                 >
                     <span class="history-title">${escapedTitle}</span>
                     <div class="history-actions">
+                        <!-- 三点 SVG 图标 -->
                         <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <circle cx="6" cy="12" r="2"/>
@@ -3141,6 +2757,7 @@ function startCreation() {
                                 <circle cx="18" cy="12" r="2"/>
                             </svg>
                         </button>
+                        <!-- 下拉菜单 - 绝对定位在 .history-item 内，右对齐 -->
                         <div class="history-dropdown" id="dropdown_${conv.id}">
                             <div class="history-dropdown-item" onclick="event.stopPropagation(); togglePin('${conv.id}'); closeAllDropdowns();">
                                 <span class="icon">${pinIcon}</span> ${pinLabel}
@@ -3201,11 +2818,13 @@ function startCreation() {
         }
     }
 
+    // ===== 显示下拉菜单（共用） =====
     function showDropdownForItem(convId) {
         closeAllDropdowns();
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
 
+        // 获取父级 .history-item
         const item = dropdown.closest('.history-item');
         if (!item) return;
 
@@ -3213,13 +2832,17 @@ function startCreation() {
         const menuHeight = dropdown.scrollHeight || 200;
         const viewportHeight = window.innerHeight;
 
+        // 计算 top：根据 item 在视口中的位置决定向下或向上展开
         let top;
         if (rect.top < viewportHeight / 2) {
-            top = item.offsetHeight + 4;
+            // 在上半部分，向下展开
+            top = item.offsetHeight + 4; // 相对于 item 顶部
+            // 如果超出底部，则改为向上
             if (rect.top + top + menuHeight > viewportHeight - 10) {
                 top = -menuHeight - 4;
             }
         } else {
+            // 在下半部分，向上展开
             top = -menuHeight - 4;
             if (rect.top + top < 10) {
                 top = item.offsetHeight + 4;
@@ -3237,6 +2860,7 @@ function startCreation() {
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
 
+        // 如果已经打开则关闭
         if (dropdown.classList.contains('open')) {
             closeAllDropdowns();
             return;
@@ -3248,6 +2872,16 @@ function startCreation() {
     function showDropdownForConv(event, convId) {
         event.preventDefault();
         showDropdownForItem(convId);
+    }
+
+    // ===== 重置所有下拉 =====
+    function closeAllDropdowns() {
+        document.querySelectorAll('.history-dropdown.open').forEach(d => {
+            d.classList.remove('open');
+            d.style.top = '';
+            d.style.bottom = '';
+        });
+        currentOpenDropdown = null;
     }
 
     function togglePin(convId) {
@@ -3327,51 +2961,6 @@ function startCreation() {
         }
     }
 
-    window.deleteMessage = function(id) {
-        if (!confirm('确定删除这条消息吗？')) return;
-
-        const container = document.getElementById('chatMessages');
-        const scrollPos = container.scrollTop;
-
-        let found = false;
-        for (let c of conversations) {
-            const idx = c.messages.findIndex(m => m.id == id);
-            if (idx !== -1) {
-                c.messages.splice(idx, 1);
-                found = true;
-                break;
-            }
-        }
-        if (!found) return;
-
-        const msgElement = document.querySelector(`.message-wrapper[data-id="${id}"]`);
-        if (msgElement) {
-            msgElement.remove();
-        }
-
-        saveConversations();
-
-        setTimeout(() => {
-            container.scrollTop = scrollPos;
-        }, 10);
-
-        const conv = conversations.find(c => c.id == currentConvId);
-        if (conv && conv.messages.length === 0) {
-            const container2 = document.getElementById('chatMessages');
-            const oldWelcome = container2.querySelector('.welcome-message');
-            if (oldWelcome) oldWelcome.remove();
-            const welcome = document.createElement('div');
-            welcome.className = 'welcome-message';
-            welcome.textContent = '✨ 欢迎！输入你的问题，我会用心回答你 ✨';
-            const banner = document.getElementById('groupBanner');
-            if (banner && banner.nextSibling) {
-                container2.insertBefore(welcome, banner.nextSibling);
-            } else {
-                container2.appendChild(welcome);
-            }
-        }
-    };
-
     function deleteConv(id) {
         if (!confirm('确定删除这个对话吗？此操作不可撤销。')) return;
         conversations = conversations.filter(c => c.id != id);
@@ -3393,7 +2982,7 @@ function startCreation() {
         closeAllDropdowns();
     };
 
-    // ==================== 加载当前对话 ====================
+    // ==================== 加载当前对话（含角色对话横幅和皮肤） ====================
     function loadCurrentConversation() {
         const conv = conversations.find(c => c.id == currentConvId);
         const container = document.getElementById('chatMessages');
@@ -3447,68 +3036,36 @@ function startCreation() {
         refreshTokenDisplay();
     }
 
-    // ==================== renderMessage（核心渲染） ====================
+    // ==================== renderMessage ====================
     function renderMessage(msg, idx) {
         const container = document.getElementById('chatMessages');
         const wrapper = document.createElement('div');
         wrapper.className = `message-wrapper message ${msg.role}`;
-        const id = msg.id;
-        wrapper.setAttribute('data-id', id);
+        const msgId = msg.id || (msg.id = Date.now() + '-' + idx);
+        wrapper.setAttribute('data-msgid', msgId);
 
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'bubble';
-
-        let displayContent = '';
-
-        // 【需求2】深度思考 - 显示思考过程
-        if (msg.role === 'ai' && msg.thought) {
-            const thinkingTime = msg.thinkingTime || 0;
-            const timeDisplay = thinkingTime ? `（用时 ${thinkingTime.toFixed(1)} 秒）` : '';
-            const thoughtContent = escapeHtml(msg.thought);
-            displayContent += `
-                <div class="thinking-section">
-                    <div class="thinking-header" onclick="toggleThinking(this)">
-                        <span class="thinking-time">💭 已思考 ${timeDisplay}</span>
-                        <button class="thinking-toggle">▼</button>
-                    </div>
-                    <div class="thinking-body">${thoughtContent}</div>
-                </div>
-            `;
+        let displayContent = msg.content;
+        if (msg.role === 'ai' && msg.thought && deepThinkEnabled) {
+            displayContent = `💭 思考过程：\n${msg.thought}\n\n---\n${msg.content}`;
         }
-
-        // 主体内容
-        let mainContent = escapeHtml(msg.content);
-
-        // 【需求3】处理HTML代码块折叠
-        if (msg.role === 'ai' && previewModeEnabled) {
-            mainContent = processHTMLCodeBlocks(mainContent);
-        } else {
-            // 普通换行
-            mainContent = mainContent.replace(/\n/g, '<br>');
-        }
-
-        displayContent += mainContent;
-        bubbleDiv.innerHTML = displayContent;
+        bubbleDiv.innerHTML = escapeHtml(displayContent).replace(/\n/g, '<br>');
         wrapper.appendChild(bubbleDiv);
 
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'message-actions';
-
         if (msg.role === 'ai') {
-            // 【需求1】重新生成按钮 - 使用刷新SVG
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="regenerateAI('${id}')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12a9 9 0 1 1-9-9" />
-                        <polyline points="21 3 12 3 12 12" />
-                    </svg>
+                <button class="msg-action" onclick="regenerateAI('${msgId}')">
+                    <span style="font-size:1rem; line-height:1;">↻</span>
                     <span class="tooltip">重新生成</span>
                 </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
                     <span style="font-size:1rem; line-height:1;">☆</span>
                     <span class="tooltip">收藏</span>
                 </button>
-                <button class="msg-action" onclick="deleteMessage('${id}')">
+                <button class="msg-action" onclick="deleteMessage('${msgId}')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                     <span class="tooltip">删除</span>
                 </button>
@@ -3519,15 +3076,15 @@ function startCreation() {
             `;
         } else {
             actionsDiv.innerHTML = `
-                <button class="msg-action" onclick="editMessage('${id}','${msg.role}')">
+                <button class="msg-action" onclick="editMessage('${msgId}','${msg.role}')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                     <span class="tooltip">编辑</span>
                 </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
                     <span style="font-size:1rem; line-height:1;">☆</span>
                     <span class="tooltip">收藏</span>
                 </button>
-                <button class="msg-action" onclick="deleteMessage('${id}')">
+                <button class="msg-action" onclick="deleteMessage('${msgId}')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                     <span class="tooltip">删除</span>
                 </button>
@@ -3549,63 +3106,32 @@ function startCreation() {
         container.appendChild(wrapper);
     }
 
-    // 切换思考过程折叠
-    function toggleThinking(header) {
-        const body = header.nextElementSibling;
-        const toggle = header.querySelector('.thinking-toggle');
-        if (body) {
-            body.classList.toggle('collapsed');
-            toggle.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
-        }
-    }
-
     // ==================== 工具栏函数 ====================
     window.toggleFavoriteWrapper = (id, convId, content, role, convTitle) => {
         if (favorites.some(f => f.id == id)) removeFavorite(id);
         else addFavorite(convId, id, content, role, convTitle);
     };
+    window.deleteMessage = (id) => {
+        if (confirm('删除这条消息？')) {
+            for (let c of conversations) {
+                c.messages = c.messages.filter(m => m.id != id);
+            }
+            saveConversations();
+            loadCurrentConversation();
+        }
+    };
     window.copyMessage = (txt) => { navigator.clipboard.writeText(txt); alert('已复制'); };
-
-    window.regenerateAI = async (id) => {
+    window.regenerateAI = async (msgId) => {
         const conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
-
-        const msgIndex = conv.messages.findIndex(m => m.id == id);
-        if (msgIndex <= 0) {
-            alert('无法重新生成：未找到对应的用户消息');
-            return;
-        }
-
+        const msgIndex = conv.messages.findIndex(m => m.id == msgId);
+        if (msgIndex <= 0) return;
         const userMsg = conv.messages[msgIndex - 1];
-        if (!userMsg || userMsg.role !== 'user') {
-            alert('无法重新生成：前一条消息不是用户消息');
-            return;
-        }
-
-        const container = document.getElementById('chatMessages');
-        const scrollPos = container.scrollTop;
-        const msgElement = document.querySelector(`.message-wrapper[data-id="${id}"]`);
-
+        if (!userMsg || userMsg.role !== 'user') return;
         conv.messages = conv.messages.slice(0, msgIndex);
-        if (msgElement) {
-            let next = msgElement.nextSibling;
-            while (next) {
-                const toRemove = next;
-                next = next.nextSibling;
-                if (toRemove.classList && toRemove.classList.contains('message-wrapper')) {
-                    toRemove.remove();
-                }
-            }
-            msgElement.remove();
-        }
-
         recalcConvTokens(conv);
         saveConversations();
-
-        setTimeout(() => {
-            container.scrollTop = scrollPos;
-        }, 10);
-
+        loadCurrentConversation();
         await sendMessageWithContext(userMsg.content);
     };
 
@@ -3617,7 +3143,7 @@ function startCreation() {
         conv.totalTokens = totalTokens;
     }
 
-    // ==================== 发送消息 ====================
+    // ==================== 发送消息（含群聊和角色对话的系统指令） ====================
     async function sendMessageWithContext(content) {
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
         if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
@@ -3631,8 +3157,9 @@ function startCreation() {
         const totalInputTokens = userTokens + historyTokens;
         const userTokenInfo = `本次正文 ${userCharCount} 字，约 ${userTokens} tokens；历史记忆约 ${historyTokens} tokens；本轮输入共约 ${totalInputTokens} tokens`;
 
-        const userid = saveMessageToCurrentConv('user', content);
-        const userMsg = conv.messages.find(m => m.id == userid);
+        addMessageToDOM(content, 'user', null, userTokenInfo);
+        const userMsgId = saveMessageToCurrentConv('user', content);
+        const userMsg = conv.messages.find(m => m.id == userMsgId);
         if (userMsg) {
             userMsg.tokenInfo = userTokenInfo;
             userMsg.tokens = userTokens;
@@ -3641,11 +3168,7 @@ function startCreation() {
         }
         saveConversations();
 
-        loadCurrentConversation();
-
         const thinkId = addThinkingMessage();
-        const startTime = Date.now();
-
         try {
             const historyMessages = conv.messages.map(msg => ({
                 role: msg.role,
@@ -3705,12 +3228,7 @@ function startCreation() {
                 messages: messagesToSend,
                 stream: false
             };
-
-            // 【需求1】深度思考参数
-            if (deepThinkEnabled) {
-                requestBody.reasoning_effort = "high";
-                requestBody.extra_body = { thinking: { type: "enabled" } };
-            }
+            if (deepThinkEnabled) requestBody.reasoning_effort = "medium";
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -3722,9 +3240,6 @@ function startCreation() {
             const data = await response.json();
             const aiContent = data.choices[0].message.content;
             const reasoningContent = data.choices[0].message.reasoning_content || null;
-
-            const endTime = Date.now();
-            const elapsedSeconds = (endTime - startTime) / 1000;
 
             const aiCharCount = countChars(aiContent);
             const aiTokens = estimateTokens(aiContent);
@@ -3740,109 +3255,25 @@ function startCreation() {
             }
 
             removeThinkingMessage(thinkId);
+            addMessageToDOM(aiContent, 'ai', reasoningContent, aiTokenInfo);
 
-            const aiid = saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
-            const aiMsg = conv.messages.find(m => m.id == aiid);
+            const aiMsgId = saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
+            const aiMsg = conv.messages.find(m => m.id == aiMsgId);
             if (aiMsg) {
                 aiMsg.tokenInfo = aiTokenInfo;
                 aiMsg.tokens = totalAITokens;
                 aiMsg.charCount = aiCharCount;
                 aiMsg.reasoningCharCount = reasoningCharCount;
-                // 【需求2】保存思考内容和耗时
-                if (reasoningContent) {
-                    aiMsg.thought = reasoningContent;
-                    aiMsg.thinkingTime = elapsedSeconds;
-                }
                 conv.totalTokens = (conv.totalTokens || 0) + totalAITokens;
             }
             saveConversations();
-
-            loadCurrentConversation();
-
-            // 【需求3】预览模式检测HTML代码块（已集成在 renderMessage 中）
-            if (previewModeEnabled) {
-                // 因 renderMessage 已处理 processHTMLCodeBlocks，无需额外操作
-            }
-
             refreshTokenDisplay();
 
         } catch (e) {
             removeThinkingMessage(thinkId);
-            const errorMsg = `出错：${e.message}`;
-            addMessageToDOM(errorMsg, 'ai');
+            addMessageToDOM(`出错：${e.message}`, 'ai');
         }
     }
-
-    // ==================== 辅助函数 ====================
-function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
-    const container = document.getElementById('chatMessages');
-    const welcome = container.querySelector('.welcome-message');
-    if (welcome) welcome.remove();
-
-    const wrapper = document.createElement('div');
-    wrapper.className = `message-wrapper message ${role}`;
-    const id = 'tmp-' + Date.now() + '-' + Math.random();
-    wrapper.setAttribute('data-msgid', id);
-
-    const bubbleDiv = document.createElement('div');
-    bubbleDiv.className = 'bubble';
-    let displayContent = escapeHtml(content).replace(/\n/g, '<br>');
-    bubbleDiv.innerHTML = displayContent;
-    wrapper.appendChild(bubbleDiv);
-
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'message-actions';
-    if (role === 'ai') {
-        actionsDiv.innerHTML = `
-            <button class="msg-action" onclick="regenerateAI('${id}')">
-                <span style="font-size:1rem; line-height:1;">↻</span>
-                <span class="tooltip">重新生成</span>
-            </button>
-            <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
-                <span style="font-size:1rem; line-height:1;">☆</span>
-                <span class="tooltip">收藏</span>
-            </button>
-            <button class="msg-action" onclick="deleteMessage('${id}')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                <span class="tooltip">删除</span>
-            </button>
-            <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <span class="tooltip">复制</span>
-            </button>
-        `;
-    } else {
-        actionsDiv.innerHTML = `
-            <button class="msg-action" onclick="editMessage('${id}','${role}')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                <span class="tooltip">编辑</span>
-            </button>
-            <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
-                <span style="font-size:1rem; line-height:1;">☆</span>
-                <span class="tooltip">收藏</span>
-            </button>
-            <button class="msg-action" onclick="deleteMessage('${id}')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                <span class="tooltip">删除</span>
-            </button>
-            <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <span class="tooltip">复制</span>
-            </button>
-        `;
-    }
-    wrapper.appendChild(actionsDiv);
-
-    if (tokenInfo) {
-        const tokenDiv = document.createElement('div');
-        tokenDiv.className = 'token-info' + (showTokenEstimate ? '' : ' hidden-token');
-        tokenDiv.textContent = tokenInfo;
-        wrapper.appendChild(tokenDiv);
-    }
-
-    container.appendChild(wrapper);
-    scrollToBottom();
-}
 
     function renameConv(id) { showRenameDialog(id); }
 
@@ -3857,8 +3288,8 @@ function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
     function saveMessageToCurrentConv(role, content, thought = null) {
         let conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
-        const id = Date.now() + '-' + Math.random();
-        const msg = { id: id, role, content, thought, timestamp: Date.now() };
+        const msgId = Date.now() + '-' + Math.random();
+        const msg = { id: msgId, role, content, thought, timestamp: Date.now() };
         conv.messages.push(msg);
         saveConversations();
 
@@ -3871,7 +3302,7 @@ function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
                 saveConversations();
             }
         }
-        return id;
+        return msgId;
     }
 
     async function sendMessage() {
@@ -3880,6 +3311,80 @@ function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         if (!msg) return;
         await sendMessageWithContext(msg);
         inp.value = '';
+    }
+
+    // ==================== addMessageToDOM ====================
+    function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
+        const container = document.getElementById('chatMessages');
+        const welcome = container.querySelector('.welcome-message');
+        if (welcome) welcome.remove();
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `message-wrapper message ${role}`;
+        const id = 'tmp-' + Date.now() + '-' + Math.random();
+        wrapper.setAttribute('data-msgid', id);
+
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'bubble';
+        let displayContent = content;
+        if (role === 'ai' && thought && deepThinkEnabled) {
+            displayContent = `💭 思考过程：\n${thought}\n\n---\n${content}`;
+        }
+        bubbleDiv.innerHTML = escapeHtml(displayContent).replace(/\n/g, '<br>');
+        wrapper.appendChild(bubbleDiv);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'message-actions';
+        if (role === 'ai') {
+            actionsDiv.innerHTML = `
+                <button class="msg-action" onclick="regenerateAI('${id}')">
+                    <span style="font-size:1rem; line-height:1;">↻</span>
+                    <span class="tooltip">重新生成</span>
+                </button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
+                    <span style="font-size:1rem; line-height:1;">☆</span>
+                    <span class="tooltip">收藏</span>
+                </button>
+                <button class="msg-action" onclick="deleteMessage('${id}')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <span class="tooltip">删除</span>
+                </button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span class="tooltip">复制</span>
+                </button>
+            `;
+        } else {
+            actionsDiv.innerHTML = `
+                <button class="msg-action" onclick="editMessage('${id}','${role}')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    <span class="tooltip">编辑</span>
+                </button>
+                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
+                    <span style="font-size:1rem; line-height:1;">☆</span>
+                    <span class="tooltip">收藏</span>
+                </button>
+                <button class="msg-action" onclick="deleteMessage('${id}')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <span class="tooltip">删除</span>
+                </button>
+                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span class="tooltip">复制</span>
+                </button>
+            `;
+        }
+        wrapper.appendChild(actionsDiv);
+
+        if (tokenInfo) {
+            const tokenDiv = document.createElement('div');
+            tokenDiv.className = 'token-info' + (showTokenEstimate ? '' : ' hidden-token');
+            tokenDiv.textContent = tokenInfo;
+            wrapper.appendChild(tokenDiv);
+        }
+
+        container.appendChild(wrapper);
+        scrollToBottom();
     }
 
     function addThinkingMessage() { 
@@ -3895,16 +3400,7 @@ function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
     }
     function removeThinkingMessage(id) { const el = document.getElementById(id); if (el) el.remove(); }
     function scrollToBottom() { const c = document.getElementById('chatMessages'); if (c) c.scrollTop = c.scrollHeight; }
-
-    function toggleDeepThink() {
-        deepThinkEnabled = !deepThinkEnabled;
-        document.getElementById('deepThinkBtn').classList.toggle('active');
-        if (deepThinkEnabled && previewModeEnabled) {
-            previewModeEnabled = false;
-            updatePreviewBtnState();
-        }
-    }
-
+    function toggleDeepThink() { deepThinkEnabled = !deepThinkEnabled; document.getElementById('deepThinkBtn').classList.toggle('active'); }
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]); }
     function updateStorageInfo() {
         let total = 0;
@@ -3921,9 +3417,6 @@ function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
 
     document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
     document.getElementById('userInput').addEventListener('input', function () { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 100) + 'px'; });
-
-    // 预览网页按钮绑定
-    document.getElementById('previewModeBtn').addEventListener('click', togglePreviewMode);
 </script>
 </body>
 </html>
