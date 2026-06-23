@@ -3934,53 +3934,15 @@ function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         }
     wrapper.appendChild(actionsDiv);
 
-    if (tokenInfo) {
-        const tokenDiv = document.createElement('div');
-        tokenDiv.className = 'token-info' + (showTokenEstimate ? '' : ' hidden-token');
-        tokenDiv.textContent = tokenInfo;
-        wrapper.appendChild(tokenDiv);
-    }
-
-    container.appendChild(wrapper);
-    scrollToBottom();
-}
-
-    function renameConv(id) { showRenameDialog(id); }
-
-    function createNewDialog() {
-        let newId = Date.now().toString();
-        conversations.unshift({ id: newId, title: '新对话', messages: [], totalTokens: 0, pinned: false });
-        currentConvId = newId;
-        saveConversations();
-        loadCurrentConversation();
-    }
-
-    function saveMessageToCurrentConv(role, content, thought = null) {
-        let conv = conversations.find(c => c.id == currentConvId);
-        if (!conv) return;
-        const id = Date.now() + '-' + Math.random();
-        const msg = { id: id, role, content, thought, timestamp: Date.now() };
-        conv.messages.push(msg);
-        saveConversations();
-
-        if (conv.messages.length === 1 && role === 'user') {
-            const defaultTitles = ['新对话', '群聊'];
-            if (!conv.title || defaultTitles.includes(conv.title) || conv.title === '') {
-                const newTitle = content.substring(0, 20) + (content.length > 20 ? '...' : '');
-                conv.title = newTitle;
-                renderHistoryList();
-                saveConversations();
-            }
+        if (tokenInfo) {
+            const tokenDiv = document.createElement('div');
+            tokenDiv.className = 'token-info' + (showTokenEstimate ? '' : ' hidden-token');
+            tokenDiv.textContent = tokenInfo;
+            wrapper.appendChild(tokenDiv);
         }
-        return id;
-    }
 
-    async function sendMessage() {
-        const inp = document.getElementById('userInput');
-        const msg = inp.value.trim();
-        if (!msg) return;
-        await sendMessageWithContext(msg);
-        inp.value = '';
+        container.appendChild(wrapper);
+        scrollToBottom();
     }
 
     function addThinkingMessage() { 
@@ -3996,16 +3958,7 @@ function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
     }
     function removeThinkingMessage(id) { const el = document.getElementById(id); if (el) el.remove(); }
     function scrollToBottom() { const c = document.getElementById('chatMessages'); if (c) c.scrollTop = c.scrollHeight; }
-
-    function toggleDeepThink() {
-        deepThinkEnabled = !deepThinkEnabled;
-        document.getElementById('deepThinkBtn').classList.toggle('active');
-        if (deepThinkEnabled && previewModeEnabled) {
-            previewModeEnabled = false;
-            updatePreviewBtnState();
-        }
-    }
-
+    function toggleDeepThink() { deepThinkEnabled = !deepThinkEnabled; document.getElementById('deepThinkBtn').classList.toggle('active'); }
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]); }
     function updateStorageInfo() {
         let total = 0;
@@ -4022,9 +3975,6 @@ function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
 
     document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
     document.getElementById('userInput').addEventListener('input', function () { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 100) + 'px'; });
-
-    // 预览网页按钮绑定
-    document.getElementById('previewModeBtn').addEventListener('click', togglePreviewMode);
 </script>
 </body>
 </html>
