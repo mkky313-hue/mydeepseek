@@ -1544,7 +1544,12 @@ const previewExamples = [
             document.documentElement.setAttribute('data-theme', 'light');
             localStorage.setItem('theme', 'light');
         }
-
+    if (window.innerWidth > 768) {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('expanded');
+    }
         loadInstructions();
         loadRoles();
         loadFavorites();
