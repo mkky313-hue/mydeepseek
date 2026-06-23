@@ -3560,54 +3560,157 @@ function startCreation() {
     }
 
     // ==================== 工具栏函数 ====================
-    window.toggleFavoriteWrapper = (id, convId, content, role, convTitle) => {
-        if (favorites.some(f => f.id == id)) removeFavorite(id);
-        else addFavorite(convId, id, content, role, convTitle);
-    };
-    window.copyMessage = (txt) => { navigator.clipboard.writeText(txt); alert('已复制'); };
+window.regenerateAI = async (id) => {
+    const conv = conversations.find(c => c.id == currentConvId);
+    if (!conv) return;
 
-    window.regenerateAI = async (id) => {
-        const conv = conversations.find(c => c.id == currentConvId);
-        if (!conv) return;
+    // 1. 找到被点击的 AI 消息的索引
+    const msgIndex = conv.messages.findIndex(m => m.id == id);
+    if (msgIndex <= 0) {
+        alert('无法重新生成：未找到对应的用户消息');
+        return;
+    }
 
-        const msgIndex = conv.messages.findIndex(m => m.id == id);
-        if (msgIndex <= 0) {
-            alert('无法重新生成：未找到对应的用户消息');
-            return;
+    // 2. 获取前一条用户消息
+    const userMsg = conv.messages[msgIndex - 1];
+    if (!userMsg || userMsg.role !== 'user') {
+        alert('无法重新生成：前一条消息不是用户消息');
+        return;
+    }
+
+    // 3. 删除当前 AI 消息及之后的所有消息（保留用户消息）
+    conv.messages = conv.messages.slice(0, msgIndex);
+    recalcConvTokens(conv);
+    saveConversations();
+
+    // 4. 重新渲染界面（移除旧的 AI 消息）
+    loadCurrentConversation();
+
+    // 5. 显示“思考中...”动画
+    const thinkId = addThinkingMessage();
+    const startTime = Date.now();
+
+    try {
+        // 6. 构建历史消息（不包括系统提示，稍后添加）
+        let messagesToSend = conv.messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+        }));
+
+        // 7. 应用记忆策略（滑动窗口）
+        if (memoryStrategy === 'window' && messagesToSend.length > 20) {
+            messagesToSend = messagesToSend.slice(-20);
         }
 
-        const userMsg = conv.messages[msgIndex - 1];
-        if (!userMsg || userMsg.role !== 'user') {
-            alert('无法重新生成：前一条消息不是用户消息');
-            return;
-        }
-
-        const container = document.getElementById('chatMessages');
-        const scrollPos = container.scrollTop;
-        const msgElement = document.querySelector(`.message-wrapper[data-id="${id}"]`);
-
-        conv.messages = conv.messages.slice(0, msgIndex);
-        if (msgElement) {
-            let next = msgElement.nextSibling;
-            while (next) {
-                const toRemove = next;
-                next = next.nextSibling;
-                if (toRemove.classList && toRemove.classList.contains('message-wrapper')) {
-                    toRemove.remove();
+        // 8. 构建系统提示（群聊或角色对话）
+        let systemPrompt = null;
+        if (conv.isGroup && conv.groupMemberIds && conv.groupMemberIds.length > 0) {
+            const selectedRoles = roles.filter(r => conv.groupMemberIds.includes(r.id));
+            if (selectedRoles.length > 0) {
+                systemPrompt = "你是一个多角色群聊模拟器。用户是'用户'。以下是本次群聊中除用户外的所有角色及其设定：\n\n";
+                selectedRoles.forEach((r, index) => {
+                    systemPrompt += `${index+1}. 角色名：${r.name}\n`;
+                    if (r.personality) systemPrompt += `   性格：${r.personality}\n`;
+                    if (r.background) systemPrompt += `   背景：${r.background}\n`;
+                    if (r.speakingStyle) systemPrompt += `   说话风格：${r.speakingStyle}\n`;
+                    if (r.catchphrases) systemPrompt += `   口头禅：${r.catchphrases}\n`;
+                    systemPrompt += `\n`;
+                });
+                if (deepThinkEnabled) {
+                    systemPrompt += `\n【深度思考模式已开启】\n对于每一轮对话，你必须先分别输出每个角色的内心思考（格式：【角色名 的内心思考】：...），然后再输出该角色的正式发言（格式：【角色名】：...）。每个角色都必须独立思考和发言，严格按照其设定。`;
+                } else {
+                    systemPrompt += `\n回复时，请直接以【角色名】：... 的格式输出每个角色的发言，不需要思考过程。每个角色都必须根据其设定独立发言。`;
                 }
             }
-            msgElement.remove();
         }
 
-        recalcConvTokens(conv);
+        if (conv.isCharacter && conv.characterId) {
+            const role = roles.find(r => r.id == conv.characterId);
+            if (role) {
+                systemPrompt = `你现在是角色「${role.name}」。请完全以该角色的身份进行对话。\n`;
+                if (role.personality) systemPrompt += `性格：${role.personality}\n`;
+                if (role.background) systemPrompt += `背景：${role.background}\n`;
+                if (role.appearance) systemPrompt += `外貌：${role.appearance}\n`;
+                if (role.speakingStyle) systemPrompt += `说话风格：${role.speakingStyle}\n`;
+                if (role.catchphrases) systemPrompt += `口头禅：${role.catchphrases}\n`;
+                systemPrompt += `\n请用${role.name}的身份回复用户的消息，保持角色一致性。`;
+                if (deepThinkEnabled) {
+                    systemPrompt += `\n【深度思考模式已开启】\n在回复之前，请先输出角色的内心思考（格式：【内心思考】：...），然后再输出发言。`;
+                }
+            }
+        }
+
+        if (systemPrompt) {
+            messagesToSend.unshift({ role: 'system', content: systemPrompt });
+        }
+
+        // 9. 构建 API 请求
+        const requestBody = {
+            model: currentModel,
+            messages: messagesToSend,
+            stream: false
+        };
+        if (deepThinkEnabled) {
+            requestBody.reasoning_effort = "high";
+            requestBody.extra_body = { thinking: { type: "enabled" } };
+        }
+
+        // 10. 发送请求
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+            body: JSON.stringify(requestBody)
+        });
+        if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+
+        const data = await response.json();
+        const aiContent = data.choices[0].message.content;
+        const reasoningContent = data.choices[0].message.reasoning_content || null;
+
+        const endTime = Date.now();
+        const elapsedSeconds = (endTime - startTime) / 1000;
+
+        // 11. 计算 token 信息
+        const aiCharCount = countChars(aiContent);
+        const aiTokens = estimateTokens(aiContent);
+        const reasoningCharCount = reasoningContent ? countChars(reasoningContent) : 0;
+        const reasoningTokens = reasoningContent ? estimateTokens(reasoningContent) : 0;
+        const totalAITokens = aiTokens + reasoningTokens;
+        let aiTokenInfo = '';
+        if (reasoningContent) {
+            aiTokenInfo = `思考 ${reasoningCharCount} 字，正文 ${aiCharCount} 字，约 ${totalAITokens} tokens`;
+        } else {
+            aiTokenInfo = `正文 ${aiCharCount} 字，约 ${aiTokens} tokens`;
+        }
+
+        removeThinkingMessage(thinkId);
+
+        // 12. 保存新的 AI 消息到会话
+        const aiid = saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
+        const aiMsg = conv.messages.find(m => m.id == aiid);
+        if (aiMsg) {
+            aiMsg.tokenInfo = aiTokenInfo;
+            aiMsg.tokens = totalAITokens;
+            aiMsg.charCount = aiCharCount;
+            aiMsg.reasoningCharCount = reasoningCharCount;
+            if (reasoningContent) {
+                aiMsg.thought = reasoningContent;
+                aiMsg.thinkingTime = elapsedSeconds;
+            }
+            conv.totalTokens = (conv.totalTokens || 0) + totalAITokens;
+        }
         saveConversations();
 
-        setTimeout(() => {
-            container.scrollTop = scrollPos;
-        }, 10);
+        // 13. 刷新界面
+        loadCurrentConversation();
+        refreshTokenDisplay();
 
-        await sendMessageWithContext(userMsg.content);
-    };
+    } catch (e) {
+        removeThinkingMessage(thinkId);
+        const errorMsg = `出错：${e.message}`;
+        addMessageToDOM(errorMsg, 'ai');
+    }
+};
 
     function recalcConvTokens(conv) {
         let totalTokens = 0;
