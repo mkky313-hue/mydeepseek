@@ -1529,7 +1529,7 @@ const previewExamples = [
     '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的朋友圈内容。每条需体现人物评论、回复、点赞、视频、配图、屏蔽、提醒、时间等朋友圈功能。',
     '做一个 CP 纪念页，标题"我们的第 100 天"，顶部放三张占位图（用灰色方块代替），每张图下写一句短日记，整体用奶油色背景 + 米白卡片，手写体中文字体，有翻页按钮切换不同月份。',
     '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的小红书笔记内容。每条需体现评论区互动、作者回复、点赞收藏、话题标签、图文 / 短视频配图、好友可见、屏蔽用户、@好友提醒、发布时间、笔记置顶、合集收录、私信催更等小红书平台功能。',
-    '做一个同人社团主页，社团名"***"，顶部是社团 logo 占位和一句宣言"写给所有热爱故事的人"，中间是四张成员卡片（昵称、擅长类型、代表作），底部是招新按钮，整体用水墨中国风。',
+    '做一个同人社团主页，社团名"**"，顶部是社团 logo 占位和一句宣言"写给所有热爱故事的人"，中间是四张成员卡片（昵称、擅长类型、代表作），底部是招新按钮，整体用水墨中国风。',
     '帮我做一个极简黑白风个人博客首页，顶部是我的名字「**」和一句话简介"****"，中间列出五篇文章标题和发布日期，hover 时标题有下划线动画，底部放三个社交图标。',
     '做一个角色扮演打卡页，主角是"你今天扮演的自己"，顶部一个大标题"Day 42"，中间三个打卡区块：今日心情、今日台词、今日小剧场，每个区块配一个表情 emoji 和一句引导语，背景用浅粉渐变。'
 ];
@@ -1544,12 +1544,7 @@ const previewExamples = [
             document.documentElement.setAttribute('data-theme', 'light');
             localStorage.setItem('theme', 'light');
         }
-    if (window.innerWidth > 768) {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        sidebar.classList.remove('collapsed');
-        mainContent.classList.remove('expanded');
-    }
+
         loadInstructions();
         loadRoles();
         loadFavorites();
@@ -1572,10 +1567,12 @@ const previewExamples = [
         const mainContent = document.getElementById('mainContent');
         if (mainContent) {
             mainContent.addEventListener('click', () => {
-                const sidebar = document.getElementById('sidebar');
-                if (!sidebar.classList.contains('collapsed')) {
-                    sidebar.classList.add('collapsed');
-                    mainContent.classList.add('expanded');
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.getElementById('sidebar');
+                    if (!sidebar.classList.contains('collapsed')) {
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.add('expanded');
+                    }
                 }
             });
         }
