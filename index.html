@@ -80,7 +80,6 @@
             overflow: hidden;
         }
 
-        /* 侧边栏 */
         .sidebar {
             width: 280px;
             background: var(--bg-sidebar);
@@ -131,7 +130,7 @@
             font-size: 0.85rem;
             background: transparent;
             cursor: pointer;
-            position: relative; /* 新增：作为下拉菜单的定位容器 */
+            position: relative;
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
@@ -148,10 +147,9 @@
             gap: 6px;
             align-items: center;
             flex-shrink: 0;
-            position: relative; /* 备用，但我们将菜单放在 .history-item 下 */
+            position: relative;
         }
 
-        /* 三点菜单按钮 - SVG居中，悬停圆形背景 */
         .history-more-btn {
             background: none;
             border: none;
@@ -177,14 +175,12 @@
             background: var(--btn-icon-bg);
             color: var(--text-primary);
         }
-        /* 手机端隐藏三点按钮 */
         @media (max-width: 768px) {
             .history-more-btn {
                 display: none !important;
             }
         }
 
-        /* 下拉菜单 - 绝对定位，右边缘对齐父容器（.history-item）的右边缘，由 JS 控制 top */
         .history-dropdown {
             display: none;
             position: absolute;
@@ -282,7 +278,6 @@
         }
         .footer-btn:hover { background: var(--btn-icon-hover); }
 
-        /* 主内容区 */
         .main-content {
             flex: 1;
             margin-left: 280px;
@@ -299,7 +294,6 @@
             max-width: 100vw;
         }
 
-        /* 顶部导航 */
         .top-nav {
             background: var(--bg-nav);
             backdrop-filter: blur(10px);
@@ -362,7 +356,6 @@
         }
         .top-nav-right { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
 
-        /* 加号下拉菜单 */
         .add-dropdown-wrapper {
             position: relative;
             display: inline-block;
@@ -423,7 +416,6 @@
         }
         .hamburger-icon:hover, .icon-btn:hover { background: var(--btn-icon-hover); }
 
-        /* ===== 聊天区域 ===== */
         .chat-container {
             flex: 1;
             display: flex;
@@ -472,7 +464,6 @@
             color: var(--text-primary);
         }
 
-        /* 消息气泡 */
         .message-wrapper {
             display: flex;
             flex-direction: column;
@@ -610,7 +601,6 @@
         .dot-floating span { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; animation: float 1.4s infinite; }
         @keyframes float { 0%,100%{transform:scale(0.6);opacity:0.4;} 50%{transform:scale(1);opacity:1;} }
 
-        /* 输入区域 */
         .input-section {
             flex-shrink: 0;
             background: var(--bg-card);
@@ -633,7 +623,6 @@
         .action-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
         .welcome-message { text-align: center; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 1rem; border-radius: 1rem; }
 
-        /* 通用模态框 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -689,7 +678,6 @@
         #genericModal.modal-overlay { z-index: 400; }
         #favoriteModal.modal-overlay { z-index: 350; }
 
-        /* 指令/角色卡片样式 */
         .instruction-card, .role-card {
             background: var(--bg-input);
             border-radius: 1rem;
@@ -787,7 +775,6 @@
             margin-top: 1rem;
         }
 
-        /* 设置内部样式 */
         .settings-section {
             margin-bottom: 1.2rem;
             padding-bottom: 1rem;
@@ -962,7 +949,6 @@
             margin-left: 4px;
         }
 
-        /* 预览网页弹窗 */
         .preview-modal {
             display: none;
             position: fixed;
@@ -1153,7 +1139,6 @@
             .msg-action svg { width: 14px; height: 14px; }
         }
 
-        /* 收藏栏专用样式 */
         .favorite-item {
             background: var(--bg-input);
             border-radius: 10px;
@@ -1228,7 +1213,6 @@
             margin-top: 6px;
         }
 
-        /* 群聊创建面板复选框 */
         .group-role-checkbox-item {
             display: flex;
             align-items: center;
@@ -1266,7 +1250,6 @@
             margin-top: 4px;
         }
 
-        /* 角色选择列表（用于新建角色对话） */
         .character-select-item {
             display: flex;
             align-items: center;
@@ -1295,7 +1278,6 @@
 </head>
 <body>
 <div class="app-wrapper">
-    <!-- 侧边栏 -->
     <div class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header"><h3>My DeepSeek</h3></div>
         <div class="sidebar-nav">
@@ -1319,7 +1301,6 @@
         </div>
     </div>
 
-    <!-- 主内容区 -->
     <div class="main-content expanded" id="mainContent">
         <div class="top-nav">
             <div class="top-nav-left">
@@ -1376,7 +1357,6 @@
     </div>
 </div>
 
-<!-- 通用模态框 -->
 <div id="genericModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -1388,7 +1368,6 @@
     </div>
 </div>
 
-<!-- 设置弹窗 -->
 <div id="settingsModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -1403,10 +1382,8 @@
     </div>
 </div>
 
-<!-- API Key 首次弹窗 -->
 <div id="apiKeyModal" class="modal-overlay"><div class="modal-container" style="max-width:400px"><div class="modal-header"><h3>🔑 设置 API Key</h3><button class="modal-close" onclick="closeApiKeyModal()">✕</button></div><div class="modal-body"><p style="margin-bottom:12px">请填写你的 DeepSeek API Key：</p><input type="password" id="firstApiKey" placeholder="sk-..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); padding:8px; border-radius:20px; color:var(--text-primary);"></div><div class="modal-footer"><button class="btn-secondary" onclick="closeApiKeyModal()">稍后</button><button class="btn-save" id="saveFirstApiKeyBtn">保存</button></div></div></div>
 
-<!-- 收藏弹窗 -->
 <div id="favoriteModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header"><h3>⭐ 收藏栏</h3><button class="modal-close" onclick="closeFavoriteModal()">✕</button></div>
@@ -1418,7 +1395,6 @@
     </div>
 </div>
 
-<!-- 导出弹窗 -->
 <div id="exportModal" class="modal-overlay">
     <div class="modal-container" style="max-width:420px;">
         <div class="modal-header"><h3>📤 导出对话</h3><button class="modal-close" onclick="closeExportModal()">✕</button></div>
@@ -1447,7 +1423,6 @@
     </div>
 </div>
 
-<!-- 编辑消息弹窗 -->
 <div id="editMessageModal" class="modal-overlay">
     <div class="modal-container" style="max-width:450px;">
         <div class="modal-header"><h3>✏️ 编辑消息</h3><button class="modal-close" onclick="closeEditMessageModal()">✕</button></div>
@@ -1461,7 +1436,6 @@
     </div>
 </div>
 
-<!-- 预览网页弹窗 -->
 <div id="previewWebModal" class="modal-overlay preview-web-modal">
     <div class="modal-container">
         <div class="modal-header"><h3>🌐 预览网页 · 把创意变成能看见的页面</h3><button class="modal-close" onclick="closePreviewWebModal()">✕</button></div>
@@ -1482,11 +1456,9 @@
     </div>
 </div>
 
-<!-- 预览实际网页 iframe -->
 <div id="previewModal" class="preview-modal"><div class="preview-content"><div class="preview-header"><span>🌐 网页预览</span><button class="icon-btn" onclick="closePreview()" style="background:none">✕</button></div><iframe id="previewIframe" class="preview-iframe" sandbox="allow-same-origin allow-scripts"></iframe></div></div>
 
 <script>
-    // ==================== 全局变量 ====================
     let DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key') || '';
     let deepThinkEnabled = false;
     let previewModeEnabled = false;
@@ -1507,7 +1479,6 @@
 
     let currentOpenDropdown = null;
 
-    // ===== Token估算工具函数 =====
     function estimateTokens(text) {
         if (!text) return 0;
         const charCount = text.length;
@@ -1522,21 +1493,27 @@
         return text.length;
     }
 
-    // ===== 预览网页示例列表 =====
-const previewExamples = [
-    '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的抖音作品文案内容。每条需体现评论区回复、置顶评论、点赞收藏、合拍 / 转发、短视频 / 图文配景、私密作品、拉黑屏蔽、@好友提醒、发布时间、同城定位、热门话题、作品置顶等抖音平台功能。',
-    '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的贴吧发帖内容。每条需体现楼中楼评论、层主回复、点赞 / 踩、收藏、帖子配图 / 视频、仅吧友可见、拉黑屏蔽、吧内 @提醒、发帖时间、精品帖、置顶帖、楼主追更等贴吧平台功能。',
-    '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的朋友圈内容。每条需体现人物评论、回复、点赞、视频、配图、屏蔽、提醒、时间等朋友圈功能。',
-    '做一个 CP 纪念页，标题"我们的第 100 天"，顶部放三张占位图（用灰色方块代替），每张图下写一句短日记，整体用奶油色背景 + 米白卡片，手写体中文字体，有翻页按钮切换不同月份。',
-    '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的小红书笔记内容。每条需体现评论区互动、作者回复、点赞收藏、话题标签、图文 / 短视频配图、好友可见、屏蔽用户、@好友提醒、发布时间、笔记置顶、合集收录、私信催更等小红书平台功能。',
-    '做一个同人社团主页，社团名"**"，顶部是社团 logo 占位和一句宣言"写给所有热爱故事的人"，中间是四张成员卡片（昵称、擅长类型、代表作），底部是招新按钮，整体用水墨中国风。',
-    '帮我做一个极简黑白风个人博客首页，顶部是我的名字「**」和一句话简介"****"，中间列出五篇文章标题和发布日期，hover 时标题有下划线动画，底部放三个社交图标。',
-    '做一个角色扮演打卡页，主角是"你今天扮演的自己"，顶部一个大标题"Day 42"，中间三个打卡区块：今日心情、今日台词、今日小剧场，每个区块配一个表情 emoji 和一句引导语，背景用浅粉渐变。'
-];
+    const previewExamples = [
+        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的抖音作品文案内容。每条需体现评论区回复、置顶评论、点赞收藏、合拍 / 转发、短视频 / 图文配景、私密作品、拉黑屏蔽、@好友提醒、发布时间、同城定位、热门话题、作品置顶等抖音平台功能。',
+        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的贴吧发帖内容。每条需体现楼中楼评论、层主回复、点赞 / 踩、收藏、帖子配图 / 视频、仅吧友可见、拉黑屏蔽、吧内 @提醒、发帖时间、精品帖、置顶帖、楼主追更等贴吧平台功能。',
+        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的朋友圈内容。每条需体现人物评论、回复、点赞、视频、配图、屏蔽、提醒、时间等朋友圈功能。',
+        '做一个 CP 纪念页，标题"我们的第 100 天"，顶部放三张占位图（用灰色方块代替），每张图下写一句短日记，整体用奶油色背景 + 米白卡片，手写体中文字体，有翻页按钮切换不同月份。',
+        '请根据 ** 的性格特点，创作 10 条生动、贴合其个性的小红书笔记内容。每条需体现评论区互动、作者回复、点赞收藏、话题标签、图文 / 短视频配图、好友可见、屏蔽用户、@好友提醒、发布时间、笔记置顶、合集收录、私信催更等小红书平台功能。',
+        '做一个同人社团主页，社团名"**"，顶部是社团 logo 占位和一句宣言"写给所有热爱故事的人"，中间是四张成员卡片（昵称、擅长类型、代表作），底部是招新按钮，整体用水墨中国风。',
+        '帮我做一个极简黑白风个人博客首页，顶部是我的名字「**」和一句话简介"****"，中间列出五篇文章标题和发布日期，hover 时标题有下划线动画，底部放三个社交图标。',
+        '做一个角色扮演打卡页，主角是"你今天扮演的自己"，顶部一个大标题"Day 42"，中间三个打卡区块：今日心情、今日台词、今日小剧场，每个区块配一个表情 emoji 和一句引导语，背景用浅粉渐变。'
+    ];
     let currentExampleIndex = 0;
 
-    // ==================== 初始化 ====================
     document.addEventListener('DOMContentLoaded', () => {
+        // 电脑端默认展开侧边栏
+        if (window.innerWidth > 768) {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.remove('collapsed');
+            mainContent.classList.remove('expanded');
+        }
+
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.documentElement.removeAttribute('data-theme');
@@ -1672,7 +1649,6 @@ const previewExamples = [
         renameConvId = null;
     }
 
-    // 关闭所有下拉菜单，重置样式
     function closeAllDropdowns() {
         document.querySelectorAll('.history-dropdown.open').forEach(d => {
             d.classList.remove('open');
@@ -1705,7 +1681,6 @@ const previewExamples = [
         sendMessage();
     }
 
-    // ==================== 群聊创建面板 ====================
     function openCreateGroupPanel() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '👥 新建群聊（功能测试中）';
@@ -1780,13 +1755,11 @@ const previewExamples = [
         loadCurrentConversation();
         closeModal();
 
-        // 群聊创建后输入框保持空白，并自动获得焦点
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
         document.getElementById('userInput').focus();
     }
 
-    // ==================== 新建角色对话 ====================
     function openCharacterSelectForNewChat() {
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = '🎭 选择角色';
@@ -1836,7 +1809,6 @@ const previewExamples = [
         loadCurrentConversation();
         closeModal();
 
-        // 输入框保持空白，自动获得焦点
         document.getElementById('userInput').value = '';
         document.getElementById('userInput').dispatchEvent(new Event('input'));
         document.getElementById('userInput').focus();
@@ -2055,7 +2027,6 @@ const previewExamples = [
     }
     function closeApiKeyModal() { document.getElementById('apiKeyModal').classList.remove('active'); }
 
-    // ==================== 收藏 ====================
     function openFavoriteModal() {
         document.getElementById('favoriteModal').classList.add('active');
         document.getElementById('favoriteSearchInput').value = '';
@@ -2094,7 +2065,6 @@ const previewExamples = [
     }
 
     function showFullFavorite(content, convTitle) {
-        // 不再关闭收藏栏，仅打开原文弹窗
         const modal = document.getElementById('genericModal');
         document.getElementById('modalTitle').innerHTML = `📖 原文 - ${convTitle || '收藏'}`;
         document.getElementById('modalBody').innerHTML = `
@@ -2138,14 +2108,13 @@ const previewExamples = [
     }
     function loadFavorites() { const stored = localStorage.getItem('my_favorites'); if(stored) favorites = JSON.parse(stored); else favorites = []; }
     function saveFavorites() { localStorage.setItem('my_favorites', JSON.stringify(favorites)); }
+
     function addFavorite(convId, msgId, content, role, convTitle) {
         if (favorites.some(f => f.id === msgId)) return;
         favorites.push({ id: msgId, convId, content, role, timestamp: Date.now(), convTitle });
         saveFavorites();
-        alert('已收藏');
     }
 
-    // ==================== 导出 ====================
     let pendingExportConvId = null;
     function openExportModal(convId) {
         pendingExportConvId = convId;
@@ -2196,7 +2165,6 @@ const previewExamples = [
         alert(`✅ 已导出`);
     }
 
-    // ==================== 编辑消息 ====================
     window.editMessage = function(msgId, role) {
         if (role !== 'user') return;
         const conv = conversations.find(c => c.id == currentConvId);
@@ -2224,7 +2192,6 @@ const previewExamples = [
         await sendMessageWithContext(newContent);
     }
 
-    // ==================== 预览网页 ====================
     function previewAsWebpage(content) {
         let htmlContent = content;
         const codeBlockMatch = content.match(/```html?([\s\S]*?)```/i);
@@ -2236,7 +2203,6 @@ const previewExamples = [
     }
     function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
 
-    // ==================== 指令 & 角色数据 ====================
     function loadInstructions() {
         const stored = localStorage.getItem('my_instructions');
         if (stored) instructions = JSON.parse(stored);
@@ -2270,7 +2236,6 @@ const previewExamples = [
     }
     function saveRoles() { localStorage.setItem('my_roles', JSON.stringify(roles)); }
 
-    // ==================== 指令市场 ====================
     function openMarketModal() {
         currentModalType = 'market';
         const modal = document.getElementById('genericModal');
@@ -2336,7 +2301,6 @@ const previewExamples = [
         closeModal();
     }
 
-    // ==================== 指令管理 ====================
     function openManageModal() {
         currentModalType = 'manage';
         const modal = document.getElementById('genericModal');
@@ -2491,7 +2455,6 @@ const previewExamples = [
         }
     }
 
-    // ==================== 角色卡管理 ====================
     function openRoleModal() {
         currentModalType = 'role';
         const modal = document.getElementById('genericModal');
@@ -2712,7 +2675,6 @@ const previewExamples = [
         }
     }
 
-    // ==================== 对话管理 ====================
     function loadConversations() {
         const saved = localStorage.getItem('my_conversations');
         if (saved) conversations = JSON.parse(saved);
@@ -2723,7 +2685,6 @@ const previewExamples = [
     }
     function saveConversations() { localStorage.setItem('my_conversations', JSON.stringify(conversations)); updateStorageInfo(); renderHistoryList(); }
 
-    // ========== 渲染历史列表（置顶 + 三点菜单 + 长按） ==========
     function renderHistoryList() {
         const container = document.getElementById('historyList');
         if (!container) return;
@@ -2752,7 +2713,6 @@ const previewExamples = [
                 >
                     <span class="history-title">${escapedTitle}</span>
                     <div class="history-actions">
-                        <!-- 三点 SVG 图标 -->
                         <button class="history-more-btn" onclick="event.stopPropagation(); toggleDropdown(event, '${conv.id}')" title="更多操作">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <circle cx="6" cy="12" r="2"/>
@@ -2760,7 +2720,6 @@ const previewExamples = [
                                 <circle cx="18" cy="12" r="2"/>
                             </svg>
                         </button>
-                        <!-- 下拉菜单 - 绝对定位在 .history-item 内，右对齐 -->
                         <div class="history-dropdown" id="dropdown_${conv.id}">
                             <div class="history-dropdown-item" onclick="event.stopPropagation(); togglePin('${conv.id}'); closeAllDropdowns();">
                                 <span class="icon">${pinIcon}</span> ${pinLabel}
@@ -2821,13 +2780,11 @@ const previewExamples = [
         }
     }
 
-    // ===== 显示下拉菜单（共用） =====
     function showDropdownForItem(convId) {
         closeAllDropdowns();
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
 
-        // 获取父级 .history-item
         const item = dropdown.closest('.history-item');
         if (!item) return;
 
@@ -2835,17 +2792,13 @@ const previewExamples = [
         const menuHeight = dropdown.scrollHeight || 200;
         const viewportHeight = window.innerHeight;
 
-        // 计算 top：根据 item 在视口中的位置决定向下或向上展开
         let top;
         if (rect.top < viewportHeight / 2) {
-            // 在上半部分，向下展开
-            top = item.offsetHeight + 4; // 相对于 item 顶部
-            // 如果超出底部，则改为向上
+            top = item.offsetHeight + 4;
             if (rect.top + top + menuHeight > viewportHeight - 10) {
                 top = -menuHeight - 4;
             }
         } else {
-            // 在下半部分，向上展开
             top = -menuHeight - 4;
             if (rect.top + top < 10) {
                 top = item.offsetHeight + 4;
@@ -2863,7 +2816,6 @@ const previewExamples = [
         const dropdown = document.getElementById(`dropdown_${convId}`);
         if (!dropdown) return;
 
-        // 如果已经打开则关闭
         if (dropdown.classList.contains('open')) {
             closeAllDropdowns();
             return;
@@ -2875,16 +2827,6 @@ const previewExamples = [
     function showDropdownForConv(event, convId) {
         event.preventDefault();
         showDropdownForItem(convId);
-    }
-
-    // ===== 重置所有下拉 =====
-    function closeAllDropdowns() {
-        document.querySelectorAll('.history-dropdown.open').forEach(d => {
-            d.classList.remove('open');
-            d.style.top = '';
-            d.style.bottom = '';
-        });
-        currentOpenDropdown = null;
     }
 
     function togglePin(convId) {
@@ -2985,7 +2927,6 @@ const previewExamples = [
         closeAllDropdowns();
     };
 
-    // ==================== 加载当前对话（含角色对话横幅和皮肤） ====================
     function loadCurrentConversation() {
         const conv = conversations.find(c => c.id == currentConvId);
         const container = document.getElementById('chatMessages');
@@ -3039,7 +2980,6 @@ const previewExamples = [
         refreshTokenDisplay();
     }
 
-    // ==================== renderMessage ====================
     function renderMessage(msg, idx) {
         const container = document.getElementById('chatMessages');
         const wrapper = document.createElement('div');
@@ -3064,8 +3004,8 @@ const previewExamples = [
                     <span style="font-size:1rem; line-height:1;">↻</span>
                     <span class="tooltip">重新生成</span>
                 </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
-                    <span style="font-size:1rem; line-height:1;">☆</span>
+                <button class="msg-action fav-btn" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
+                    <span style="font-size:1rem; line-height:1;">${favorites.some(f => f.id === msgId) ? '★' : '☆'}</span>
                     <span class="tooltip">收藏</span>
                 </button>
                 <button class="msg-action" onclick="deleteMessage('${msgId}')">
@@ -3083,8 +3023,8 @@ const previewExamples = [
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                     <span class="tooltip">编辑</span>
                 </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
-                    <span style="font-size:1rem; line-height:1;">☆</span>
+                <button class="msg-action fav-btn" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
+                    <span style="font-size:1rem; line-height:1;">${favorites.some(f => f.id === msgId) ? '★' : '☆'}</span>
                     <span class="tooltip">收藏</span>
                 </button>
                 <button class="msg-action" onclick="deleteMessage('${msgId}')">
@@ -3109,33 +3049,194 @@ const previewExamples = [
         container.appendChild(wrapper);
     }
 
-    // ==================== 工具栏函数 ====================
-    window.toggleFavoriteWrapper = (id, convId, content, role, convTitle) => {
-        if (favorites.some(f => f.id == id)) removeFavorite(id);
-        else addFavorite(convId, id, content, role, convTitle);
-    };
-    window.deleteMessage = (id) => {
-        if (confirm('删除这条消息？')) {
-            for (let c of conversations) {
-                c.messages = c.messages.filter(m => m.id != id);
-            }
-            saveConversations();
-            loadCurrentConversation();
+    window.toggleFavoriteWrapper = function(id, convId, content, role, convTitle) {
+        const isFavorited = favorites.some(f => f.id === id);
+        if (isFavorited) {
+            favorites = favorites.filter(f => f.id !== id);
+            saveFavorites();
+            updateFavoriteIcon(id, false);
+        } else {
+            if (favorites.some(f => f.id === id)) return;
+            favorites.push({ id: id, convId, content, role, timestamp: Date.now(), convTitle });
+            saveFavorites();
+            updateFavoriteIcon(id, true);
         }
     };
+
+    function updateFavoriteIcon(id, isFavorited) {
+        const msgElement = document.querySelector(`.message-wrapper[data-msgid="${id}"]`);
+        if (!msgElement) return;
+        const favBtn = msgElement.querySelector('.fav-btn');
+        if (!favBtn) return;
+        const starSpan = favBtn.querySelector('span');
+        if (starSpan) {
+            starSpan.textContent = isFavorited ? '★' : '☆';
+        }
+    }
+
+    window.deleteMessage = function(id) {
+        if (!confirm('删除这条消息？')) return;
+
+        const msgElement = document.querySelector(`.message-wrapper[data-msgid="${id}"]`);
+        if (msgElement) {
+            msgElement.remove();
+        }
+
+        for (let c of conversations) {
+            c.messages = c.messages.filter(m => m.id != id);
+        }
+        saveConversations();
+
+        const conv = conversations.find(c => c.id == currentConvId);
+        if (conv && conv.messages.length === 0) {
+            const container = document.getElementById('chatMessages');
+            const oldWelcome = container.querySelector('.welcome-message');
+            if (oldWelcome) oldWelcome.remove();
+            const welcome = document.createElement('div');
+            welcome.className = 'welcome-message';
+            welcome.textContent = '✨ 欢迎！输入你的问题，我会用心回答你 ✨';
+            container.appendChild(welcome);
+        }
+    };
+
     window.copyMessage = (txt) => { navigator.clipboard.writeText(txt); alert('已复制'); };
-    window.regenerateAI = async (msgId) => {
+
+    window.regenerateAI = async (id) => {
         const conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
-        const msgIndex = conv.messages.findIndex(m => m.id == msgId);
-        if (msgIndex <= 0) return;
+
+        const msgIndex = conv.messages.findIndex(m => m.id == id);
+        if (msgIndex <= 0) {
+            alert('无法重新生成：未找到对应的用户消息');
+            return;
+        }
+
         const userMsg = conv.messages[msgIndex - 1];
-        if (!userMsg || userMsg.role !== 'user') return;
+        if (!userMsg || userMsg.role !== 'user') {
+            alert('无法重新生成：前一条消息不是用户消息');
+            return;
+        }
+
         conv.messages = conv.messages.slice(0, msgIndex);
         recalcConvTokens(conv);
         saveConversations();
         loadCurrentConversation();
-        await sendMessageWithContext(userMsg.content);
+
+        const thinkId = addThinkingMessage();
+        const startTime = Date.now();
+
+        try {
+            let messagesToSend = conv.messages.map(msg => ({
+                role: msg.role,
+                content: msg.content
+            }));
+
+            if (memoryStrategy === 'window' && messagesToSend.length > 20) {
+                messagesToSend = messagesToSend.slice(-20);
+            }
+
+            let systemPrompt = null;
+            if (conv.isGroup && conv.groupMemberIds && conv.groupMemberIds.length > 0) {
+                const selectedRoles = roles.filter(r => conv.groupMemberIds.includes(r.id));
+                if (selectedRoles.length > 0) {
+                    systemPrompt = "你是一个多角色群聊模拟器。用户是'用户'。以下是本次群聊中除用户外的所有角色及其设定：\n\n";
+                    selectedRoles.forEach((r, index) => {
+                        systemPrompt += `${index+1}. 角色名：${r.name}\n`;
+                        if (r.personality) systemPrompt += `   性格：${r.personality}\n`;
+                        if (r.background) systemPrompt += `   背景：${r.background}\n`;
+                        if (r.speakingStyle) systemPrompt += `   说话风格：${r.speakingStyle}\n`;
+                        if (r.catchphrases) systemPrompt += `   口头禅：${r.catchphrases}\n`;
+                        systemPrompt += `\n`;
+                    });
+                    if (deepThinkEnabled) {
+                        systemPrompt += `\n【深度思考模式已开启】\n对于每一轮对话，你必须先分别输出每个角色的内心思考（格式：【角色名 的内心思考】：...），然后再输出该角色的正式发言（格式：【角色名】：...）。每个角色都必须独立思考和发言，严格按照其设定。`;
+                    } else {
+                        systemPrompt += `\n回复时，请直接以【角色名】：... 的格式输出每个角色的发言，不需要思考过程。每个角色都必须根据其设定独立发言。`;
+                    }
+                }
+            }
+
+            if (conv.isCharacter && conv.characterId) {
+                const role = roles.find(r => r.id == conv.characterId);
+                if (role) {
+                    systemPrompt = `你现在是角色「${role.name}」。请完全以该角色的身份进行对话。\n`;
+                    if (role.personality) systemPrompt += `性格：${role.personality}\n`;
+                    if (role.background) systemPrompt += `背景：${role.background}\n`;
+                    if (role.appearance) systemPrompt += `外貌：${role.appearance}\n`;
+                    if (role.speakingStyle) systemPrompt += `说话风格：${role.speakingStyle}\n`;
+                    if (role.catchphrases) systemPrompt += `口头禅：${role.catchphrases}\n`;
+                    systemPrompt += `\n请用${role.name}的身份回复用户的消息，保持角色一致性。`;
+                    if (deepThinkEnabled) {
+                        systemPrompt += `\n【深度思考模式已开启】\n在回复之前，请先输出角色的内心思考（格式：【内心思考】：...），然后再输出发言。`;
+                    }
+                }
+            }
+
+            if (systemPrompt) {
+                messagesToSend.unshift({ role: 'system', content: systemPrompt });
+            }
+
+            const requestBody = {
+                model: currentModel,
+                messages: messagesToSend,
+                stream: false
+            };
+            if (deepThinkEnabled) {
+                requestBody.reasoning_effort = "high";
+                requestBody.extra_body = { thinking: { type: "enabled" } };
+            }
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+                body: JSON.stringify(requestBody)
+            });
+            if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+
+            const data = await response.json();
+            const aiContent = data.choices[0].message.content;
+            const reasoningContent = data.choices[0].message.reasoning_content || null;
+
+            const endTime = Date.now();
+            const elapsedSeconds = (endTime - startTime) / 1000;
+
+            const aiCharCount = countChars(aiContent);
+            const aiTokens = estimateTokens(aiContent);
+            const reasoningCharCount = reasoningContent ? countChars(reasoningContent) : 0;
+            const reasoningTokens = reasoningContent ? estimateTokens(reasoningContent) : 0;
+            const totalAITokens = aiTokens + reasoningTokens;
+            let aiTokenInfo = '';
+            if (reasoningContent) {
+                aiTokenInfo = `思考 ${reasoningCharCount} 字，正文 ${aiCharCount} 字，约 ${totalAITokens} tokens`;
+            } else {
+                aiTokenInfo = `正文 ${aiCharCount} 字，约 ${aiTokens} tokens`;
+            }
+
+            removeThinkingMessage(thinkId);
+
+            const aiid = saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
+            const aiMsg = conv.messages.find(m => m.id == aiid);
+            if (aiMsg) {
+                aiMsg.tokenInfo = aiTokenInfo;
+                aiMsg.tokens = totalAITokens;
+                aiMsg.charCount = aiCharCount;
+                aiMsg.reasoningCharCount = reasoningCharCount;
+                if (reasoningContent) {
+                    aiMsg.thought = reasoningContent;
+                    aiMsg.thinkingTime = elapsedSeconds;
+                }
+                conv.totalTokens = (conv.totalTokens || 0) + totalAITokens;
+            }
+            saveConversations();
+
+            loadCurrentConversation();
+            refreshTokenDisplay();
+
+        } catch (e) {
+            removeThinkingMessage(thinkId);
+            const errorMsg = `出错：${e.message}`;
+            addMessageToDOM(errorMsg, 'ai');
+        }
     };
 
     function recalcConvTokens(conv) {
@@ -3146,7 +3247,6 @@ const previewExamples = [
         conv.totalTokens = totalTokens;
     }
 
-    // ==================== 发送消息（含群聊和角色对话的系统指令） ====================
     async function sendMessageWithContext(content) {
         DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
         if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
@@ -3316,7 +3416,6 @@ const previewExamples = [
         inp.value = '';
     }
 
-    // ==================== addMessageToDOM ====================
     function addMessageToDOM(content, role, thought = null, tokenInfo = null) {
         const container = document.getElementById('chatMessages');
         const welcome = container.querySelector('.welcome-message');
@@ -3344,8 +3443,8 @@ const previewExamples = [
                     <span style="font-size:1rem; line-height:1;">↻</span>
                     <span class="tooltip">重新生成</span>
                 </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
-                    <span style="font-size:1rem; line-height:1;">☆</span>
+                <button class="msg-action fav-btn" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
+                    <span style="font-size:1rem; line-height:1;">${favorites.some(f => f.id === id) ? '★' : '☆'}</span>
                     <span class="tooltip">收藏</span>
                 </button>
                 <button class="msg-action" onclick="deleteMessage('${id}')">
@@ -3363,8 +3462,8 @@ const previewExamples = [
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                     <span class="tooltip">编辑</span>
                 </button>
-                <button class="msg-action" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
-                    <span style="font-size:1rem; line-height:1;">☆</span>
+                <button class="msg-action fav-btn" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
+                    <span style="font-size:1rem; line-height:1;">${favorites.some(f => f.id === id) ? '★' : '☆'}</span>
                     <span class="tooltip">收藏</span>
                 </button>
                 <button class="msg-action" onclick="deleteMessage('${id}')">
