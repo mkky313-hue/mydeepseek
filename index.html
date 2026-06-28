@@ -1822,16 +1822,37 @@
             container.innerHTML = text.replace(/\*\*/g, '<strong>**</strong>');
         }
     }
-    function openPreviewWebModal() {
-        currentExampleIndex = Math.floor(Math.random() * previewExamples.length);
-        updateExampleDisplay();
-        document.getElementById('previewWebModal').classList.add('active');
+function openPreviewWebModal() {
+    // 如果“预览模式”已开启，则关闭它（按钮变暗）
+    if (previewModeEnabled) {
+        previewModeEnabled = false;
+        const previewBtn = document.getElementById('previewModeBtn');
+        if (previewBtn) {
+            previewBtn.classList.remove('active');
+        }
+        return; // 结束执行，不再打开弹窗
     }
+
+    // 如果“预览模式”未开启，则打开预览弹窗
+    currentExampleIndex = Math.floor(Math.random() * previewExamples.length);
+    updateExampleDisplay();
+    document.getElementById('previewWebModal').classList.add('active');
+}
     function closePreviewWebModal() {
         document.getElementById('previewWebModal').classList.remove('active');
     }
 function startCreation() {
+    // 1. 关闭预览弹窗
     closePreviewWebModal();
+    
+    // 2. 开启“预览模式”，并让按钮高亮
+    previewModeEnabled = true;
+    const previewBtn = document.getElementById('previewModeBtn');
+    if (previewBtn) {
+        previewBtn.classList.add('active');
+    }
+
+    // 3. 将当前示例文本填入输入框
     const text = previewExamples[currentExampleIndex];
     document.getElementById('userInput').value = text;
     document.getElementById('userInput').dispatchEvent(new Event('input'));
