@@ -3271,7 +3271,7 @@ function renderMessage(msg, idx) {
                 <span style="font-size:1rem; line-height:1;">↻</span>
                 <span class="tooltip">重新生成</span>
             </button>
-            <button class="msg-action fav-btn" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${escapeHtml(msg.content)}','${msg.role}','${escapeHtml(conversations.find(c=>c.id==currentConvId).title)}')">
+            <button class="msg-action fav-btn" onclick="toggleFavoriteWrapper('${msgId}','${currentConvId}','${encodeURIComponent(msg.content)}','${msg.role}','${encodeURIComponent(conversations.find(c=>c.id==currentConvId).title)}')">
                 <span style="font-size:1rem; line-height:1;">${favorites.some(f => f.id === msgId) ? '★' : '☆'}</span>
                 <span class="tooltip">收藏</span>
             </button>
@@ -3279,7 +3279,7 @@ function renderMessage(msg, idx) {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                 <span class="tooltip">删除</span>
             </button>
-            <button class="msg-action" onclick="copyMessage('${escapeHtml(msg.content)}')">
+            <button class="msg-action" onclick="copyMessage('${encodeURIComponent(msg.content)}')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                 <span class="tooltip">复制</span>
             </button>
@@ -3316,19 +3316,21 @@ function renderMessage(msg, idx) {
 
     container.appendChild(wrapper);
 }
-    window.toggleFavoriteWrapper = function(id, convId, content, role, convTitle) {
-        const isFavorited = favorites.some(f => f.id === id);
-        if (isFavorited) {
-            favorites = favorites.filter(f => f.id !== id);
-            saveFavorites();
-            updateFavoriteIcon(id, false);
-        } else {
-            if (favorites.some(f => f.id === id)) return;
-            favorites.push({ id: id, convId, content, role, timestamp: Date.now(), convTitle });
-            saveFavorites();
-            updateFavoriteIcon(id, true);
-        }
-    };
+window.toggleFavoriteWrapper = function(id, convId, encodedContent, role, encodedConvTitle) {
+    const content = decodeURIComponent(encodedContent);
+    const convTitle = decodeURIComponent(encodedConvTitle);
+    const isFavorited = favorites.some(f => f.id === id);
+    if (isFavorited) {
+        favorites = favorites.filter(f => f.id !== id);
+        saveFavorites();
+        updateFavoriteIcon(id, false);
+    } else {
+        if (favorites.some(f => f.id === id)) return;
+        favorites.push({ id: id, convId, content, role, timestamp: Date.now(), convTitle });
+        saveFavorites();
+        updateFavoriteIcon(id, true);
+    }
+};
 
     function updateFavoriteIcon(id, isFavorited) {
         const msgElement = document.querySelector(`.message-wrapper[data-msgid="${id}"]`);
@@ -3366,7 +3368,14 @@ function renderMessage(msg, idx) {
         }
     };
 
-    window.copyMessage = (txt) => { navigator.clipboard.writeText(txt); alert('已复制'); };
+    window.copyMessage = (encodedTxt) => {
+    const txt = decodeURIComponent(encodedTxt);
+    navigator.clipboard.writeText(txt).then(() => {
+        alert('已复制');
+    }).catch(() => {
+        alert('复制失败，请手动复制');
+    });
+};
 
     window.regenerateAI = async (id) => {
         const conv = conversations.find(c => c.id == currentConvId);
@@ -3741,7 +3750,7 @@ async function sendMessageWithContext(content) {
                     <span style="font-size:1rem; line-height:1;">↻</span>
                     <span class="tooltip">重新生成</span>
                 </button>
-                <button class="msg-action fav-btn" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${escapeHtml(content)}','${role}','${escapeHtml(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
+                <button class="msg-action fav-btn" onclick="toggleFavoriteWrapper('${id}','${currentConvId}','${encodeURIComponent(content)}','${role}','${encodeURIComponent(conversations.find(c=>c.id==currentConvId)?.title||'')}')">
                     <span style="font-size:1rem; line-height:1;">${favorites.some(f => f.id === id) ? '★' : '☆'}</span>
                     <span class="tooltip">收藏</span>
                 </button>
@@ -3749,7 +3758,7 @@ async function sendMessageWithContext(content) {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                     <span class="tooltip">删除</span>
                 </button>
-                <button class="msg-action" onclick="copyMessage('${escapeHtml(content)}')">
+                <button class="msg-action" onclick="copyMessage('${encodeURIComponent(content)}')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     <span class="tooltip">复制</span>
                 </button>
