@@ -1407,7 +1407,7 @@
     transform: rotate(180deg);
 }
 .thought-body {
-    padding: 0 14px 12px 4px;        /* 左侧留极小空间，文字紧贴竖线 */
+    padding: 0 14px 12px 0px;        /* 左侧留极小空间，文字紧贴竖线 */
     font-size: 0.82rem;
     line-height: 1.7;
     color: var(--text-secondary);
@@ -1419,7 +1419,7 @@
     background: var(--code-bg);
     border-top: 1px solid var(--border-color);
     border-left: 3px solid var(--accent-color);
-    margin-left: 0;                 /* 取消左缩进，竖线就在容器左边缘 */
+    margin-left: 0;                 
 }
 .thought-body.open {
     max-height: 600px;
@@ -3420,14 +3420,40 @@ window.toggleFavoriteWrapper = function(id, convId, encodedContent, role, encode
         }
     };
 
-    window.copyMessage = (encodedTxt) => {
+window.copyMessage = function(encodedTxt) {
     const txt = decodeURIComponent(encodedTxt);
-    navigator.clipboard.writeText(txt).then(() => {
-        alert('已复制');
-    }).catch(() => {
-        alert('复制失败，请手动复制');
-    });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(() => {
+            alert('已复制');
+        }).catch(() => {
+            fallbackCopyText(txt);
+        });
+    } else {
+        fallbackCopyText(txt);
+    }
 };
+
+function fallbackCopyText(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+        const success = document.execCommand('copy');
+        if (success) {
+            alert('已复制');
+        } else {
+            alert('复制失败，请手动复制');
+        }
+    } catch (e) {
+        alert('复制失败，请手动复制');
+    }
+    document.body.removeChild(textarea);
+}
 
     window.regenerateAI = async (id) => {
         const conv = conversations.find(c => c.id == currentConvId);
