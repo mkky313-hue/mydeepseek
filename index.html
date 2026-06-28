@@ -1507,7 +1507,7 @@
                 </div>
                 <div class="action-buttons">
                     <button class="action-btn" id="deepThinkBtn" onclick="toggleDeepThink()">🧠 深度思考</button>
-                    <button class="action-btn" id="previewModeBtn" onclick="togglePreviewMode()">🔮 预览网页</button>
+                    <button class="action-btn" id="previewModeBtn" onclick="openPreviewWebModal()">🔮 预览网页</button>
                 </div>
             </div>
         </div>
@@ -1783,17 +1783,19 @@
             currentExampleIndex = (currentExampleIndex + 1) % previewExamples.length;
             updateExampleDisplay();
         });
-document.getElementById('copyExampleBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    const text = previewExamples[currentExampleIndex];
-    const input = document.getElementById('userInput');
-    if (input) {
-        input.value = text;
-        input.dispatchEvent(new Event('input'));
-        input.focus();
-        alert('✅ 已复制到输入框');
-    }
-});
+        document.getElementById('copyExampleBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const text = previewExamples[currentExampleIndex];
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ 已复制到剪贴板，可粘贴到输入框使用');
+            }).catch(() => {
+                const input = document.getElementById('userInput');
+                if (input) {
+                    input.value = text;
+                    input.dispatchEvent(new Event('input'));
+                    alert('✅ 已复制到输入框');
+                }
+            });
         });
         document.getElementById('startCreationBtn').addEventListener('click', startCreation);
     });
@@ -1820,38 +1822,21 @@ document.getElementById('copyExampleBtn').addEventListener('click', (e) => {
             container.innerHTML = text.replace(/\*\*/g, '<strong>**</strong>');
         }
     }
-function togglePreviewMode() {
-    if (previewModeEnabled) {
-        // 关闭预览模式
-        previewModeEnabled = false;
-        document.getElementById('previewModeBtn').classList.remove('active');
-        // 如果引导弹窗还开着，也关闭它（但通常不会）
-        document.getElementById('previewWebModal').classList.remove('active');
-    } else {
-        // 开启预览模式（打开引导弹窗）
-        openPreviewWebModal();
+    function openPreviewWebModal() {
+        currentExampleIndex = Math.floor(Math.random() * previewExamples.length);
+        updateExampleDisplay();
+        document.getElementById('previewWebModal').classList.add('active');
     }
-}
-function openPreviewWebModal() {
-    previewModeEnabled = true;
-    document.getElementById('previewModeBtn').classList.add('active');
-    currentExampleIndex = Math.floor(Math.random() * previewExamples.length);
-    updateExampleDisplay();
-    document.getElementById('previewWebModal').classList.add('active');
-}
-function closePreviewWebModal() {
-    document.getElementById('previewWebModal').classList.remove('active');
-    // 注意：这里不要自动关闭预览模式，因为用户可能只是关闭了弹窗但还想继续使用预览模式。
-    // 但根据优秀网页的设计，关闭弹窗并不关闭预览模式，预览模式仍生效。
-    // 所以这里保持 previewModeEnabled 不变。
-}
-function startCreation() {
-    closePreviewWebModal();
-    previewModeEnabled = true;
-    document.getElementById('previewModeBtn').classList.add('active');
-    // 给用户一个简单的反馈（可选）
-    alert('✅ 预览网页已开启，发送消息即可生成 HTML 代码');
-}
+    function closePreviewWebModal() {
+        document.getElementById('previewWebModal').classList.remove('active');
+    }
+    function startCreation() {
+        closePreviewWebModal();
+        const text = previewExamples[currentExampleIndex];
+        document.getElementById('userInput').value = text;
+        document.getElementById('userInput').dispatchEvent(new Event('input'));
+        document.getElementById('userInput').focus();
+    }
 
     function openCreateGroupPanel() {
         const modal = document.getElementById('genericModal');
