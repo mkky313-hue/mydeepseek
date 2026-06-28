@@ -1408,6 +1408,7 @@
 }
 .thought-body {
     padding: 0 14px 12px 0px;        /* 左侧留极小空间，文字紧贴竖线 */
+    margin-left: 0;             /* 取消左缩进，竖线就在容器左侧 */
     font-size: 0.82rem;
     line-height: 1.7;
     color: var(--text-secondary);
@@ -1418,8 +1419,7 @@
     transition: max-height 0.35s ease, padding 0.35s ease, border-color 0.3s;
     background: var(--code-bg);
     border-top: 1px solid var(--border-color);
-    border-left: 3px solid var(--accent-color);
-    margin-left: 0;                 
+    border-left: 3px solid var(--accent-color);             
 }
 .thought-body.open {
     max-height: 600px;
@@ -2948,14 +2948,37 @@ window.toggleCodeBlock = function(id) {
         }
     }
 
-    function loadConversations() {
-        const saved = localStorage.getItem('my_conversations');
-        if (saved) conversations = JSON.parse(saved);
-        else { const id = Date.now().toString(); conversations = [{ id, title: '新对话', messages: [], totalTokens: 0, pinned: false }]; currentConvId = id; saveConversations(); }
-        if (!currentConvId && conversations.length) currentConvId = conversations[0].id;
-        renderHistoryList();
-        loadCurrentConversation();
+function loadConversations() {
+    const saved = localStorage.getItem('my_conversations');
+    if (saved) {
+        conversations = JSON.parse(saved);
+        // ========== 新增迁移逻辑 ==========
+        // 为所有包含思考过程的消息补全 thoughtCollapsed 字段（默认 false，即展开）
+        let needSave = false;
+        for (let conv of conversations) {
+            if (conv.messages) {
+                for (let msg of conv.messages) {
+                    if (msg.thought && msg.thoughtCollapsed === undefined) {
+                        msg.thoughtCollapsed = false;
+                        needSave = true;
+                    }
+                }
+            }
+        }
+        if (needSave) {
+            saveConversations(); // 保存补全后的数据
+        }
+        // =================================
+    } else {
+        const id = Date.now().toString();
+        conversations = [{ id, title: '新对话', messages: [], totalTokens: 0, pinned: false }];
+        currentConvId = id;
+        saveConversations();
     }
+    if (!currentConvId && conversations.length) currentConvId = conversations[0].id;
+    renderHistoryList();
+    loadCurrentConversation();
+}
     function saveConversations() { localStorage.setItem('my_conversations', JSON.stringify(conversations)); updateStorageInfo(); renderHistoryList(); }
 
     function renderHistoryList() {
