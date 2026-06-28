@@ -3128,7 +3128,7 @@
         if (!conv) return;
         let released = false;
         for (let msg of conv.messages) {
-            if (msg.role === 'ai' && msg.thought) {
+            if (msg.role === 'assistant' && msg.thought) {
                 delete msg.thought;
                 released = true;
             }
@@ -3224,21 +3224,24 @@ function renderMessage(msg, idx) {
     wrapper.setAttribute('data-msgid', msgId);
 
     // ---------- 如果存在思考内容，在气泡上方添加思考块 ----------
-    if (msg.role === 'ai' && msg.thought) {
+    if (msg.role === 'assistant' && msg.thought) {
         const thoughtId = 'thought-' + msg.id;
         const timeText = msg.thinkingTime ? `（用时${msg.thinkingTime.toFixed(1)}秒）` : '';
         const escapedThought = escapeHtml(msg.thought);
 
         const thoughtWrapper = document.createElement('div');
         thoughtWrapper.className = 'thought-wrapper';
+        const isCollapsed = msg.thoughtCollapsed === true; // 如果存储为 true 表示收起
+        const openClass = isCollapsed ? '' : ' open';
+        const arrowOpenClass = isCollapsed ? '' : ' open';
         thoughtWrapper.innerHTML = `
             <div class="thought-collapse">
                 <div class="thought-header" onclick="toggleThought('${thoughtId}')">
                     <span class="thought-icon">💭</span>
                     <span class="thought-label">已思考${timeText}</span>
-                    <span class="thought-arrow open" id="${thoughtId}-arrow">▼</span>
+                    <span class="thought-arrow${arrowOpenClass}" id="${thoughtId}-arrow">▼</span>
                 </div>
-                <div class="thought-body open" id="${thoughtId}">
+                <div class="thought-body${openClass}" id="${thoughtId}">
                     ${escapedThought}
                 </div>
             </div>
@@ -3251,7 +3254,7 @@ function renderMessage(msg, idx) {
     bubbleDiv.className = 'bubble';
     let rawContent = escapeHtml(msg.content || '');
     let mainContent = '';
-    if (msg.role === 'ai' && previewModeEnabled) {
+    if (msg.role === 'assistant' && previewModeEnabled) {
         mainContent = processHTMLCodeBlocks(rawContent);
     } else {
         mainContent = rawContent.replace(/\n/g, '<br>');
@@ -3262,7 +3265,7 @@ function renderMessage(msg, idx) {
     // ---------- 操作按钮 ----------
     const actionsDiv = document.createElement('div');
     actionsDiv.className = 'message-actions';
-    if (msg.role === 'ai') {
+    if (msg.role === 'assistant') {
         actionsDiv.innerHTML = `
             <button class="msg-action" onclick="regenerateAI('${msgId}')">
                 <span style="font-size:1rem; line-height:1;">↻</span>
@@ -3499,7 +3502,7 @@ function renderMessage(msg, idx) {
         } catch (e) {
             removeThinkingMessage(thinkId);
             const errorMsg = `出错：${e.message}`;
-            addMessageToDOM(errorMsg, 'ai');
+            addMessageToDOM(errorMsg, 'assistant');
         }
     };
 
@@ -3626,7 +3629,7 @@ async function sendMessageWithContext(content) {
         }
 
         removeThinkingMessage(thinkId);
-        addMessageToDOM(aiContent, 'ai', reasoningContent, aiTokenInfo);
+        addMessageToDOM(aiContent, 'assistant', reasoningContent, aiTokenInfo);
 
         const aiMsgId = saveMessageToCurrentConv('assistant', aiContent, reasoningContent);
         const aiMsg = conv.messages.find(m => m.id == aiMsgId);
@@ -3646,7 +3649,7 @@ async function sendMessageWithContext(content) {
 
     } catch (e) {
         removeThinkingMessage(thinkId);
-        addMessageToDOM(`出错：${e.message}`, 'ai');
+        addMessageToDOM(`出错：${e.message}`, 'assistant');
     }
 }
     function renameConv(id) { showRenameDialog(id); }
@@ -3663,7 +3666,7 @@ async function sendMessageWithContext(content) {
         let conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
         const msgId = Date.now() + '-' + Math.random();
-        const msg = { id: msgId, role, content, thought, thinkingTime, timestamp: Date.now() };
+        const msg = { id: msgId, role, content, thought, thinkingTime, thoughtCollapsed: false, timestamp: Date.now() };
         conv.messages.push(msg);
         saveConversations();
 
@@ -3698,7 +3701,7 @@ async function sendMessageWithContext(content) {
         wrapper.setAttribute('data-msgid', id);
 
         // 如果存在思考，先添加思考块（独立于气泡）
-        if (role === 'ai' && thought) {
+        if (role === 'assistant' && thought) {
             const thoughtId = 'thought-' + id;
             const timeText = '';
             const escapedThought = escapeHtml(thought);
@@ -3718,13 +3721,12 @@ async function sendMessageWithContext(content) {
             `;
             wrapper.appendChild(thoughtWrapper);
         }
-
         // 然后创建气泡（只包含回答内容）
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'bubble';
         let rawContent = escapeHtml(content || '');
         let mainContent = '';
-        if (role === 'ai' && previewModeEnabled) {
+        if (role === 'assistant' && previewModeEnabled) {
             mainContent = processHTMLCodeBlocks(rawContent);
         } else {
             mainContent = rawContent.replace(/\n/g, '<br>');
@@ -3733,7 +3735,7 @@ async function sendMessageWithContext(content) {
         wrapper.appendChild(bubbleDiv);
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'message-actions';
-        if (role === 'ai') {
+        if (role === 'assistant') {
             actionsDiv.innerHTML = `
                 <button class="msg-action" onclick="regenerateAI('${id}')">
                     <span style="font-size:1rem; line-height:1;">↻</span>
@@ -3820,12 +3822,24 @@ window.toggleThought = function(id) {
     if (!arrow) return;
     
     const isOpen = body.classList.contains('open');
+    // 切换 DOM 状态
     if (isOpen) {
         body.classList.remove('open');
         arrow.classList.remove('open');
     } else {
         body.classList.add('open');
         arrow.classList.add('open');
+    }
+    
+    // 持久化折叠状态
+    const msgId = id.replace('thought-', '');
+    const conv = conversations.find(c => c.id == currentConvId);
+    if (conv) {
+        const msg = conv.messages.find(m => m.id == msgId);
+        if (msg) {
+            msg.thoughtCollapsed = !isOpen; // true = 收起, false = 展开
+            saveConversations(); // 保存到 localStorage
+        }
     }
 };
     document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
