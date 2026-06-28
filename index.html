@@ -1830,13 +1830,13 @@
     function closePreviewWebModal() {
         document.getElementById('previewWebModal').classList.remove('active');
     }
-    function startCreation() {
-        closePreviewWebModal();
-        const text = previewExamples[currentExampleIndex];
-        document.getElementById('userInput').value = text;
-        document.getElementById('userInput').dispatchEvent(new Event('input'));
-        document.getElementById('userInput').focus();
-    }
+function startCreation() {
+    closePreviewWebModal();
+    const text = previewExamples[currentExampleIndex];
+    document.getElementById('userInput').value = text;
+    document.getElementById('userInput').dispatchEvent(new Event('input'));
+    document.getElementById('userInput').focus();
+}
 
     function openCreateGroupPanel() {
         const modal = document.getElementById('genericModal');
