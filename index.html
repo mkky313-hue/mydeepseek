@@ -2379,86 +2379,102 @@ function startCreation() {
         modal.classList.add('active');
     }
     // ===== 处理AI回复中的HTML代码块 - 折叠显示 =====
-    function processHTMLCodeBlocks(content) {
-        if (!content) return content;
+function processHTMLCodeBlocks(content) {
+    if (!content) return content;
 
-        // 检测 ```html 代码块
-        const htmlRegex = /```html\s*([\s\S]*?)\s*```/gi;
-        const testMatch = content.match(htmlRegex);
-        if (!testMatch) return content;
+    // 检测 ```html 代码块
+    const htmlRegex = /```html\s*([\s\S]*?)\s*```/gi;
+    if (!htmlRegex.test(content)) return escapeHtml(content).replace(/\n/g, '<br>');
 
-        let parts = [];
-        let currentPos = 0;
-        const regex = /```html\s*([\s\S]*?)\s*```/gi;
-        let m;
-        let hasHtmlBlock = false;
+    let parts = [];
+    let currentPos = 0;
+    const regex = /```html\s*([\s\S]*?)\s*```/gi;
+    let m;
+    let hasHtmlBlock = false;
 
-        while ((m = regex.exec(content)) !== null) {
-            if (m.index > currentPos) {
-                parts.push({ type: 'text', content: content.substring(currentPos, m.index) });
-            }
-            const code = m[1];
-            const codeId = 'code-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
-            parts.push({ type: 'html', content: code, id: codeId });
-            currentPos = regex.lastIndex;
-            hasHtmlBlock = true;
+    while ((m = regex.exec(content)) !== null) {
+        if (m.index > currentPos) {
+            // 非代码块部分转义
+            parts.push({ type: 'text', content: escapeHtml(content.substring(currentPos, m.index)) });
         }
-
-        if (currentPos < content.length) {
-            parts.push({ type: 'text', content: content.substring(currentPos) });
-        }
-
-        if (!hasHtmlBlock) return content;
-
-        let html = '';
-        for (const part of parts) {
-            if (part.type === 'text') {
-                html += part.content;
-            } else {
-                const escapedCode = escapeHtml(part.content);
-                html += `
-                    <div class="inline-code-collapse" data-codeid="${part.id}">
-                        <div class="collapse-header" onclick="toggleCodeBlock('${part.id}')">
-                            <span class="code-lang">📄 HTML代码</span>
-                            <span class="code-toggle">
-                                展开
-                                <span class="arrow-icon" id="arrow-${part.id}">▼</span>
-                            </span>
-                        </div>
-                        <div class="collapse-body" id="codebody-${part.id}">
-                            <code>${escapedCode}</code>
-                        </div>
-                        <div class="preview-row">
-                            <button class="preview-inline-btn" onclick="previewAsWebpage('${escapedCode.replace(/'/g, "\\'")}')">🌐 点击预览效果</button>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-        return html;
+        const code = m[1];
+        const codeId = 'code-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+        parts.push({ type: 'html', content: code, id: codeId });
+        currentPos = regex.lastIndex;
+        hasHtmlBlock = true;
     }
 
-    // ===== 切换代码块展开/折叠 =====
-    window.toggleCodeBlock = function(id) {
-        const body = document.getElementById('codebody-' + id);
-        if (!body) return;
-        const container = body.closest('.inline-code-collapse');
-        const header = container ? container.querySelector('.collapse-header') : null;
-        if (!header) return;
+    if (currentPos < content.length) {
+        parts.push({ type: 'text', content: escapeHtml(content.substring(currentPos)) });
+    }
 
-        const isOpen = body.classList.contains('open');
-        const toggleSpan = header.querySelector('.code-toggle');
-        const arrow = document.getElementById('arrow-' + id);
+    if (!hasHtmlBlock) return escapeHtml(content).replace(/\n/g, '<br>');
 
-        if (isOpen) {
-            body.classList.remove('open');
-            if (toggleSpan) toggleSpan.innerHTML = '展开 <span class="arrow-icon" id="arrow-' + id + '">▼</span>';
+    let html = '';
+    for (const part of parts) {
+        if (part.type === 'text') {
+            // 文本部分已经转义，但需要处理换行
+            html += part.content.replace(/\n/g, '<br>');
         } else {
-            body.classList.add('open');
-            if (toggleSpan) toggleSpan.innerHTML = '收起 <span class="arrow-icon open" id="arrow-' + id + '">▼</span>';
+            const escapedCode = escapeHtml(part.content);
+            html += `
+                <div class="inline-code-collapse" data-codeid="${part.id}">
+                    <div class="collapse-header" onclick="toggleCodeBlock('${part.id}')">
+                        <span class="code-lang">📄 HTML代码</span>
+                        <span class="code-toggle">
+                            展开
+                            <span class="arrow-icon" id="arrow-${part.id}">▼</span>
+                        </span>
+                    </div>
+                    <div class="collapse-body" id="codebody-${part.id}">
+                        <code>${escapedCode}</code>
+                    </div>
+                </div>
+            `;
         }
-    };
-    function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
+    }
+    return html;
+}
+
+// 直接预览HTML代码（弹窗）
+function previewHTMLContent(htmlContent) {
+    previewAsWebpage(htmlContent);
+}
+
+// 根据消息ID从对话中提取第一个HTML代码并预览
+function previewMessageHTML(msgId) {
+    const conv = conversations.find(c => c.id == currentConvId);
+    if (!conv) return;
+    const msg = conv.messages.find(m => m.id == msgId);
+    if (!msg || msg.role !== 'assistant') return;
+    const htmlMatch = msg.content.match(/```html\s*([\s\S]*?)\s*```/);
+    if (!htmlMatch) {
+        alert('未找到HTML代码');
+        return;
+    }
+    previewHTMLContent(htmlMatch[1]);
+}
+
+    // ===== 切换代码块展开/折叠 =====
+window.toggleCodeBlock = function(id) {
+    const body = document.getElementById('codebody-' + id);
+    if (!body) return;
+    const container = body.closest('.inline-code-collapse');
+    const header = container ? container.querySelector('.collapse-header') : null;
+    if (!header) return;
+
+    const isOpen = body.classList.contains('open');
+    const toggleSpan = header.querySelector('.code-toggle');
+    const arrow = document.getElementById('arrow-' + id);
+
+    if (isOpen) {
+        body.classList.remove('open');
+        if (toggleSpan) toggleSpan.innerHTML = '展开 <span class="arrow-icon" id="arrow-' + id + '">▼</span>';
+    } else {
+        body.classList.add('open');
+        if (toggleSpan) toggleSpan.innerHTML = '收起 <span class="arrow-icon open" id="arrow-' + id + '">▲</span>';
+    }
+};    function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
 
     function loadInstructions() {
         const stored = localStorage.getItem('my_instructions');
@@ -3271,16 +3287,31 @@ function renderMessage(msg, idx) {
     }
 
     // ---------- 气泡（只包含回答内容） ----------
-    const bubbleDiv = document.createElement('div');
-    bubbleDiv.className = 'bubble';
-    let rawContent = escapeHtml(msg.content || '');
-    let mainContent = '';
-    if (msg.role === 'assistant' && previewModeEnabled) {
-        mainContent = processHTMLCodeBlocks(rawContent);
-    } else {
-        mainContent = rawContent.replace(/\n/g, '<br>');
-    }
-    bubbleDiv.innerHTML = mainContent;
+const bubbleDiv = document.createElement('div');
+bubbleDiv.className = 'bubble';
+const rawContent = msg.content || '';
+let mainContent = '';
+// 对助手消息，检测是否包含 ```html，若包含则调用折叠处理（不再依赖 previewModeEnabled）
+if (msg.role === 'assistant' && rawContent.includes('```html')) {
+    mainContent = processHTMLCodeBlocks(rawContent);
+} else {
+    mainContent = escapeHtml(rawContent).replace(/\n/g, '<br>');
+}
+bubbleDiv.innerHTML = mainContent;
+// 如果助手消息包含 HTML 代码，在气泡内添加预览按钮（右对齐）
+if (msg.role === 'assistant' && rawContent.includes('```html')) {
+    const previewDiv = document.createElement('div');
+    previewDiv.style.textAlign = 'right';
+    previewDiv.style.marginTop = '4px';
+    const previewLink = document.createElement('span');
+    previewLink.style.color = 'blue';
+    previewLink.style.cursor = 'pointer';
+    previewLink.style.fontSize = '0.8rem';
+    previewLink.textContent = '点击预览效果';
+    previewLink.onclick = function() { previewMessageHTML(msgId); };
+    previewDiv.appendChild(previewLink);
+    bubbleDiv.appendChild(previewDiv);
+}
     wrapper.appendChild(bubbleDiv);
 
     // ---------- 操作按钮 ----------
@@ -3752,16 +3783,34 @@ async function sendMessageWithContext(content) {
             wrapper.appendChild(thoughtWrapper);
         }
         // 然后创建气泡（只包含回答内容）
-        const bubbleDiv = document.createElement('div');
-        bubbleDiv.className = 'bubble';
-        let rawContent = escapeHtml(content || '');
-        let mainContent = '';
-        if (role === 'assistant' && previewModeEnabled) {
-            mainContent = processHTMLCodeBlocks(rawContent);
-        } else {
-            mainContent = rawContent.replace(/\n/g, '<br>');
-        }
-        bubbleDiv.innerHTML = mainContent;
+const bubbleDiv = document.createElement('div');
+bubbleDiv.className = 'bubble';
+const rawContent = content || '';
+let mainContent = '';
+if (role === 'assistant' && rawContent.includes('```html')) {
+    mainContent = processHTMLCodeBlocks(rawContent);
+} else {
+    mainContent = escapeHtml(rawContent).replace(/\n/g, '<br>');
+}
+bubbleDiv.innerHTML = mainContent;
+if (role === 'assistant' && rawContent.includes('```html')) {
+    const previewDiv = document.createElement('div');
+    previewDiv.style.textAlign = 'right';
+    previewDiv.style.marginTop = '4px';
+    const previewLink = document.createElement('span');
+    previewLink.style.color = 'blue';
+    previewLink.style.cursor = 'pointer';
+    previewLink.style.fontSize = '0.8rem';
+    previewLink.textContent = '点击预览效果';
+    // 直接提取当前内容的第一个HTML代码
+    previewLink.onclick = function() {
+        const match = rawContent.match(/```html\s*([\s\S]*?)\s*```/);
+        if (match) previewAsWebpage(match[1]);
+        else alert('未找到HTML代码');
+    };
+    previewDiv.appendChild(previewLink);
+    bubbleDiv.appendChild(previewDiv);
+}
         wrapper.appendChild(bubbleDiv);
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'message-actions';
