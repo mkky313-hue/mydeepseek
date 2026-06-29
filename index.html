@@ -3614,7 +3614,7 @@ function fallbackCopyText(text) {
     removeThinkingMessage(thinkId);
     if (e.message.includes('402') || e.message.includes('余额不足')) {
         addMessageToDOM(
-            '<span style="color:red;">❌ 账号余额不足或额度已用完，请前往 <a href="https://platform.deepseek.com/top_up" target="_blank" style="color:red;text-decoration:underline;">DeepSeek Token充值</a></span>',
+            '❌ 账号余额不足或额度已用完，请前往DeepSeek Token充值',
             'assistant'
         );
     } else {
@@ -3771,7 +3771,7 @@ async function sendMessageWithContext(content) {
     // 判断是否为余额不足错误（状态码 402）
     if (e.message.includes('402') || e.message.includes('余额不足')) {
         addMessageToDOM(
-            '<span style="color:red;">❌ 账号余额不足或额度已用完，请前往 <a href="https://platform.deepseek.com/top_up" target="_blank" style="color:red;text-decoration:underline;">DeepSeek Token充值</a></span>',
+            '❌ 账号余额不足或额度已用完，请前往 DeepSeek Token充值',
             'assistant'
         );
     } else {
