@@ -3610,11 +3610,17 @@ function fallbackCopyText(text) {
             loadCurrentConversation();
             refreshTokenDisplay();
 
-        } catch (e) {
-            removeThinkingMessage(thinkId);
-            const errorMsg = `出错：${e.message}`;
-            addMessageToDOM(errorMsg, 'assistant');
-        }
+} catch (e) {
+    removeThinkingMessage(thinkId);
+    if (e.message.includes('402') || e.message.includes('余额不足')) {
+        addMessageToDOM(
+            '<span style="color:red;">❌ 账号余额不足或额度已用完，请前往 <a href="https://platform.deepseek.com/top_up" target="_blank" style="color:red;text-decoration:underline;">DeepSeek Token充值</a></span>',
+            'assistant'
+        );
+    } else {
+        addMessageToDOM(`出错：${e.message}`, 'assistant');
+    }
+}
     };
 
     function recalcConvTokens(conv) {
@@ -3760,10 +3766,18 @@ async function sendMessageWithContext(content) {
         saveConversations();
         refreshTokenDisplay();
 
-    } catch (e) {
-        removeThinkingMessage(thinkId);
+} catch (e) {
+    removeThinkingMessage(thinkId);
+    // 判断是否为余额不足错误（状态码 402）
+    if (e.message.includes('402') || e.message.includes('余额不足')) {
+        addMessageToDOM(
+            '<span style="color:red;">❌ 账号余额不足或额度已用完，请前往 <a href="https://platform.deepseek.com/top_up" target="_blank" style="color:red;text-decoration:underline;">DeepSeek Token充值</a></span>',
+            'assistant'
+        );
+    } else {
         addMessageToDOM(`出错：${e.message}`, 'assistant');
     }
+}
 }
     function renameConv(id) { showRenameDialog(id); }
 
@@ -3839,13 +3853,15 @@ const bubbleDiv = document.createElement('div');
 bubbleDiv.className = 'bubble';
 const rawContent = content || '';
 let mainContent = '';
-if (role === 'assistant' && rawContent.includes('```html')) {
+// 如果是错误消息（以 ❌ 开头），直接作为 HTML 插入，不转义
+if (role === 'assistant' && rawContent.startsWith('❌')) {
+    mainContent = rawContent;
+} else if (role === 'assistant' && rawContent.includes('```html')) {
     mainContent = processHTMLCodeBlocks(rawContent);
 } else {
     mainContent = escapeHtml(rawContent).replace(/\n/g, '<br>');
 }
-bubbleDiv.innerHTML = mainContent;
-if (role === 'assistant' && rawContent.includes('```html')) {
+bubbleDiv.innerHTML = mainContent;if (role === 'assistant' && rawContent.includes('```html')) {
     const previewDiv = document.createElement('div');
     previewDiv.style.textAlign = 'right';
     previewDiv.style.marginTop = '4px';
