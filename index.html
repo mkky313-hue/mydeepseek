@@ -3479,6 +3479,7 @@ function fallbackCopyText(text) {
 }
 
     window.regenerateAI = async (id) => {
+        currentModel = localStorage.getItem('selected_model') || 'deepseek-v4-flash';
         const conv = conversations.find(c => c.id == currentConvId);
         if (!conv) return;
 
@@ -3559,7 +3560,7 @@ function fallbackCopyText(text) {
                 stream: false
             };
             if (deepThinkEnabled) {
-                requestBody.reasoning_effort = "high";
+                requestBody.reasoning_effort = "low";
                 requestBody.extra_body = { thinking: { type: "enabled" } };
             }
 
@@ -3625,6 +3626,8 @@ function fallbackCopyText(text) {
     }
 
 async function sendMessageWithContext(content) {
+    currentModel = localStorage.getItem('selected_model') || 'deepseek-v4-flash';
+    
     DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key');
     if (!DEEPSEEK_API_KEY) { alert('请先设置API Key'); return; }
 
@@ -3709,7 +3712,7 @@ async function sendMessageWithContext(content) {
             messages: messagesToSend,
             stream: false
         };
-        if (deepThinkEnabled) requestBody.reasoning_effort = "medium";
+        if (deepThinkEnabled) requestBody.reasoning_effort = "low";
 
         const response = await fetch(API_URL, {
             method: 'POST',
